@@ -1,0 +1,7 @@
+# Minimal OS junk only — keep almost everything versioned
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# Ignore large project archive
+peva_v0.zip
