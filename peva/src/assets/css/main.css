@@ -1,0 +1,204 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import des variables 2iE GreenHub */
+@import './greenhub-variables.css';
+
+/* Styles personnalisés pour 2iE GreenHub PEVA */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    background-color: var(--greenhub-background);
+    color: var(--greenhub-text-primary);
+  }
+}
+
+@layer components {
+  /* === CARTES === */
+  .peva-card {
+    @apply tw-bg-white tw-rounded-lg tw-shadow-md tw-p-6;
+    background-color: var(--greenhub-surface);
+    box-shadow: var(--greenhub-shadow-md);
+    border-radius: var(--greenhub-radius-lg);
+    transition: var(--greenhub-transition-base);
+  }
+  
+  .peva-card:hover {
+    box-shadow: var(--greenhub-shadow-lg);
+    transform: translateY(-2px);
+  }
+  
+  /* === BOUTONS === */
+  .peva-btn-primary {
+    background-color: var(--greenhub-primary);
+    color: var(--greenhub-text-light);
+    padding: 0.5rem 1rem;
+    border-radius: var(--greenhub-radius-md);
+    transition: var(--greenhub-transition-fast);
+    font-weight: 500;
+  }
+  
+  .peva-btn-primary:hover {
+    background-color: var(--greenhub-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--greenhub-shadow-md);
+  }
+  
+  .peva-btn-secondary {
+    background-color: var(--greenhub-secondary);
+    color: var(--greenhub-text-light);
+    padding: 0.5rem 1rem;
+    border-radius: var(--greenhub-radius-md);
+    transition: var(--greenhub-transition-fast);
+    font-weight: 500;
+  }
+  
+  .peva-btn-secondary:hover {
+    background-color: var(--greenhub-secondary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--greenhub-shadow-md);
+  }
+  
+  .peva-btn-outline {
+    background-color: transparent;
+    color: var(--greenhub-primary);
+    border: 2px solid var(--greenhub-primary);
+    padding: 0.5rem 1rem;
+    border-radius: var(--greenhub-radius-md);
+    transition: var(--greenhub-transition-fast);
+    font-weight: 500;
+  }
+  
+  .peva-btn-outline:hover {
+    background-color: var(--greenhub-primary);
+    color: var(--greenhub-text-light);
+  }
+  
+  /* === BADGES === */
+  .peva-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--greenhub-radius-full);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .peva-badge-primary {
+    background-color: var(--greenhub-primary);
+    color: var(--greenhub-text-light);
+  }
+  
+  .peva-badge-secondary {
+    background-color: var(--greenhub-secondary-lighter);
+    color: var(--greenhub-text-primary);
+  }
+  
+  .peva-badge-success {
+    background-color: var(--greenhub-green);
+    color: var(--greenhub-text-light);
+  }
+  
+  .peva-badge-warning {
+    background-color: var(--greenhub-orange);
+    color: var(--greenhub-text-light);
+  }
+  
+  .peva-badge-error {
+    background-color: var(--greenhub-red);
+    color: var(--greenhub-text-light);
+  }
+  
+  .peva-badge-info {
+    background-color: var(--greenhub-blue);
+    color: var(--greenhub-text-light);
+  }
+  
+  /* === SECTIONS === */
+  .peva-section {
+    padding: var(--greenhub-spacing-2xl) 0;
+  }
+  
+  .peva-section-gradient {
+    background: var(--greenhub-gradient-primary);
+    color: var(--greenhub-text-light);
+  }
+  
+  /* === CONTENEURS === */
+  .peva-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--greenhub-spacing-lg);
+  }
+  
+  /* === TITRES === */
+  .peva-title {
+    color: var(--greenhub-text-primary);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  .peva-title-primary {
+    color: var(--greenhub-primary);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  .peva-subtitle {
+    color: var(--greenhub-text-secondary);
+    font-weight: 400;
+  }
+  
+  /* === LIENS === */
+  .peva-link {
+    color: var(--greenhub-primary);
+    text-decoration: none;
+    transition: var(--greenhub-transition-fast);
+  }
+  
+  .peva-link:hover {
+    color: var(--greenhub-primary-dark);
+    text-decoration: underline;
+  }
+  
+  /* === DIVIDERS === */
+  .peva-divider {
+    height: 1px;
+    background-color: var(--greenhub-border);
+    margin: var(--greenhub-spacing-lg) 0;
+  }
+  
+  .peva-divider-gradient {
+    height: 4px;
+    background: var(--greenhub-gradient-rainbow);
+    border-radius: var(--greenhub-radius-full);
+    margin: var(--greenhub-spacing-lg) 0;
+  }
+  
+  /* === INPUTS === */
+  .peva-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--greenhub-border);
+    border-radius: var(--greenhub-radius-md);
+    transition: var(--greenhub-transition-fast);
+    background-color: var(--greenhub-surface);
+    color: var(--greenhub-text-primary);
+  }
+  
+  .peva-input:focus {
+    outline: none;
+    border-color: var(--greenhub-primary);
+    box-shadow: 0 0 0 3px rgba(0, 176, 80, 0.1);
+  }
+  
+  .peva-input::placeholder {
+    color: var(--greenhub-text-disabled);
+  }
+}

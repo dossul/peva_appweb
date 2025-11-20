@@ -1,0 +1,189 @@
+/**
+ * Variables CSS - Charte Graphique 2iE GreenHub
+ * Basé sur le logo officiel 2iE GreenHub
+ * 
+ * Couleurs principales extraites du logo :
+ * - Vert principal (#00B050) : texte "Green"
+ * - Gris (#808080) : texte "2iE"
+ * - Noir (#1a1a1a) : texte "Hub"
+ * - Barres multicolores : rouge, orange, jaune, vert, bleu
+ */
+
+:root {
+  /* === COULEURS PRINCIPALES === */
+  
+  /* Vert principal du logo */
+  --greenhub-primary: #00B050;
+  --greenhub-primary-light: #26b86d;
+  --greenhub-primary-lighter: #80d6aa;
+  --greenhub-primary-dark: #009944;
+  --greenhub-primary-darker: #008038;
+  
+  /* Gris du logo (2iE) */
+  --greenhub-secondary: #808080;
+  --greenhub-secondary-light: #a3a3a3;
+  --greenhub-secondary-lighter: #c2c2c2;
+  --greenhub-secondary-dark: #6b6b6b;
+  --greenhub-secondary-darker: #565656;
+  
+  /* Noir du logo (Hub) */
+  --greenhub-dark: #1a1a1a;
+  --greenhub-dark-light: #2b2b2b;
+  --greenhub-dark-lighter: #404040;
+  
+  /* === COULEURS DES BARRES === */
+  
+  /* Rouge */
+  --greenhub-red: #E31E24;
+  --greenhub-red-light: #ff4444;
+  --greenhub-red-dark: #b71c1c;
+  
+  /* Orange */
+  --greenhub-orange: #F58220;
+  --greenhub-orange-light: #ff9933;
+  --greenhub-orange-dark: #e65100;
+  
+  /* Jaune */
+  --greenhub-yellow: #FFC20E;
+  --greenhub-yellow-light: #FFD93D;
+  --greenhub-yellow-dark: #ffa000;
+  
+  /* Vert (barre) */
+  --greenhub-green: #00A651;
+  --greenhub-green-light: #00C761;
+  --greenhub-green-dark: #00853f;
+  
+  /* Bleu */
+  --greenhub-blue: #0075C9;
+  --greenhub-blue-light: #3399ff;
+  --greenhub-blue-dark: #005999;
+  
+  /* === COULEURS D'ÉTAT === */
+  --greenhub-success: var(--greenhub-primary);
+  --greenhub-error: var(--greenhub-red);
+  --greenhub-warning: var(--greenhub-orange);
+  --greenhub-info: var(--greenhub-blue);
+  
+  /* === COULEURS DE SURFACE === */
+  --greenhub-surface: #ffffff;
+  --greenhub-surface-light: #f8fafc;
+  --greenhub-surface-dark: #f1f5f9;
+  --greenhub-background: #f8fafc;
+  
+  /* === TEXTE === */
+  --greenhub-text-primary: var(--greenhub-dark);
+  --greenhub-text-secondary: var(--greenhub-secondary);
+  --greenhub-text-light: #ffffff;
+  --greenhub-text-disabled: var(--greenhub-secondary-light);
+  
+  /* === BORDURES === */
+  --greenhub-border: var(--greenhub-secondary-lighter);
+  --greenhub-border-light: #e0e0e0;
+  --greenhub-border-dark: var(--greenhub-secondary);
+  
+  /* === OMBRES === */
+  --greenhub-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --greenhub-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --greenhub-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --greenhub-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  /* === GRADIENTS === */
+  --greenhub-gradient-primary: linear-gradient(135deg, var(--greenhub-primary) 0%, var(--greenhub-green) 100%);
+  --greenhub-gradient-rainbow: linear-gradient(90deg, 
+    var(--greenhub-red) 0%, 
+    var(--greenhub-orange) 20%, 
+    var(--greenhub-yellow) 40%, 
+    var(--greenhub-green) 60%, 
+    var(--greenhub-blue) 80%,
+    var(--greenhub-primary) 100%
+  );
+  
+  /* === TRANSITIONS === */
+  --greenhub-transition-fast: 150ms ease-in-out;
+  --greenhub-transition-base: 300ms ease-in-out;
+  --greenhub-transition-slow: 500ms ease-in-out;
+  
+  /* === ESPACEMENTS === */
+  --greenhub-spacing-xs: 0.25rem;
+  --greenhub-spacing-sm: 0.5rem;
+  --greenhub-spacing-md: 1rem;
+  --greenhub-spacing-lg: 1.5rem;
+  --greenhub-spacing-xl: 2rem;
+  --greenhub-spacing-2xl: 3rem;
+  
+  /* === RADIUS === */
+  --greenhub-radius-sm: 0.25rem;
+  --greenhub-radius-md: 0.5rem;
+  --greenhub-radius-lg: 0.75rem;
+  --greenhub-radius-xl: 1rem;
+  --greenhub-radius-full: 9999px;
+}
+
+/* === MODE SOMBRE === */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --greenhub-primary: #00D060;
+    --greenhub-secondary: #a0a0a0;
+    --greenhub-dark: #e0e0e0;
+    --greenhub-surface: #1e293b;
+    --greenhub-background: #0f172a;
+    --greenhub-text-primary: #e0e0e0;
+    --greenhub-text-secondary: #a0a0a0;
+  }
+}
+
+/* === CLASSES UTILITAIRES === */
+
+/* Couleurs de fond */
+.bg-greenhub-primary { background-color: var(--greenhub-primary); }
+.bg-greenhub-secondary { background-color: var(--greenhub-secondary); }
+.bg-greenhub-red { background-color: var(--greenhub-red); }
+.bg-greenhub-orange { background-color: var(--greenhub-orange); }
+.bg-greenhub-yellow { background-color: var(--greenhub-yellow); }
+.bg-greenhub-green { background-color: var(--greenhub-green); }
+.bg-greenhub-blue { background-color: var(--greenhub-blue); }
+.bg-greenhub-gradient { background: var(--greenhub-gradient-primary); }
+.bg-greenhub-rainbow { background: var(--greenhub-gradient-rainbow); }
+
+/* Couleurs de texte */
+.text-greenhub-primary { color: var(--greenhub-primary); }
+.text-greenhub-secondary { color: var(--greenhub-secondary); }
+.text-greenhub-dark { color: var(--greenhub-dark); }
+.text-greenhub-red { color: var(--greenhub-red); }
+.text-greenhub-orange { color: var(--greenhub-orange); }
+.text-greenhub-yellow { color: var(--greenhub-yellow); }
+.text-greenhub-green { color: var(--greenhub-green); }
+.text-greenhub-blue { color: var(--greenhub-blue); }
+
+/* Bordures */
+.border-greenhub-primary { border-color: var(--greenhub-primary); }
+.border-greenhub-secondary { border-color: var(--greenhub-secondary); }
+
+/* Ombres */
+.shadow-greenhub-sm { box-shadow: var(--greenhub-shadow-sm); }
+.shadow-greenhub-md { box-shadow: var(--greenhub-shadow-md); }
+.shadow-greenhub-lg { box-shadow: var(--greenhub-shadow-lg); }
+.shadow-greenhub-xl { box-shadow: var(--greenhub-shadow-xl); }
+
+/* Transitions */
+.transition-greenhub { transition: all var(--greenhub-transition-base); }
+.transition-greenhub-fast { transition: all var(--greenhub-transition-fast); }
+.transition-greenhub-slow { transition: all var(--greenhub-transition-slow); }
+
+/* Barre rainbow (pour éléments décoratifs comme le logo) */
+.greenhub-rainbow-bar {
+  height: 4px;
+  background: var(--greenhub-gradient-rainbow);
+  border-radius: var(--greenhub-radius-full);
+}
+
+/* Hover effects */
+.hover-greenhub-primary:hover {
+  background-color: var(--greenhub-primary-dark);
+  transition: var(--greenhub-transition-fast);
+}
+
+.hover-greenhub-scale:hover {
+  transform: scale(1.05);
+  transition: var(--greenhub-transition-fast);
+}

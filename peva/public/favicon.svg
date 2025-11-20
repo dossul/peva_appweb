@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond avec gradient subtil -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e6f7ed;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="64" height="64" fill="url(#bgGradient)" rx="12"/>
+  
+  <!-- Lettre G en vert -->
+  <text x="14" y="45" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#00B050">G</text>
+  
+  <!-- Lettre H en noir -->
+  <text x="36" y="45" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#1a1a1a">H</text>
+  
+  <!-- Barre décorative multicolore en bas -->
+  <rect x="8" y="54" width="48" height="3" rx="1.5">
+    <animate attributeName="fill" values="#E31E24;#F58220;#FFC20E;#00A651;#0075C9;#00B050" dur="3s" repeatCount="indefinite"/>
+  </rect>
+</svg>

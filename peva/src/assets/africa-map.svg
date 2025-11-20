@@ -1,0 +1,155 @@
+<svg viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Carte détaillée de l'Afrique -->
+  <g id="africa-continent">
+    <!-- Contour principal de l'Afrique -->
+    <path d="M 450 50 
+             C 470 45, 490 50, 510 55
+             L 530 65 C 550 75, 570 85, 590 100
+             L 610 120 C 630 140, 650 160, 670 185
+             L 690 210 C 710 235, 725 260, 735 290
+             L 745 320 C 750 350, 750 380, 745 410
+             L 735 440 C 725 470, 710 500, 690 525
+             L 670 550 C 650 575, 625 595, 600 610
+             L 575 625 C 550 640, 525 650, 500 655
+             L 475 660 C 450 665, 425 665, 400 660
+             L 375 655 C 350 650, 325 640, 300 625
+             L 275 610 C 250 595, 230 575, 215 550
+             L 200 525 C 185 500, 175 470, 170 440
+             L 165 410 C 160 380, 160 350, 165 320
+             L 170 290 C 175 260, 185 235, 200 210
+             L 215 185 C 230 160, 250 140, 275 120
+             L 300 100 C 325 85, 350 75, 375 65
+             L 400 55 C 420 50, 435 45, 450 50 Z"
+          fill="#22c55e" 
+          opacity="0.1" 
+          stroke="#22c55e" 
+          stroke-width="2"/>
+    
+    <!-- Pays individuels -->
+    <g id="countries">
+      <!-- Maroc -->
+      <path d="M 250 150 L 320 145 L 330 170 L 310 180 L 260 175 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Maroc"/>
+      
+      <!-- Algérie -->
+      <path d="M 320 145 L 420 140 L 430 180 L 400 190 L 330 170 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Algérie"/>
+      
+      <!-- Tunisie -->
+      <path d="M 420 140 L 450 138 L 455 155 L 445 165 L 430 160 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Tunisie"/>
+      
+      <!-- Libye -->
+      <path d="M 450 138 L 520 135 L 530 170 L 500 180 L 455 155 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Libye"/>
+      
+      <!-- Égypte -->
+      <path d="M 520 135 L 580 130 L 590 170 L 560 180 L 530 170 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Égypte"/>
+      
+      <!-- Mauritanie -->
+      <path d="M 200 220 L 270 215 L 280 250 L 250 260 L 210 255 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Mauritanie"/>
+      
+      <!-- Sénégal -->
+      <path d="M 180 280 L 220 275 L 230 300 L 200 310 L 185 295 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Sénégal"/>
+      
+      <!-- Mali -->
+      <path d="M 220 275 L 320 270 L 330 310 L 280 315 L 230 300 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Mali"/>
+      
+      <!-- Burkina Faso -->
+      <path d="M 280 315 L 340 310 L 350 335 L 320 345 L 290 340 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Burkina Faso"/>
+      
+      <!-- Niger -->
+      <path d="M 340 310 L 450 305 L 460 340 L 420 350 L 350 335 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Niger"/>
+      
+      <!-- Tchad -->
+      <path d="M 450 305 L 520 300 L 530 350 L 480 360 L 460 340 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Tchad"/>
+      
+      <!-- Guinée -->
+      <path d="M 200 350 L 250 345 L 260 370 L 230 380 L 210 365 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Guinée"/>
+      
+      <!-- Côte d'Ivoire -->
+      <path d="M 250 370 L 310 365 L 320 390 L 280 400 L 260 385 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Côte d'Ivoire"/>
+      
+      <!-- Ghana -->
+      <path d="M 310 365 L 350 360 L 360 385 L 330 395 L 320 390 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Ghana"/>
+      
+      <!-- Togo -->
+      <path d="M 350 360 L 370 358 L 375 380 L 365 385 L 360 385 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Togo"/>
+      
+      <!-- Bénin -->
+      <path d="M 370 358 L 390 356 L 395 380 L 385 385 L 375 380 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Bénin"/>
+      
+      <!-- Nigeria -->
+      <path d="M 390 356 L 480 350 L 490 390 L 450 400 L 395 380 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Nigeria"/>
+      
+      <!-- Cameroun -->
+      <path d="M 480 390 L 520 385 L 530 430 L 500 440 L 490 420 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Cameroun"/>
+      
+      <!-- République Centrafricaine -->
+      <path d="M 520 350 L 580 345 L 590 385 L 550 395 L 530 380 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="RCA"/>
+      
+      <!-- Soudan -->
+      <path d="M 580 200 L 650 195 L 660 280 L 620 290 L 590 270 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Soudan"/>
+      
+      <!-- Éthiopie -->
+      <path d="M 650 280 L 720 275 L 730 330 L 690 340 L 660 320 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Éthiopie"/>
+      
+      <!-- Kenya -->
+      <path d="M 690 380 L 740 375 L 750 420 L 720 430 L 700 410 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Kenya"/>
+      
+      <!-- Tanzanie -->
+      <path d="M 680 430 L 730 425 L 740 480 L 700 490 L 690 460 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Tanzanie"/>
+      
+      <!-- RDC -->
+      <path d="M 480 440 L 580 435 L 590 520 L 520 530 L 490 480 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="RDC"/>
+      
+      <!-- Angola -->
+      <path d="M 450 520 L 520 515 L 530 580 L 480 590 L 460 550 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Angola"/>
+      
+      <!-- Zambie -->
+      <path d="M 520 530 L 580 525 L 590 570 L 550 580 L 530 560 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Zambie"/>
+      
+      <!-- Zimbabwe -->
+      <path d="M 580 570 L 620 565 L 630 600 L 600 610 L 590 590 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Zimbabwe"/>
+      
+      <!-- Botswana -->
+      <path d="M 550 600 L 590 595 L 600 640 L 570 650 L 560 620 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Botswana"/>
+      
+      <!-- Afrique du Sud -->
+      <path d="M 480 640 L 580 635 L 590 700 L 520 710 L 490 670 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Afrique du Sud"/>
+      
+      <!-- Namibie -->
+      <path d="M 450 600 L 520 595 L 530 660 L 480 670 L 460 630 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Namibie"/>
+      
+      <!-- Madagascar -->
+      <path d="M 780 500 L 820 495 L 830 580 L 800 590 L 790 540 Z" 
+            fill="#22c55e" opacity="0.15" class="country" data-country="Madagascar"/>
+    </g>
+  </g>
+</svg>

@@ -2,9 +2,135 @@
 <html lang="">
   <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
+    
+    <!-- Favicons 2iE GreenHub -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" sizes="32x32" href="/favicon-simple.svg">
+    <link rel="alternate icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    
+    <!-- Métadonnées -->
+    <title>2iE GreenHub - Plateforme Économie Verte Afrique</title>
+    <meta name="description" content="2iE GreenHub - Plateforme digitale stratégique pour l'écosystème de l'économie verte en Afrique. Connectez, collaborez et développez votre impact.">
+    <meta name="theme-color" content="#00B050">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="2iE GreenHub">
+    <meta property="og:description" content="Plateforme digitale stratégique pour l'écosystème de l'économie verte en Afrique">
+    <meta property="og:image" content="/og-image.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="2iE GreenHub">
+    <meta name="twitter:description" content="Plateforme digitale stratégique pour l'écosystème de l'économie verte en Afrique">
+    
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        try {
+          await OneSignal.init({
+          appId: "dd2d012b-502a-44f8-bc6c-9a2a2931916f",
+          safari_web_id: "web.onesignal.auto.0919e572-6b9a-4fc1-8566-50f787b3e729",
+          allowLocalhostAsSecureOrigin: true,
+          serviceWorkerParam: { scope: '/' },
+          path: '/OneSignalSDKWorker.js',
+          autoRegister: false, // Ne pas demander automatiquement les permissions
+          autoResubscribe: false, // Ne pas se réabonner automatiquement
+          notifyButton: {
+            enable: true,
+            text: {
+              'tip.state.unsubscribed': 'Abonnez-vous aux notifications 2iE GreenHub',
+              'tip.state.subscribed': "Vous êtes abonné aux notifications 2iE GreenHub",
+              'tip.state.blocked': "Vous avez bloqué les notifications",
+              'message.prenotify': 'Cliquez pour vous abonner aux notifications',
+              'message.action.subscribed': "Merci ! Vous recevrez nos notifications.",
+              'message.action.resubscribed': "Vous êtes de nouveau abonné aux notifications.",
+              'message.action.unsubscribed': "Vous ne recevrez plus nos notifications.",
+              'dialog.main.title': 'Gérer les notifications du site',
+              'dialog.main.button.subscribe': 'S\'ABONNER',
+              'dialog.main.button.unsubscribe': 'SE DÉSABONNER',
+              'dialog.blocked.title': 'Débloquer les notifications',
+              'dialog.blocked.message': "Suivez ces instructions pour autoriser les notifications:"
+            },
+            colors: {
+              'circle.background': '#2E7D32',
+              'circle.foreground': 'white',
+              'badge.background': '#4CAF50',
+              'badge.foreground': 'white',
+              'badge.bordercolor': '#2E7D32',
+              'pulse.color': '#4CAF50'
+            },
+            position: 'bottom-right',
+            offset: {
+              bottom: '20px',
+              right: '20px'
+            }
+          },
+        });
+        
+        // Logique personnalisée d'abonnement
+        OneSignal.User.PushSubscription.addEventListener('change', function(event) {
+          console.log('État d\'abonnement changé:', event);
+          if (event.current.optedIn) {
+            console.log('Utilisateur abonné aux notifications 2iE GreenHub');
+            // Envoyer l'information au backend si nécessaire
+            window.dispatchEvent(new CustomEvent('oneSignalSubscribed', {
+              detail: { subscribed: true, userId: OneSignal.User.PushSubscription.id }
+            }));
+          } else {
+            console.log('Utilisateur désabonné des notifications 2iE GreenHub');
+            window.dispatchEvent(new CustomEvent('oneSignalUnsubscribed', {
+              detail: { subscribed: false }
+            }));
+          }
+        });
+        
+        // Fonction globale pour déclencher l'abonnement depuis l'application
+        window.subscribeToNotifications = async function() {
+          try {
+            await OneSignal.Slidedown.promptPush();
+          } catch (error) {
+            console.error('Erreur lors de l\'abonnement:', error);
+          }
+        };
+        
+        // Fonction globale pour obtenir l'état d'abonnement
+        window.getNotificationStatus = function() {
+          return {
+            optedIn: OneSignal.User.PushSubscription.optedIn,
+            id: OneSignal.User.PushSubscription.id,
+            token: OneSignal.User.PushSubscription.token
+          };
+        };
+        
+        // Fonction globale pour envoyer une notification de test
+        window.sendTestNotification = async function(title, message) {
+          try {
+            // Cette fonction sera utilisée par le composant NotificationTester
+            console.log('Test notification:', { title, message });
+            return { success: true, message: 'Notification envoyée' };
+          } catch (error) {
+            console.error('Erreur test notification:', error);
+            return { success: false, error: error.message };
+          }
+        };
+        
+        console.log('OneSignal initialisé avec succès');
+        } catch (error) {
+          console.error('Erreur lors de l\'initialisation OneSignal:', error);
+          // Marquer OneSignal comme indisponible
+          window.OneSignalError = error;
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="app"></div>
