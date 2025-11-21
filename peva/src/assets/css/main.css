@@ -1,9 +1,9 @@
+/* Import des variables 2iE GreenHub */
+@import './greenhub-variables.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import des variables 2iE GreenHub */
-@import './greenhub-variables.css';
 
 /* Styles personnalisés pour 2iE GreenHub PEVA */
 @layer base {
