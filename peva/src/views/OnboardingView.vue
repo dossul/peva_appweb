@@ -255,7 +255,7 @@
                     ></v-switch>
                     <v-switch
                       v-model="onboardingData.notifications.newsletter"
-                      label="Newsletter PEVA"
+                      label="Newsletter 2iE Green HUB"
                       color="success"
                       density="comfortable"
                       class="mb-2"

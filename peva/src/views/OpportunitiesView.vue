@@ -471,10 +471,24 @@ const snackbarColor = ref('success')
 
 // Données dynamiques basées sur les vraies données
 const opportunityTypes = computed(() => {
-  const types = [...new Set(opportunities.value.map(o => o.type))]
-  return types.map(type => {
-    const count = opportunities.value.filter(o => o.type === type).length
-    return `${type.charAt(0).toUpperCase() + type.slice(1)} (${count})`
+  // Types ciblés selon les besoins
+  const targetTypes = [
+    'Appels à projets',
+    'Stages',
+    'Thèses',
+    'Found raising',
+    'Emplois',
+    'Vente et achats d\'équipements',
+    'Vente et achats de matières',
+    'Idées business'
+  ]
+  
+  return targetTypes.map(type => {
+    const count = opportunities.value.filter(o => 
+      o.type?.toLowerCase() === type.toLowerCase() ||
+      o.category?.toLowerCase().includes(type.toLowerCase())
+    ).length
+    return count > 0 ? `${type} (${count})` : type
   })
 })
 
@@ -585,16 +599,21 @@ const loadOpportunities = async () => {
 // Methods
 const getTypeColor = (type) => {
   const colors = {
+    'appels à projets': 'blue',
+    'stages': 'green',
+    'thèses': 'purple',
+    'found raising': 'orange',
+    'emplois': 'teal',
+    'vente et achats d\'équipements': 'indigo',
+    'vente et achats de matières': 'pink',
+    'idées business': 'amber',
+    // Anciens types pour compatibilité
     'financement': 'blue',
-    'Financement': 'blue',
     'emploi': 'green',
-    'Emploi': 'green',
     'partenariat': 'purple',
-    'Partenariat': 'purple',
-    'mission': 'orange',
-    'Mission': 'orange'
+    'mission': 'orange'
   }
-  return colors[type] || 'grey'
+  return colors[type?.toLowerCase()] || 'grey'
 }
 
 const getStatusLabel = (type) => {

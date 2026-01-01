@@ -26,7 +26,7 @@ export const userManagementService = {
       } = options
 
       let query = supabase
-        .from('profiles')
+        .from('pev_profiles')
         .select(`
           id,
           email,
@@ -99,7 +99,7 @@ export const userManagementService = {
 
       // Récupérer le total pour la pagination
       const { count: totalCount } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .select('*', { count: 'exact', head: true })
 
       return {
@@ -131,7 +131,7 @@ export const userManagementService = {
   async getUserDetails(userId) {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .select(`
           *,
           goals,
@@ -174,7 +174,7 @@ export const userManagementService = {
       }
 
       const { data, error } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .update({
           role: newRole,
           updated_at: new Date().toISOString()
@@ -216,7 +216,7 @@ export const userManagementService = {
       // Note: Nous utilisons un champ dans les métadonnées pour marquer la suspension
       // car Supabase Auth gère l'état des comptes
       const { data, error } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .update({
           // Marquer comme non vérifié pour empêcher l'accès
           is_verified: false,
@@ -255,7 +255,7 @@ export const userManagementService = {
   async reactivateUser(userId, adminId) {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .update({
           is_verified: true,
           updated_at: new Date().toISOString()
@@ -299,26 +299,26 @@ export const userManagementService = {
       ] = await Promise.all([
         // Opportunités créées
         supabase
-          .from('opportunities')
+          .from('pev_opportunities')
           .select('id', { count: 'exact' })
           .eq('created_by', userId),
         
         // Connexions
         supabase
-          .from('connections')
+          .from('pev_connections')
           .select('id', { count: 'exact' })
           .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
           .eq('status', 'accepted'),
         
         // Messages envoyés (si table existe)
         supabase
-          .from('messages')
+          .from('pev_messages')
           .select('id', { count: 'exact' })
           .eq('sender_id', userId),
         
         // Événements créés
         supabase
-          .from('events')
+          .from('pev_events')
           .select('id', { count: 'exact' })
           .eq('created_by', userId)
       ])
@@ -356,7 +356,7 @@ export const userManagementService = {
   async searchUsers(query, limit = 20) {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .select(`
           id,
           first_name,
@@ -400,7 +400,7 @@ export const userManagementService = {
   async getUsersOverview() {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .select(`
           role,
           is_verified,
@@ -471,7 +471,7 @@ export const userManagementService = {
   async logAdminAction(adminId, action, payload = {}) {
     try {
       await supabase
-        .from('audit_logs')
+        .from('pev_audit_logs')
         .insert({
           actor_id: adminId,
           action,

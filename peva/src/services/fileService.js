@@ -132,32 +132,7 @@ class FileService {
       const bucket = this.buckets[category] || this.buckets.documents
       const filePath = `${user.id}/${fileName}`
 
-      // Marquer le fichier comme en cours d'upload
-      const { data: fileRecord, error: dbError } = await supabase
-        .from('file_uploads')
-        .insert({
-          user_id: user.id,
-          original_name: file.name,
-          file_name: fileName,
-          file_path: filePath,
-          file_size: file.size,
-          mime_type: file.type,
-          file_category: category,
-          related_entity: relatedEntity,
-          related_id: relatedId,
-          is_public: isPublic,
-          upload_status: 'processing',
-          metadata: {
-            original_size: file.size,
-            upload_date: new Date().toISOString()
-          }
-        })
-        .select()
-        .single()
-
-      if (dbError) throw dbError
-
-      // Uploader le fichier vers Supabase Storage
+      // Uploader le fichier vers Supabase Storage d'abord
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(filePath, file, {
@@ -165,24 +140,36 @@ class FileService {
           upsert: false
         })
 
-      if (uploadError) {
-        // Marquer l'upload comme échoué
-        await supabase
-          .from('file_uploads')
-          .update({ upload_status: 'failed' })
-          .eq('id', fileRecord.id)
-        throw uploadError
-      }
+      if (uploadError) throw uploadError
 
-      // Marquer l'upload comme terminé
-      const { data: updatedRecord, error: updateError } = await supabase
-        .from('file_uploads')
-        .update({ upload_status: 'completed' })
-        .eq('id', fileRecord.id)
+      // Enregistrer les métadonnées du fichier
+      const { data: fileRecord, error: dbError } = await supabase
+        .from('pev_file_uploads')
+        .insert({
+          user_id: user.id,
+          bucket_id: bucket,
+          file_name: fileName,
+          file_path: filePath,
+          file_size: file.size,
+          mime_type: file.type,
+          category: category,
+          related_entity: relatedEntity,
+          related_id: relatedId ? relatedId.toString() : null,
+          is_public: isPublic,
+          metadata: {
+            original_name: file.name,
+            original_size: file.size,
+            upload_date: new Date().toISOString()
+          }
+        })
         .select()
         .single()
 
-      if (updateError) throw updateError
+      if (dbError) {
+        // Supprimer le fichier uploadé si l'insertion en DB échoue
+        await supabase.storage.from(bucket).remove([filePath])
+        throw dbError
+      }
 
       // Obtenir l'URL publique si nécessaire
       let publicUrl = null
@@ -211,7 +198,7 @@ class FileService {
   async checkUserQuota(userId, fileSize) {
     try {
       const { data, error } = await supabase
-        .from('storage_quotas')
+        .from('pev_storage_quotas')
         .select('total_quota, used_space')
         .eq('user_id', userId)
         .single()
@@ -234,14 +221,14 @@ class FileService {
   async getSignedUrl(fileId, expiresIn = 3600) {
     try {
       const { data: fileData, error } = await supabase
-        .from('file_uploads')
-        .select('file_path, file_category')
+        .from('pev_file_uploads')
+        .select('file_path, category, bucket_id')
         .eq('id', fileId)
         .single()
 
       if (error) throw error
 
-      const bucket = this.buckets[fileData.file_category] || this.buckets.documents
+      const bucket = fileData.bucket_id || this.buckets[fileData.category] || this.buckets.documents
       
       const { data, error: signError } = await supabase.storage
         .from(bucket)
@@ -268,7 +255,7 @@ class FileService {
 
       // Récupérer les informations du fichier
       const { data: fileData, error } = await supabase
-        .from('file_uploads')
+        .from('pev_file_uploads')
         .select('*')
         .eq('id', fileId)
         .eq('user_id', user.id) // S'assurer que l'utilisateur possède le fichier
@@ -276,7 +263,7 @@ class FileService {
 
       if (error) throw error
 
-      const bucket = this.buckets[fileData.file_category] || this.buckets.documents
+      const bucket = fileData.bucket_id || this.buckets[fileData.category] || this.buckets.documents
 
       // Supprimer le fichier du storage
       const { error: storageError } = await supabase.storage
@@ -289,7 +276,7 @@ class FileService {
 
       // Supprimer l'enregistrement de la base de données
       const { error: dbError } = await supabase
-        .from('file_uploads')
+        .from('pev_file_uploads')
         .delete()
         .eq('id', fileId)
 
@@ -308,15 +295,14 @@ class FileService {
   async getUserFiles(userId, category = null, limit = 50) {
     try {
       let query = supabase
-        .from('file_uploads')
+        .from('pev_file_uploads')
         .select('*')
         .eq('user_id', userId)
-        .eq('upload_status', 'completed')
         .order('created_at', { ascending: false })
         .limit(limit)
 
       if (category) {
-        query = query.eq('file_category', category)
+        query = query.eq('category', category)
       }
 
       const { data, error } = await query
@@ -335,7 +321,7 @@ class FileService {
   async getUserQuota(userId) {
     try {
       const { data, error } = await supabase
-        .from('storage_quotas')
+        .from('pev_storage_quotas')
         .select('*')
         .eq('user_id', userId)
         .single()
@@ -365,7 +351,7 @@ class FileService {
       const { data: { user } } = await supabase.auth.getUser()
       
       await supabase
-        .from('file_access_logs')
+        .from('pev_file_access_logs')
         .insert({
           file_id: fileId,
           accessed_by: user?.id,

@@ -9,7 +9,7 @@
               <v-icon size="48" class="mr-4">mdi-library</v-icon>
               <div>
                 <h1 class="text-h3 font-weight-bold mb-2">Bibliothèque de Ressources</h1>
-                <p class="text-h6 font-weight-regular ma-0">Découvrez notre collection de guides, rapports, outils et formations pour l'économie verte en Afrique</p>
+                <p class="text-h6 font-weight-regular ma-0">Découvrez notre collection de guides, rapports, outils, tutoriels vidéo et formations pour l'économie verte</p>
               </div>
             </div>
           </div>
@@ -385,13 +385,25 @@ const resourceTypes = [
 ]
 
 const sectors = [
-  'Énergies Renouvelables',
   'Agriculture Durable',
-  'Gestion des Déchets',
-  'Transport Vert',
+  'Agroalimentaire',
+  'Bilan carbone',
   'Construction Écologique',
-  'Fintech Verte'
-]
+  'Économie circulaire',
+  'Éco-matériaux',
+  'Écotourisme',
+  'Énergies Renouvelables',
+  'Gestion des Déchets',
+  'RSE/ESG',
+  'Transport Vert',
+  'Valorisation des déchets',
+  'Autres'
+].sort((a, b) => {
+  // Garder "Autres" à la fin
+  if (a === 'Autres') return 1
+  if (b === 'Autres') return -1
+  return a.localeCompare(b, 'fr')
+})
 
 const levels = [
   'Débutant',

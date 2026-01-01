@@ -7,8 +7,8 @@
           <div class="d-flex align-center">
             <v-icon size="48" class="mr-4">mdi-calendar-multiple</v-icon>
             <div>
-              <h1 class="text-h3 font-weight-bold mb-2">Événements PEVA</h1>
-              <p class="text-h6 font-weight-regular ma-0">Découvrez les conférences, ateliers, formations et networking de l'économie verte africaine</p>
+              <h1 class="text-h3 font-weight-bold mb-2">Événements 2iE GreenHub</h1>
+              <p class="text-h6 font-weight-regular ma-0">Découvrez les événements de l'économie verte : valorisation des déchets, bilan carbone, économie circulaire</p>
             </div>
           </div>
           <v-btn
@@ -76,6 +76,10 @@
           <v-tab value="my-events">
             <v-icon class="mr-2">mdi-bookmark</v-icon>
             Mes Événements
+          </v-tab>
+          <v-tab value="history">
+            <v-icon class="mr-2">mdi-history</v-icon>
+            Historique
           </v-tab>
         </v-tabs>
       </v-card>
@@ -288,10 +292,12 @@ const newEvent = ref({
 const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 
 const eventTypes = ref([
-  { name: 'Conférences', count: 7, color: 'blue', icon: 'mdi-microphone' },
-  { name: 'Workshops', count: 12, color: 'green', icon: 'mdi-tools' },
-  { name: 'Networking', count: 5, color: 'purple', icon: 'mdi-account-group' },
-  { name: 'Formations', count: 8, color: 'orange', icon: 'mdi-school' }
+  { name: 'Valorisation des déchets', count: 7, color: 'green', icon: 'mdi-recycle' },
+  { name: 'Bilan carbone', count: 12, color: 'blue', icon: 'mdi-leaf' },
+  { name: 'Économie circulaire', count: 5, color: 'purple', icon: 'mdi-sync' },
+  { name: 'Énergies renouvelables', count: 8, color: 'orange', icon: 'mdi-solar-power' },
+  { name: 'Agriculture durable', count: 6, color: 'teal', icon: 'mdi-sprout' },
+  { name: 'Transport vert', count: 4, color: 'indigo', icon: 'mdi-car-electric' }
 ])
 
 const upcomingEvents = ref([

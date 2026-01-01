@@ -138,7 +138,7 @@ class NotificationService {
 
     try {
       const { data: actor, error } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .select('first_name, last_name, avatar_url, organization')
         .eq('id', notification.actor_id)
         .single()
@@ -280,7 +280,7 @@ class NotificationService {
   async deleteNotification(notificationId) {
     try {
       const { error } = await supabase
-        .from('notifications')
+        .from('pev_notifications')
         .delete()
         .eq('id', notificationId)
         .eq('recipient_id', this.userId)

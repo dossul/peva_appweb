@@ -208,12 +208,56 @@
                         >
                           <template v-slot:label>
                             <span class="text-body-2 text-grey-darken-2">
-                              Je souhaite recevoir la newsletter PEVA avec les dernières actualités de l'économie verte
+                              Je souhaite recevoir la newsletter 2iE Green HUB avec les dernières actualités de l'économie verte
                             </span>
                           </template>
                         </v-checkbox>
                       </v-col>
                     </v-row>
+                  </v-form>
+                </v-card-text>
+              </v-card>
+            </template>
+
+            <!-- Étape 4: Préférences et intérêts -->
+            <template v-slot:item.4>
+              <v-card flat>
+                <v-card-title class="text-h6 text-green-darken-2 pb-4">
+                  <v-icon start>mdi-heart</v-icon>
+                  Vos préférences et intérêts
+                </v-card-title>
+                <v-card-text class="pa-0">
+                  <v-form ref="step4Form">
+                    <p class="text-body-2 text-grey-darken-2 mb-4">
+                      Sélectionnez les domaines qui vous intéressent pour personnaliser votre expérience
+                    </p>
+                    
+                    <v-row>
+                      <v-col cols="12" md="6" v-for="preference in userPreferences" :key="preference.value">
+                        <v-checkbox
+                          v-model="form.preferences"
+                          :value="preference.value"
+                          color="green-darken-2"
+                        >
+                          <template v-slot:label>
+                            <div class="d-flex align-center ga-2">
+                              <v-icon :color="preference.color">{{ preference.icon }}</v-icon>
+                              <div>
+                                <div class="font-weight-bold text-body-1">{{ preference.title }}</div>
+                                <div class="text-body-2 text-grey-darken-2">{{ preference.description }}</div>
+                              </div>
+                            </div>
+                          </template>
+                        </v-checkbox>
+                      </v-col>
+                    </v-row>
+
+                    <v-alert type="info" variant="tonal" class="mt-4">
+                      <div class="text-body-2">
+                        <v-icon start>mdi-bell-ring</v-icon>
+                        Ces préférences vous permettront de recevoir des notifications et des recommandations personnalisées selon vos intérêts.
+                      </div>
+                    </v-alert>
                   </v-form>
                 </v-card-text>
               </v-card>
@@ -235,7 +279,7 @@
                 <v-spacer v-else />
                 
                 <v-btn
-                  v-if="currentStep < 3"
+                  v-if="currentStep < 4"
                   @click="nextStep"
                   color="green-darken-2"
                   class="text-none"
@@ -322,7 +366,8 @@ const form = reactive({
   password: '',
   confirmPassword: '',
   acceptTerms: false,
-  newsletter: false
+  newsletter: false,
+  preferences: [] // Préférences utilisateur
 })
 
 const loading = reactive({
@@ -336,8 +381,6 @@ const snackbar = reactive({
   message: '',
   color: 'error'
 })
-
-
 
 // Types de profil détaillés
 const profileTypes = [
@@ -415,6 +458,7 @@ const currentStep = ref(1)
 const step1Form = ref(null)
 const step2Form = ref(null)
 const step3Form = ref(null)
+const step4Form = ref(null)
 
 const stepperItems = [
   {
@@ -431,6 +475,57 @@ const stepperItems = [
     title: 'Sécurité',
     value: 3,
     icon: 'mdi-shield-check'
+  },
+  {
+    title: 'Préférences',
+    value: 4,
+    icon: 'mdi-heart'
+  }
+]
+
+// Préférences utilisateur
+const userPreferences = [
+  {
+    value: 'energies_renouvelables',
+    title: 'Énergies renouvelables',
+    description: 'Solaire, éolien, hydraulique',
+    icon: 'mdi-solar-power',
+    color: 'orange'
+  },
+  {
+    value: 'formations',
+    title: 'Formations',
+    description: 'Cours, webinaires, certifications',
+    icon: 'mdi-school',
+    color: 'blue'
+  },
+  {
+    value: 'opportunites_emplois',
+    title: 'Opportunités d\'emplois',
+    description: 'Offres d\'emploi dans l\'économie verte',
+    icon: 'mdi-briefcase',
+    color: 'green'
+  },
+  {
+    value: 'gestion_dechets',
+    title: 'Gestion des déchets',
+    description: 'Recyclage, valorisation, économie circulaire',
+    icon: 'mdi-recycle',
+    color: 'teal'
+  },
+  {
+    value: 'agriculture_durable',
+    title: 'Agriculture durable',
+    description: 'Agroécologie, permaculture',
+    icon: 'mdi-sprout',
+    color: 'lime'
+  },
+  {
+    value: 'finance_verte',
+    title: 'Finance verte',
+    description: 'Investissements, subventions, crowdfunding',
+    icon: 'mdi-cash',
+    color: 'purple'
   }
 ]
 

@@ -7,8 +7,8 @@
           <div class="d-flex align-center">
             <v-icon size="48" class="mr-4">mdi-map-marker-radius</v-icon>
             <div>
-              <h1 class="text-h3 font-weight-bold mb-2">Carte Interactive PEVA</h1>
-              <p class="text-h6 font-weight-regular ma-0">Entreprises de l'économie verte en Afrique</p>
+              <h1 class="text-h5 font-weight-bold mb-2">Carte Interactive 2iE GreenHub</h1>
+              <p class="text-h6 font-weight-regular ma-0">Entreprises de l'économie verte</p>
             </div>
           </div>
           <div class="d-flex align-center ga-2">
@@ -131,10 +131,11 @@
 
             <!-- Recherche -->
             <div class="mb-4">
-              <h4 class="text-body-1 font-weight-bold mb-2">Recherche</h4>
+              <h4 class="text-body-1 font-weight-bold mb-2">Rechercher l'entreprise</h4>
               <v-text-field
                 v-model="searchQuery"
-                label="Nom de l'entreprise..."
+                label="Nom, pays, région, ville..."
+                placeholder="Ex: SolarTech, Burkina Faso, Ouagadougou"
                 variant="outlined"
                 density="compact"
                 hide-details
@@ -162,16 +163,20 @@
             <div class="mb-3">
               <h4 class="text-body-2 font-weight-bold mb-2">Taille des marqueurs</h4>
               <div class="d-flex align-center mb-1">
+                <div class="legend-marker tiny"></div>
+                <span class="text-body-2 ml-2">TPME (1-10 employés)</span>
+              </div>
+              <div class="d-flex align-center mb-1">
                 <div class="legend-marker small"></div>
-                <span class="text-body-2 ml-2">PME (1-50 employés)</span>
+                <span class="text-body-2 ml-2">PME (11-50 employés)</span>
               </div>
               <div class="d-flex align-center mb-1">
                 <div class="legend-marker medium"></div>
-                <span class="text-body-2 ml-2">Moyenne (51-200)</span>
+                <span class="text-body-2 ml-2">Moyenne (51-250)</span>
               </div>
               <div class="d-flex align-center">
                 <div class="legend-marker large"></div>
-                <span class="text-body-2 ml-2">Grande (200+ employés)</span>
+                <span class="text-body-2 ml-2">Grande (250+ employés)</span>
               </div>
             </div>
           </v-card>
@@ -451,7 +456,9 @@ const countries = computed(() => {
   const uniqueCountries = [...new Set(allCompanies.value
     .map(c => c.country)
     .filter(country => country))]
-  return ['Tous les pays', ...uniqueCountries.sort()]
+  // Trier par ordre alphabétique et ajouter "Autres"
+  const sortedCountries = uniqueCountries.sort((a, b) => a.localeCompare(b, 'fr'))
+  return ['Tous les pays', ...sortedCountries, 'Autres']
 })
 
 const companySizes = computed(() => {
@@ -465,9 +472,10 @@ const companySizes = computed(() => {
   })
   
   const sizeLabels = {
-    pme: 'PME (1-50 employés)',
-    moyenne: 'Moyenne (51-200)',
-    grande: 'Grande (200+)'
+    tpme: 'TPME (1-10 employés)',
+    pme: 'PME (11-50 employés)',
+    moyenne: 'Moyenne (51-250)',
+    grande: 'Grande (250+)'
   }
   
   return Object.entries(sizes).map(([value, count]) => ({
@@ -494,13 +502,15 @@ const activeFiltersCount = computed(() => {
 })
 
 const sectorLegends = [
-  { name: 'Énergies renouvelables', color: '#22c55e' },
   { name: 'Agriculture durable', color: '#10b981' },
-  { name: 'Transport vert', color: '#3b82f6' },
+  { name: 'Agroalimentaire', color: '#f59e0b' },
   { name: 'Construction écologique', color: '#ec4899' },
+  { name: 'Eau et assainissement', color: '#06b6d4' },
+  { name: 'Écotourisme', color: '#84cc16' },
+  { name: 'Énergie renouvelable', color: '#FFEB3B' },
   { name: 'Gestion des déchets', color: '#8b5cf6' },
-  { name: 'Eau et assainissement', color: '#06b6d4' }
-]
+  { name: 'Transport vert', color: '#3b82f6' }
+].sort((a, b) => a.name.localeCompare(b.name, 'fr'))
 
 // Données des entreprises avec coordonnées GPS réelles
 const companies = ref([
@@ -690,8 +700,12 @@ const filteredCompanies = computed(() => {
   }
 
   if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(company =>
-      company.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+      company.name.toLowerCase().includes(query) ||
+      company.country?.toLowerCase().includes(query) ||
+      company.city?.toLowerCase().includes(query) ||
+      company.region?.toLowerCase().includes(query)
     )
   }
 
@@ -897,12 +911,14 @@ const updateMarkers = () => {
 
 const getSectorColor = (sectorName) => {
   const colors = {
-    // Secteurs standards
-    'Énergies renouvelables': '#22c55e',
-    'Énergies Renouvelables': '#22c55e',
-    'Énergie Solaire': '#22c55e',
+    // Secteurs standards - Énergie renouvelable en JAUNE
+    'Énergies renouvelables': '#FFEB3B',
+    'Énergies Renouvelables': '#FFEB3B',
+    'Énergie renouvelable': '#FFEB3B',
+    'Énergie Solaire': '#FFEB3B',
     'Agriculture durable': '#10b981',
     'Agriculture Durable': '#10b981',
+    'Agroalimentaire': '#f59e0b',
     'Transport vert': '#3b82f6',
     'Transport Écologique': '#3b82f6',
     'Construction écologique': '#ec4899',
@@ -910,22 +926,23 @@ const getSectorColor = (sectorName) => {
     'Gestion des Déchets': '#8b5cf6',
     'Eau et assainissement': '#06b6d4',
     'Gestion de l\'Eau': '#06b6d4',
+    'Écotourisme': '#84cc16',
     // Secteurs de votre BDD
     'Élevage Durable': '#16a34a',
     'Artisanat Vert': '#059669',
-    'Mines Responsables': '#7c3aed',
-    'Écotourisme': '#0891b2'
+    'Mines Responsables': '#7c3aed'
   }
-  return colors[sectorName] || '#22c55e' // Vert par défaut au lieu de gris
+  return colors[sectorName] || '#10b981' // Vert par défaut
 }
 
 const getMarkerSize = (size) => {
   const sizes = {
-    'pme': 8,
-    'moyenne': 12,
-    'grande': 16
+    'tpme': 6,    // TPME 1-10 employés
+    'pme': 10,    // PME 11-50 employés
+    'moyenne': 14, // Moyenne 51-250
+    'grande': 18   // Grande 250+
   }
-  return sizes[size] || 8
+  return sizes[size] || 10
 }
 
 const resetFilters = () => {
@@ -1169,21 +1186,27 @@ onUnmounted(() => {
   border: 2px solid #fff;
 }
 
+.legend-marker.tiny {
+  width: 6px;
+  height: 6px;
+  background-color: #84cc16;
+}
+
 .legend-marker.small {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background-color: #22c55e;
 }
 
 .legend-marker.medium {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   background-color: #3b82f6;
 }
 
 .legend-marker.large {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background-color: #8b5cf6;
 }
 

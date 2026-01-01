@@ -199,9 +199,9 @@
             <v-card-text>
               <div class="moderation-stats">
                 <div class="d-flex align-center justify-space-between mb-3">
-                  <span>Opportunités en attente</span>
+                  <span>Opportunités brouillons</span>
                   <v-chip color="warning" size="small">
-                    {{ kpis.opportunities?.by_moderation_status?.pending || 0 }}
+                    {{ kpis.opportunities?.by_status?.draft || 0 }}
                   </v-chip>
                 </div>
                 <div class="d-flex align-center justify-space-between mb-3">
@@ -289,8 +289,8 @@
                     rounded
                   />
                   <div class="text-caption mt-1 text-grey-darken-1">
-                    {{ kpis.opportunities?.by_moderation_status?.approved || 0 }} approuvées / 
-                    {{ kpis.opportunities?.by_moderation_status?.pending || 0 }} en attente
+                    {{ kpis.opportunities?.by_status?.published || 0 }} publiées / 
+                    {{ kpis.opportunities?.by_status?.draft || 0 }} brouillons
                   </div>
                 </div>
                 
@@ -628,11 +628,11 @@ const getTopCountries = (countryData, limit = 5) => {
 
 const getModerationProgress = (type) => {
   const data = kpis.value[type]
-  if (!data || !data.by_moderation_status) return 0
+  if (!data || !data.by_status) return 0
   
   const total = data.total || 1
-  const approved = data.by_moderation_status.approved || 0
-  return (approved / total) * 100
+  const published = data.by_status.published || 0
+  return (published / total) * 100
 }
 
 const getVerificationProgress = (type) => {

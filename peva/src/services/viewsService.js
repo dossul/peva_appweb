@@ -13,10 +13,10 @@ export class ViewsService {
   async getOpportunities(filters = {}) {
     try {
       let query = supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .select(`
           *,
-          profiles!opportunities_created_by_fkey(
+          pev_profiles!pev_opportunities_created_by_fkey(
             first_name,
             last_name,
             company_name
@@ -55,7 +55,7 @@ export class ViewsService {
   async createOpportunity(opportunityData) {
     try {
       const { data, error } = await supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .insert([opportunityData])
         .select()
 
@@ -75,10 +75,10 @@ export class ViewsService {
   async getEvents(filters = {}) {
     try {
       let query = supabase
-        .from('events')
+        .from('pev_events')
         .select(`
           *,
-          profiles!events_created_by_fkey(
+          pev_profiles!pev_events_created_by_fkey(
             first_name,
             last_name,
             company_name
@@ -110,7 +110,7 @@ export class ViewsService {
   async createEvent(eventData) {
     try {
       const { data, error } = await supabase
-        .from('events')
+        .from('pev_events')
         .insert([eventData])
         .select()
 
@@ -130,10 +130,10 @@ export class ViewsService {
   async getResources(filters = {}) {
     try {
       let query = supabase
-        .from('resources')
+        .from('pev_resources')
         .select(`
           *,
-          profiles!resources_created_by_fkey(
+          pev_profiles!pev_resources_created_by_fkey(
             first_name,
             last_name,
             company_name
@@ -173,10 +173,10 @@ export class ViewsService {
   async getCompanies(filters = {}) {
     try {
       let query = supabase
-        .from('companies')
+        .from('pev_companies')
         .select(`
           *,
-          profiles!companies_owner_id_fkey(
+          pev_profiles!pev_companies_owner_id_fkey(
             first_name,
             last_name
           )
@@ -220,10 +220,10 @@ export class ViewsService {
   async getProfiles(filters = {}) {
     try {
       let query = supabase
-        .from('profiles')
+        .from('pev_profiles')
         .select(`
           *,
-          companies(
+          pev_companies(
             name,
             logo_url
           )
@@ -267,14 +267,14 @@ export class ViewsService {
   async getGroups(filters = {}) {
     try {
       let query = supabase
-        .from('groups')
+        .from('pev_groups')
         .select(`
           *,
-          profiles!groups_created_by_fkey(
+          pev_profiles!pev_groups_created_by_fkey(
             first_name,
             last_name
           ),
-          group_members(count)
+          pev_group_members(count)
         `)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
@@ -307,15 +307,15 @@ export class ViewsService {
   async getForumDiscussions(filters = {}) {
     try {
       let query = supabase
-        .from('forum_discussions')
+        .from('pev_forum_topics')
         .select(`
           *,
-          profiles!forum_discussions_created_by_fkey(
+          pev_profiles!pev_forum_topics_user_id_fkey(
             first_name,
             last_name,
             avatar_url
           ),
-          forum_replies(count)
+          pev_forum_posts(count)
         `)
         .eq('status', 'active')
         .order('updated_at', { ascending: false })
@@ -345,18 +345,18 @@ export class ViewsService {
   async getConversations(userId) {
     try {
       const { data, error } = await supabase
-        .from('conversations')
+        .from('pev_message_threads')
         .select(`
           *,
-          conversation_participants!inner(
-            profiles(
+          pev_message_thread_participants!inner(
+            pev_profiles(
               id,
               first_name,
               last_name,
               avatar_url
             )
           ),
-          messages(
+          pev_messages(
             content,
             created_at,
             sender_id
@@ -388,12 +388,12 @@ export class ViewsService {
         { count: profilesCount },
         { count: groupsCount }
       ] = await Promise.all([
-        supabase.from('opportunities').select('*', { count: 'exact', head: true }),
-        supabase.from('events').select('*', { count: 'exact', head: true }),
-        supabase.from('resources').select('*', { count: 'exact', head: true }),
-        supabase.from('companies').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('groups').select('*', { count: 'exact', head: true })
+        supabase.from('pev_opportunities').select('*', { count: 'exact', head: true }),
+        supabase.from('pev_events').select('*', { count: 'exact', head: true }),
+        supabase.from('pev_resources').select('*', { count: 'exact', head: true }),
+        supabase.from('pev_companies').select('*', { count: 'exact', head: true }),
+        supabase.from('pev_profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('pev_groups').select('*', { count: 'exact', head: true })
       ])
 
       return {

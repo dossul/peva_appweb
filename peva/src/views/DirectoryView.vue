@@ -7,8 +7,8 @@
           <div class="d-flex align-center">
             <v-icon size="48" class="mr-4">mdi-account-group</v-icon>
             <div>
-              <h1 class="text-h3 font-weight-bold mb-2">Annuaire PEVA</h1>
-              <p class="text-h6 font-weight-regular ma-0">Découvrez les acteurs de l'économie verte en Afrique</p>
+              <h1 class="text-h3 font-weight-bold mb-2">Annuaire 2iE Green Hub</h1>
+              <p class="text-h6 font-weight-regular ma-0">Découvrez les acteurs de l'économie verte</p>
             </div>
           </div>
           <div class="d-flex align-center ga-1">
@@ -529,11 +529,12 @@ const profileTypes = computed(() => {
   })
   
   const typeLabels = {
-    entrepreneur: 'Entrepreneur',
-    investor: 'Investisseur', 
+    ptf: 'Partenaires techniques et financiers (PTF)',
+    company: 'Entreprises',
+    investor: 'Investisseur/banque',
+    learner: 'Apprenant',
+    research: 'Institution de recherche/Université',
     expert: 'Expert',
-    organization: 'Organisation',
-    recruiter: 'Recruteur',
     user: 'Utilisateur',
     admin: 'Administrateur'
   }
@@ -555,10 +556,31 @@ const countries = computed(() => {
 })
 
 const sectors = computed(() => {
+  // Secteurs d'expertise ciblés
+  const targetedSectors = [
+    'Bilan carbone',
+    'Communication d\'impact',
+    'Éco-matériaux',
+    'Équipementiers',
+    'Gestion des déchets',
+    'RSE/ESG',
+    'Transformation agroalimentaire',
+    'Autres'
+  ]
+  
+  // Ajouter les secteurs existants des profils
   const allSectors = allProfiles.value
     .flatMap(p => Array.isArray(p.sectors) ? p.sectors : [])
     .filter(sector => sector && sector.trim() !== '')
-  return [...new Set(allSectors)].sort()
+  
+  const uniqueSectors = [...new Set([...targetedSectors, ...allSectors])]
+  
+  // Trier par ordre alphabétique, mais garder "Autres" à la fin
+  return uniqueSectors.sort((a, b) => {
+    if (a === 'Autres') return 1
+    if (b === 'Autres') return -1
+    return a.localeCompare(b, 'fr')
+  })
 })
 
 // Gestion des filtres actifs

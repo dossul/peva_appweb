@@ -10,7 +10,7 @@ export const companyService = {
    */
   async getUserCompanies(userId) {
     const { data, error } = await supabase
-      .from('companies')
+      .from('pev_companies')
       .select('*')
       .eq('owner_id', userId)
     
@@ -23,7 +23,7 @@ export const companyService = {
    */
   async getCompanyById(companyId) {
     const { data, error } = await supabase
-      .from('companies')
+      .from('pev_companies')
       .select('*')
       .eq('id', companyId)
       .single()
@@ -37,7 +37,7 @@ export const companyService = {
    */
   async getUserMainCompany(userId) {
     const { data, error } = await supabase
-      .from('companies')
+      .from('pev_companies')
       .select('*')
       .eq('owner_id', userId)
       .order('created_at', { ascending: false })
@@ -74,7 +74,7 @@ export const companyService = {
     if (updates.cover_image_url) updateData.cover_image_url = updates.cover_image_url
 
     const { data, error } = await supabase
-      .from('companies')
+      .from('pev_companies')
       .update(updateData)
       .eq('id', companyId)
       .select()
@@ -96,7 +96,7 @@ export const companyService = {
    */
   async createCompany(companyData) {
     const { data, error } = await supabase
-      .from('companies')
+      .from('pev_companies')
       .insert({
         owner_id: companyData.owner_id,
         name: companyData.name,
@@ -120,7 +120,7 @@ export const companyService = {
    */
   async deleteCompany(companyId) {
     const { error } = await supabase
-      .from('companies')
+      .from('pev_companies')
       .delete()
       .eq('id', companyId)
     
@@ -135,7 +135,7 @@ export const companyService = {
     try {
       // Récupérer les rapports RSE publiés
       const { data: reports, error } = await supabase
-        .from('company_rse_reports')
+        .from('pev_company_rse_reports')
         .select('id, fiscal_year, report_status')
         .eq('company_id', companyId)
         .in('report_status', ['published', 'validated'])
@@ -171,7 +171,7 @@ export const companyService = {
    */
   async isSlugAvailable(slug, excludeCompanyId = null) {
     let query = supabase
-      .from('companies')
+      .from('pev_companies')
       .select('id')
       .eq('slug', slug)
     

@@ -23,7 +23,7 @@ export const connectionService = {
 
       // Vérifier si une demande existe déjà
       const { data: existingRequest } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .select('*')
         .or(`and(requester_id.eq.${user.id},addressee_id.eq.${requestData.targetUserId}),and(requester_id.eq.${requestData.targetUserId},addressee_id.eq.${user.id})`)
         .single()
@@ -34,7 +34,7 @@ export const connectionService = {
 
       // Créer la demande de connexion
       const { data: newRequest, error } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .insert({
           requester_id: user.id,
           addressee_id: requestData.targetUserId,
@@ -44,8 +44,8 @@ export const connectionService = {
         })
         .select(`
           *,
-          requester:profiles!requester_id(first_name, last_name, avatar_url, organization),
-          addressee:profiles!addressee_id(first_name, last_name, avatar_url, organization)
+          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, organization),
+          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, organization)
         `)
         .single()
 
@@ -80,7 +80,7 @@ export const connectionService = {
 
       // Mettre à jour le statut de la demande
       const { data: updatedRequest, error } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .update({
           status: 'accepted',
           responded_at: new Date().toISOString()
@@ -89,8 +89,8 @@ export const connectionService = {
         .eq('addressee_id', user.id) // S'assurer que l'utilisateur peut accepter cette demande
         .select(`
           *,
-          requester:profiles!requester_id(first_name, last_name, avatar_url, organization),
-          addressee:profiles!addressee_id(first_name, last_name, avatar_url, organization)
+          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, organization),
+          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, organization)
         `)
         .single()
 
@@ -130,7 +130,7 @@ export const connectionService = {
 
       // Mettre à jour le statut de la demande
       const { data: updatedRequest, error } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .update({
           status: 'declined',
           responded_at: new Date().toISOString()
@@ -168,11 +168,11 @@ export const connectionService = {
       const targetUserId = userId || user.id
 
       const { data, error } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .select(`
           *,
-          requester:profiles!requester_id(first_name, last_name, avatar_url, organization),
-          addressee:profiles!addressee_id(first_name, last_name, avatar_url, organization)
+          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, organization),
+          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, organization)
         `)
         .eq('addressee_id', targetUserId)
         .eq('status', 'pending')
@@ -199,11 +199,11 @@ export const connectionService = {
       const targetUserId = userId || user.id
 
       const { data, error } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .select(`
           *,
-          requester:profiles!requester_id(first_name, last_name, avatar_url, organization),
-          addressee:profiles!addressee_id(first_name, last_name, avatar_url, organization)
+          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, organization),
+          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, organization)
         `)
         .eq('requester_id', targetUserId)
         .order('requested_at', { ascending: false })
@@ -229,11 +229,11 @@ export const connectionService = {
       const targetUserId = userId || user.id
 
       const { data, error } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .select(`
           *,
-          requester:profiles!requester_id(first_name, last_name, avatar_url, organization),
-          addressee:profiles!addressee_id(first_name, last_name, avatar_url, organization)
+          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, organization),
+          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, organization)
         `)
         .or(`requester_id.eq.${targetUserId},addressee_id.eq.${targetUserId}`)
         .eq('status', 'accepted')
@@ -253,7 +253,7 @@ export const connectionService = {
   async areConnected(user1Id, user2Id) {
     try {
       const { data, error } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .select('id')
         .or(`and(requester_id.eq.${user1Id},addressee_id.eq.${user2Id}),and(requester_id.eq.${user2Id},addressee_id.eq.${user1Id})`)
         .eq('status', 'accepted')
@@ -272,7 +272,7 @@ export const connectionService = {
   async getConnectionStatus(user1Id, user2Id) {
     try {
       const { data, error } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .select('status, requester_id, addressee_id')
         .or(`and(requester_id.eq.${user1Id},addressee_id.eq.${user2Id}),and(requester_id.eq.${user2Id},addressee_id.eq.${user1Id})`)
         .single()
@@ -303,7 +303,7 @@ export const connectionService = {
 
       // Supprimer la connexion (seuls les participants peuvent la supprimer)
       const { error } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .delete()
         .eq('id', connectionId)
         .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
@@ -337,7 +337,7 @@ export const connectionService = {
 
       // Compter les connexions actives
       const { count: activeConnections, error: activeError } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .select('*', { count: 'exact', head: true })
         .or(`requester_id.eq.${targetUserId},addressee_id.eq.${targetUserId}`)
         .eq('status', 'accepted')
@@ -346,7 +346,7 @@ export const connectionService = {
 
       // Compter les demandes en attente (reçues)
       const { count: pendingReceived, error: pendingError } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .select('*', { count: 'exact', head: true })
         .eq('addressee_id', targetUserId)
         .eq('status', 'pending')
@@ -355,7 +355,7 @@ export const connectionService = {
 
       // Compter les demandes envoyées en attente
       const { count: pendingSent, error: sentError } = await supabase
-        .from('connections')
+        .from('pev_connections')
         .select('*', { count: 'exact', head: true })
         .eq('requester_id', targetUserId)
         .eq('status', 'pending')

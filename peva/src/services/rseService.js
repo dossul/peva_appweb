@@ -28,10 +28,10 @@ export const rseService = {
       } = options
       
       let query = supabase
-        .from('company_rse_reports')
+        .from('pev_company_rse_reports')
         .select(`
           *,
-          companies (
+          pev_companies (
             name,
             industry,
             logo_url,
@@ -67,10 +67,10 @@ export const rseService = {
   async getReportById(reportId) {
     try {
       const { data, error } = await supabase
-        .from('company_rse_reports')
+        .from('pev_company_rse_reports')
         .select(`
           *,
-          companies (
+          pev_companies (
             name,
             industry,
             logo_url,
@@ -122,7 +122,7 @@ export const rseService = {
       )
       
       const insertPromise = supabase
-        .from('company_rse_reports')
+        .from('pev_company_rse_reports')
         .insert({
           company_id: companyId,
           fiscal_year: fiscalYear,
@@ -175,7 +175,7 @@ export const rseService = {
       delete cleanUpdates.companies
       
       const { data, error } = await supabase
-        .from('company_rse_reports')
+        .from('pev_company_rse_reports')
         .update(cleanUpdates)
         .eq('id', reportId)
         .select()
@@ -225,7 +225,7 @@ export const rseService = {
   async deleteReport(reportId) {
     try {
       const { error } = await supabase
-        .from('company_rse_reports')
+        .from('pev_company_rse_reports')
         .delete()
         .eq('id', reportId)
       
@@ -248,7 +248,7 @@ export const rseService = {
   async getAllSDGs() {
     try {
       const { data, error } = await supabase
-        .from('sdgs')
+        .from('pev_sdgs')
         .select('*')
         .order('id')
       
@@ -271,7 +271,7 @@ export const rseService = {
   async getSDGById(sdgId) {
     try {
       const { data, error } = await supabase
-        .from('sdgs')
+        .from('pev_sdgs')
         .select('*')
         .eq('id', sdgId)
         .single()
@@ -292,7 +292,7 @@ export const rseService = {
   async getGlobalStats(fiscalYear = null) {
     try {
       let query = supabase
-        .from('v_rse_global_stats')
+        .from('pev_v_rse_global_stats')
         .select('*')
       
       if (fiscalYear) {
@@ -319,7 +319,7 @@ export const rseService = {
       const { limit = 10, country = null } = options
       
       let query = supabase
-        .from('v_company_latest_rse_report')
+        .from('pev_v_company_latest_rse_report')
         .select('*')
         .order('fiscal_year', { ascending: false })
         .limit(limit)
@@ -353,7 +353,7 @@ export const rseService = {
       
       // Upload le fichier
       const { error: uploadError } = await supabase.storage
-        .from('peva-private')
+        .from('greenhub-private')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false
@@ -363,7 +363,7 @@ export const rseService = {
       
       // Récupérer l'URL signée (valide 1 an)
       const { data: { signedUrl }, error: urlError } = await supabase.storage
-        .from('peva-private')
+        .from('greenhub-private')
         .createSignedUrl(filePath, 31536000) // 1 an en secondes
       
       if (urlError) throw urlError
@@ -390,7 +390,7 @@ export const rseService = {
   async deleteDocument(filePath) {
     try {
       const { error } = await supabase.storage
-        .from('peva-private')
+        .from('greenhub-private')
         .remove([filePath])
       
       if (error) throw error
@@ -440,7 +440,7 @@ export const rseService = {
   async canCreateReport(companyId, fiscalYear) {
     try {
       const { data, error } = await supabase
-        .from('company_rse_reports')
+        .from('pev_company_rse_reports')
         .select('id')
         .eq('company_id', companyId)
         .eq('fiscal_year', fiscalYear)
@@ -462,7 +462,7 @@ export const rseService = {
   async getAvailableYears(companyId) {
     try {
       const { data, error } = await supabase
-        .from('company_rse_reports')
+        .from('pev_company_rse_reports')
         .select('fiscal_year')
         .eq('company_id', companyId)
         .order('fiscal_year', { ascending: false })
