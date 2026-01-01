@@ -473,10 +473,10 @@ const loadCompanies = async () => {
   loading.value = true
   try {
     const { data, error } = await supabase
-      .from('companies')
+      .from('pev_companies')
       .select(`
         *,
-        owner:profiles(first_name, last_name, email)
+        owner:pev_profiles(first_name, last_name, email)
       `)
       .order('created_at', { ascending: false })
 
@@ -567,7 +567,7 @@ const toggleStatus = async (company) => {
   try {
     const newStatus = company.status === 'published' ? 'suspended' : 'published'
     const { error } = await supabase
-      .from('companies')
+      .from('pev_companies')
       .update({ status: newStatus })
       .eq('id', company.id)
 

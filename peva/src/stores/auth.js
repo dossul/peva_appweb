@@ -69,7 +69,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const { data: profile, error } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .select('*')
         .eq('id', user.value.id)
         .single()
@@ -250,7 +250,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Utiliser upsert pour créer ou mettre à jour le profil
       const { data, error: profileError } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .upsert({
           id: user.value.id,
           email: user.value.email,

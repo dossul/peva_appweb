@@ -19,6 +19,8 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
     
+    <!-- OneSignal Bell Button - Ne pas surcharger, laisser la config JS gérer -->
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="2iE GreenHub">
@@ -40,38 +42,49 @@
           appId: "dd2d012b-502a-44f8-bc6c-9a2a2931916f",
           safari_web_id: "web.onesignal.auto.0919e572-6b9a-4fc1-8566-50f787b3e729",
           allowLocalhostAsSecureOrigin: true,
-          serviceWorkerParam: { scope: '/' },
-          path: '/OneSignalSDKWorker.js',
           autoRegister: false, // Ne pas demander automatiquement les permissions
           autoResubscribe: false, // Ne pas se réabonner automatiquement
+          promptOptions: {
+            slidedown: {
+              enabled: true,
+              autoPrompt: false,
+              actionMessage: "Souhaitez-vous recevoir les notifications de 2iE GreenHub ?",
+              acceptButtonText: "AUTORISER",
+              cancelButtonText: "NON MERCI",
+              categories: {
+                tags: []
+              }
+            }
+          },
           notifyButton: {
             enable: true,
-            text: {
-              'tip.state.unsubscribed': 'Abonnez-vous aux notifications 2iE GreenHub',
-              'tip.state.subscribed': "Vous êtes abonné aux notifications 2iE GreenHub",
-              'tip.state.blocked': "Vous avez bloqué les notifications",
-              'message.prenotify': 'Cliquez pour vous abonner aux notifications',
-              'message.action.subscribed': "Merci ! Vous recevrez nos notifications.",
-              'message.action.resubscribed': "Vous êtes de nouveau abonné aux notifications.",
-              'message.action.unsubscribed': "Vous ne recevrez plus nos notifications.",
-              'dialog.main.title': 'Gérer les notifications du site',
-              'dialog.main.button.subscribe': 'S\'ABONNER',
-              'dialog.main.button.unsubscribe': 'SE DÉSABONNER',
-              'dialog.blocked.title': 'Débloquer les notifications',
-              'dialog.blocked.message': "Suivez ces instructions pour autoriser les notifications:"
-            },
-            colors: {
-              'circle.background': '#2E7D32',
-              'circle.foreground': 'white',
-              'badge.background': '#4CAF50',
-              'badge.foreground': 'white',
-              'badge.bordercolor': '#2E7D32',
-              'pulse.color': '#4CAF50'
-            },
+            size: 'medium',
             position: 'bottom-right',
             offset: {
-              bottom: '20px',
-              right: '20px'
+              bottom: '100px',
+              right: '24px'
+            },
+            text: {
+              'tip.state.unsubscribed': "S'abonner aux notifications",
+              'tip.state.subscribed': "Vous êtes abonné",
+              'tip.state.blocked': "Notifications bloquées",
+              'message.prenotify': "Cliquez pour activer les notifications",
+              'message.action.subscribed': "Merci pour votre abonnement !",
+              'message.action.resubscribed': "Vous êtes de nouveau abonné",
+              'message.action.unsubscribed': "Vous ne recevrez plus de notifications",
+              'dialog.main.title': 'Notifications 2iE GreenHub',
+              'dialog.main.button.subscribe': "S'ABONNER",
+              'dialog.main.button.unsubscribe': 'SE DÉSABONNER',
+              'dialog.blocked.title': 'Débloquer les notifications',
+              'dialog.blocked.message': "Autorisez les notifications dans les paramètres de votre navigateur"
+            },
+            colors: {
+              'circle.background': '#1B5E20',
+              'circle.foreground': 'white',
+              'badge.background': '#2E7D32',
+              'badge.foreground': 'white',
+              'badge.bordercolor': '#1B5E20',
+              'pulse.color': '#4CAF50'
             }
           },
         });

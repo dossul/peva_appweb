@@ -13,27 +13,23 @@ class DataService {
   async getPlatformStats() {
     try {
       const { data, error } = await supabase
-        .from('platform_stats')
+        .from('pev_platform_stats')
         .select('*')
         .eq('is_active', true)
         .order('id')
 
       if (error) throw error
       
-      // Formater les données pour l'affichage
-      return (data || []).map(stat => ({
-        ...stat,
-        formatted_value: this.formatStatValue(stat.stat_value),
-        label: stat.display_label
-      }))
+      // Les données sont déjà formatées dans la DB
+      return data || []
     } catch (error) {
       console.error('Erreur lors de la récupération des statistiques:', error)
       // Retourner des données par défaut en cas d'erreur
       return [
-        { stat_key: 'companies', stat_value: 150, formatted_value: '150+', label: 'Entreprises Vertes' },
-        { stat_key: 'users', stat_value: 2500, formatted_value: '2.5K', label: 'Membres Actifs' },
-        { stat_key: 'opportunities', stat_value: 89, formatted_value: '89', label: 'Opportunités' },
-        { stat_key: 'events', stat_value: 24, formatted_value: '24', label: 'Événements' }
+        { key: 'companies', value: 150, formatted_value: '150+', label: 'Entreprises Vertes', icon: 'mdi-domain', color: 'blue' },
+        { key: 'users', value: 2500, formatted_value: '2.5K', label: 'Membres Actifs', icon: 'mdi-account-group', color: 'green' },
+        { key: 'opportunities', value: 89, formatted_value: '89', label: 'Opportunités', icon: 'mdi-briefcase', color: 'orange' },
+        { key: 'events', value: 24, formatted_value: '24', label: 'Événements', icon: 'mdi-calendar', color: 'purple' }
       ]
     }
   }
@@ -56,7 +52,7 @@ class DataService {
   async getSectors() {
     try {
       const { data, error } = await supabase
-        .from('sectors')
+        .from('pev_sectors')
         .select('*')
         .eq('is_active', true)
         .order('sort_order')
@@ -75,7 +71,7 @@ class DataService {
   async getSDGs() {
     try {
       const { data, error } = await supabase
-        .from('sdgs')
+        .from('pev_sdgs')
         .select('*')
         .eq('is_active', true)
         .order('id')
@@ -94,10 +90,10 @@ class DataService {
   async getCompanies(limit = 10) {
     try {
       const { data, error } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .select(`
           *,
-          owner:profiles(first_name, last_name, avatar_url)
+          owner:pev_profiles(first_name, last_name, avatar_url)
         `)
         .eq('status', 'published')
         .order('created_at', { ascending: false })
@@ -117,11 +113,11 @@ class DataService {
   async getOpportunities(limit = 10) {
     try {
       const { data, error } = await supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .select(`
           *,
-          company:companies(name, logo_url),
-          creator:profiles(first_name, last_name)
+          company:pev_companies(name, logo_url),
+          creator:pev_profiles(first_name, last_name)
         `)
         .eq('status', 'published')
         .order('created_at', { ascending: false })
@@ -141,10 +137,10 @@ class DataService {
   async getEvents(limit = 10) {
     try {
       const { data, error } = await supabase
-        .from('events')
+        .from('pev_events')
         .select(`
           *,
-          creator:profiles(first_name, last_name, avatar_url)
+          creator:pev_profiles(first_name, last_name, avatar_url)
         `)
         .eq('status', 'published')
         .gte('end_at', new Date().toISOString()) // Événements futurs ou en cours
@@ -165,11 +161,11 @@ class DataService {
   async getProjects(limit = 10) {
     try {
       const { data, error } = await supabase
-        .from('projects')
+        .from('pev_projects')
         .select(`
           *,
-          owner:profiles(first_name, last_name, avatar_url),
-          company:companies(name, logo_url)
+          owner:pev_profiles(first_name, last_name, avatar_url),
+          company:pev_companies(name, logo_url)
         `)
         .eq('status', 'published')
         .order('created_at', { ascending: false })
@@ -189,10 +185,10 @@ class DataService {
   async getTestimonials(limit = 6) {
     try {
       const { data, error } = await supabase
-        .from('testimonials')
+        .from('pev_testimonials')
         .select(`
           *,
-          user:profiles(first_name, last_name, avatar_url, organization, position)
+          user:pev_profiles(first_name, last_name, avatar_url, organization, position)
         `)
         .eq('is_approved', true)
         .eq('status', 'published')
@@ -214,10 +210,10 @@ class DataService {
   async searchCompanies(query, filters = {}) {
     try {
       let queryBuilder = supabase
-        .from('companies')
+        .from('pev_companies')
         .select(`
           *,
-          owner:profiles(first_name, last_name, avatar_url)
+          owner:pev_profiles(first_name, last_name, avatar_url)
         `)
         .eq('status', 'published')
 
@@ -259,10 +255,10 @@ class DataService {
   async searchOpportunities(query, filters = {}) {
     try {
       let queryBuilder = supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .select(`
           *,
-          company:companies(name, logo_url),
+          company:pev_companies(name, logo_url),
           creator:profiles(first_name, last_name)
         `)
         .eq('status', 'published')
@@ -304,7 +300,7 @@ class DataService {
   async getBurkinaRegions() {
     try {
       const { data, error } = await supabase
-        .from('burkina_regions')
+        .from('pev_burkina_regions')
         .select('*')
         .order('name')
 
@@ -322,10 +318,10 @@ class DataService {
   async getBurkinaCities() {
     try {
       const { data, error } = await supabase
-        .from('burkina_cities')
+        .from('pev_burkina_cities')
         .select(`
           *,
-          region:burkina_regions(name, name_fr)
+          region:pev_burkina_regions(name, name_fr)
         `)
         .order('population', { ascending: false })
 
@@ -343,7 +339,7 @@ class DataService {
   async createCompany(companyData) {
     try {
       const { data, error } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .insert([companyData])
         .select()
         .single()
@@ -362,7 +358,7 @@ class DataService {
   async updateCompany(id, companyData) {
     try {
       const { data, error } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .update(companyData)
         .eq('id', id)
         .select()
@@ -382,7 +378,7 @@ class DataService {
   async deleteCompany(id) {
     try {
       const { error } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .delete()
         .eq('id', id)
 
@@ -400,7 +396,7 @@ class DataService {
   async createOpportunity(opportunityData) {
     try {
       const { data, error } = await supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .insert([opportunityData])
         .select()
         .single()
@@ -419,7 +415,7 @@ class DataService {
   async createEvent(eventData) {
     try {
       const { data, error } = await supabase
-        .from('events')
+        .from('pev_events')
         .insert([eventData])
         .select()
         .single()
@@ -438,7 +434,7 @@ class DataService {
   async createResource(resourceData) {
     try {
       const { data, error } = await supabase
-        .from('resources')
+        .from('pev_resources')
         .insert([resourceData])
         .select()
         .single()
@@ -457,7 +453,7 @@ class DataService {
   async getUserNotifications(userId, limit = 20) {
     try {
       const { data, error } = await supabase
-        .from('user_notifications_with_actor')
+        .from('pev_user_notifications_with_actor')
         .select('*')
         .eq('recipient_id', userId)
         .order('created_at', { ascending: false })

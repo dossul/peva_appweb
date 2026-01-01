@@ -25,7 +25,7 @@ export const companyManagementService = {
       } = options
 
       let query = supabase
-        .from('companies')
+        .from('pev_companies')
         .select(`
           id,
           owner_id,
@@ -94,7 +94,7 @@ export const companyManagementService = {
 
       // Récupérer le total pour la pagination
       const { count: totalCount } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .select('*', { count: 'exact', head: true })
 
       return {
@@ -126,10 +126,10 @@ export const companyManagementService = {
   async getCompanyDetails(companyId) {
     try {
       const { data, error } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .select(`
           *,
-          profiles:owner_id(first_name, last_name, email, avatar_url, organization, phone),
+          pev_profiles:owner_id(first_name, last_name, email, avatar_url, organization, phone),
           company_members(
             id,
             role,
@@ -168,7 +168,7 @@ export const companyManagementService = {
       const { notes = '', documents = [] } = verificationData
 
       const { data, error } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .update({
           is_verified: true,
           status: 'published',
@@ -209,7 +209,7 @@ export const companyManagementService = {
   async rejectCompany(companyId, adminId, reason) {
     try {
       const { data, error } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .update({
           is_verified: false,
           status: 'rejected',
@@ -255,7 +255,7 @@ export const companyManagementService = {
       }
 
       const { data, error } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .update({
           status: newStatus,
           updated_at: new Date().toISOString()
@@ -353,7 +353,7 @@ export const companyManagementService = {
         
         // Événements créés par l'entreprise
         supabase
-          .from('events')
+          .from('pev_events')
           .select('id', { count: 'exact' })
           .eq('company_id', companyId)
       ])
@@ -395,7 +395,7 @@ export const companyManagementService = {
   async searchCompanies(query, limit = 20) {
     try {
       const { data, error } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .select(`
           id,
           name,
@@ -439,7 +439,7 @@ export const companyManagementService = {
   async getCompaniesOverview() {
     try {
       const { data, error } = await supabase
-        .from('companies')
+        .from('pev_companies')
         .select(`
           status,
           is_verified,

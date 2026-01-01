@@ -21,37 +21,37 @@ export const analyticsService = {
       ] = await Promise.all([
         // Statistiques utilisateurs
         supabase
-          .from('profiles')
+          .from('pev_profiles')
           .select('id, role, is_verified, onboarding_completed, created_at')
           .order('created_at', { ascending: false }),
         
         // Statistiques entreprises
         supabase
-          .from('companies')
+          .from('pev_companies')
           .select('id, status, is_verified, created_at')
           .order('created_at', { ascending: false }),
         
         // Statistiques opportunités
         supabase
-          .from('opportunities')
-          .select('id, moderation_status, status, views_count, applications_count, created_at')
+          .from('pev_opportunities')
+          .select('id, status, views_count, applications_count, created_at')
           .order('created_at', { ascending: false }),
         
         // Statistiques événements
         supabase
-          .from('events')
+          .from('pev_events')
           .select('id, status, created_at')
           .order('created_at', { ascending: false }),
         
         // Statistiques ressources
         supabase
-          .from('resources')
+          .from('pev_resources')
           .select('id, status, created_at')
           .order('created_at', { ascending: false }),
         
         // Statistiques connexions
         supabase
-          .from('connections')
+          .from('pev_connections')
           .select('id, status, created_at')
           .order('created_at', { ascending: false })
       ])
@@ -104,10 +104,9 @@ export const analyticsService = {
           new_this_month: opportunities.filter(o => new Date(o.created_at) > monthAgo).length,
           total_views: opportunities.reduce((sum, o) => sum + (o.views_count || 0), 0),
           total_applications: opportunities.reduce((sum, o) => sum + (o.applications_count || 0), 0),
-          by_moderation_status: {
-            pending: opportunities.filter(o => o.moderation_status === 'pending').length,
-            approved: opportunities.filter(o => o.moderation_status === 'approved').length,
-            rejected: opportunities.filter(o => o.moderation_status === 'rejected').length
+          by_status: {
+            draft: opportunities.filter(o => o.status === 'draft').length,
+            published: opportunities.filter(o => o.status === 'published').length
           },
           by_status: {
             active: opportunities.filter(o => o.status === 'active').length,
@@ -185,7 +184,7 @@ export const analyticsService = {
       startDate.setDate(startDate.getDate() - days)
 
       const { data, error } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .select('created_at, role')
         .gte('created_at', startDate.toISOString())
         .order('created_at', { ascending: true })
@@ -265,24 +264,24 @@ export const analyticsService = {
 
       switch (contentType) {
         case 'opportunities':
-          statusField = 'moderation_status'
+          statusField = 'status'
           query = supabase
-            .from('opportunities')
-            .select('created_at, moderation_status, status, views_count, applications_count')
+            .from('pev_opportunities')
+            .select('created_at, status, views_count, applications_count')
           break
         case 'companies':
           query = supabase
-            .from('companies')
+            .from('pev_companies')
             .select('created_at, status, is_verified')
           break
         case 'events':
           query = supabase
-            .from('events')
+            .from('pev_events')
             .select('created_at, status')
           break
         case 'resources':
           query = supabase
-            .from('resources')
+            .from('pev_resources')
             .select('created_at, status')
           break
         default:
@@ -367,24 +366,24 @@ export const analyticsService = {
       ] = await Promise.all([
         // Utilisateurs actifs (dernière activité < 30 jours)
         supabase
-          .from('profiles')
+          .from('pev_profiles')
           .select('last_activity')
           .gte('last_activity', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
         
         // Vues d'opportunités
         supabase
-          .from('opportunities')
+          .from('pev_opportunities')
           .select('views_count'),
         
         // Connexions actives
         supabase
-          .from('connections')
+          .from('pev_connections')
           .select('status')
           .eq('status', 'accepted'),
         
         // Messages (si la table existe)
         supabase
-          .from('messages')
+          .from('pev_messages')
           .select('id')
           .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
       ])
@@ -397,8 +396,8 @@ export const analyticsService = {
       }
 
       // Calculer les taux d'engagement
-      const totalUsers = await supabase.from('profiles').select('id', { count: 'exact' })
-      const totalOpportunities = await supabase.from('opportunities').select('id', { count: 'exact' })
+      const totalUsers = await supabase.from('pev_profiles').select('id', { count: 'exact' })
+      const totalOpportunities = await supabase.from('pev_opportunities').select('id', { count: 'exact' })
 
       metrics.user_engagement_rate = totalUsers.count > 0 ? (metrics.active_users_30d / totalUsers.count * 100).toFixed(1) : 0
       metrics.avg_views_per_opportunity = totalOpportunities.count > 0 ? (metrics.total_opportunity_views / totalOpportunities.count).toFixed(1) : 0
@@ -431,9 +430,9 @@ export const analyticsService = {
   async getGeographicDistribution() {
     try {
       const [usersResult, companiesResult, opportunitiesResult] = await Promise.all([
-        supabase.from('profiles').select('country'),
-        supabase.from('companies').select('country'),
-        supabase.from('opportunities').select('country, countries')
+        supabase.from('pev_profiles').select('country'),
+        supabase.from('pev_companies').select('country'),
+        supabase.from('pev_opportunities').select('country')
       ])
 
       const distribution = {
@@ -458,11 +457,7 @@ export const analyticsService = {
 
       // Compter les opportunités par pays
       opportunitiesResult.data?.forEach(opportunity => {
-        if (opportunity.countries && Array.isArray(opportunity.countries)) {
-          opportunity.countries.forEach(country => {
-            distribution.opportunities[country] = (distribution.opportunities[country] || 0) + 1
-          })
-        } else if (opportunity.country) {
+        if (opportunity.country) {
           distribution.opportunities[opportunity.country] = (distribution.opportunities[opportunity.country] || 0) + 1
         }
       })

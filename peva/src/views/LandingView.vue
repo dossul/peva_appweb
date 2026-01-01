@@ -9,11 +9,10 @@
                 <h1 class="text-h2 font-weight-bold text-grey-darken-3 mb-6">
                   L'Écosystème Digital de
                   <span class="text-green-darken-2">l'Économie Verte</span>
-                  en Afrique
                 </h1>
                 <p class="text-h6 text-grey-darken-1 mb-8 font-weight-regular">
                   Connectez-vous aux opportunités, entreprises et innovations
-                  qui façonnent l'avenir durable de l'Afrique
+                  qui façonnent l'avenir durable
                 </p>
                 
                 <!-- CTA Buttons -->
@@ -428,7 +427,7 @@
               />
             </div>
             <p class="text-body-2 mt-4">
-              La plateforme digitale stratégique pour l'écosystème de l'économie verte en Afrique.
+              La plateforme digitale stratégique pour l'écosystème de l'économie verte.
             </p>
           </v-col>
           
@@ -461,7 +460,7 @@
         
         <div class="text-center">
           <p class="text-body-2 text-grey-lighten-1 ma-0">
-            © 2024 2iE GreenHub - Plateforme Économie Verte Africaine. Tous droits réservés.
+            © 2024 2iE GreenHub - Entreprises de l'économie verte. Tous droits réservés.
           </p>
         </div>
       </v-container>
@@ -789,6 +788,7 @@ const creationActions = ref([
     buttonText: 'Créer un événement'
   }
 ])
+
 </script>
 
 <style scoped>

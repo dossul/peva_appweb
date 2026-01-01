@@ -629,7 +629,7 @@ const loadNotifications = async () => {
 const loadUsers = async () => {
   try {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('pev_profiles')
       .select('id, first_name, last_name, email, avatar_url')
       .order('first_name')
 
@@ -716,7 +716,7 @@ const sendBroadcast = async () => {
   try {
     // Récupérer tous les utilisateurs avec les rôles cibles
     const { data: targetUsers, error } = await supabase
-      .from('profiles')
+      .from('pev_profiles')
       .select('id')
       .in('role', broadcastFormData.value.target_roles)
 
@@ -773,7 +773,7 @@ const resendNotification = async (notification) => {
 const deleteNotification = async (notification) => {
   try {
     const { error } = await supabase
-      .from('notifications')
+      .from('pev_notifications')
       .delete()
       .eq('id', notification.id)
 

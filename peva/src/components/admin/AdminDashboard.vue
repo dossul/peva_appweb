@@ -350,10 +350,10 @@ const loadStats = async () => {
   try {
     // Charger les statistiques depuis Supabase
     const [usersCount, companiesCount, opportunitiesCount, eventsCount] = await Promise.all([
-      supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('companies').select('*', { count: 'exact', head: true }),
-      supabase.from('opportunities').select('*', { count: 'exact', head: true }),
-      supabase.from('events').select('*', { count: 'exact', head: true })
+      supabase.from('pev_profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('pev_companies').select('*', { count: 'exact', head: true }),
+      supabase.from('pev_opportunities').select('*', { count: 'exact', head: true }),
+      supabase.from('pev_events').select('*', { count: 'exact', head: true })
     ])
 
     stats.value = {

@@ -516,10 +516,10 @@ const loadOpportunities = async () => {
   loading.value = true
   try {
     const { data, error } = await supabase
-      .from('opportunities')
+      .from('pev_opportunities')
       .select(`
         *,
-        creator:profiles(first_name, last_name, avatar_url),
+        creator:pev_profiles(first_name, last_name, avatar_url),
         company:companies(name, logo_url)
       `)
       .order('created_at', { ascending: false })
@@ -580,7 +580,7 @@ const saveOpportunity = async () => {
     if (editingOpportunity.value) {
       // Modification
       const { error } = await supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .update(opportunityFormData.value)
         .eq('id', editingOpportunity.value.id)
 
@@ -615,7 +615,7 @@ const toggleStatus = async (opportunity) => {
   try {
     const newStatus = opportunity.status === 'published' ? 'suspended' : 'published'
     const { error } = await supabase
-      .from('opportunities')
+      .from('pev_opportunities')
       .update({ status: newStatus })
       .eq('id', opportunity.id)
 
@@ -635,7 +635,7 @@ const deleteOpportunity = (opportunity) => {
 const confirmDelete = async () => {
   try {
     const { error } = await supabase
-      .from('opportunities')
+      .from('pev_opportunities')
       .delete()
       .eq('id', opportunityToDelete.value.id)
 

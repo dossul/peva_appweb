@@ -557,10 +557,10 @@ const loadEvents = async () => {
   loading.value = true
   try {
     const { data, error } = await supabase
-      .from('events')
+      .from('pev_events')
       .select(`
         *,
-        organizer:profiles(first_name, last_name, avatar_url)
+        organizer:pev_profiles(first_name, last_name, avatar_url)
       `)
       .order('start_date', { ascending: false })
 
@@ -620,7 +620,7 @@ const saveEvent = async () => {
     if (editingEvent.value) {
       // Modification
       const { error } = await supabase
-        .from('events')
+        .from('pev_events')
         .update(eventFormData.value)
         .eq('id', editingEvent.value.id)
 
@@ -660,7 +660,7 @@ const toggleStatus = async (event) => {
   try {
     const newStatus = event.status === 'published' ? 'cancelled' : 'published'
     const { error } = await supabase
-      .from('events')
+      .from('pev_events')
       .update({ status: newStatus })
       .eq('id', event.id)
 
@@ -680,7 +680,7 @@ const deleteEvent = (event) => {
 const confirmDelete = async () => {
   try {
     const { error } = await supabase
-      .from('events')
+      .from('pev_events')
       .delete()
       .eq('id', eventToDelete.value.id)
 

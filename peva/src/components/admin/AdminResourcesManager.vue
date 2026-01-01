@@ -531,10 +531,10 @@ const loadResources = async () => {
   loading.value = true
   try {
     const { data, error } = await supabase
-      .from('resources')
+      .from('pev_resources')
       .select(`
         *,
-        author:profiles(first_name, last_name, avatar_url)
+        author:pev_profiles(first_name, last_name, avatar_url)
       `)
       .order('created_at', { ascending: false })
 
@@ -593,7 +593,7 @@ const saveResource = async () => {
     if (editingResource.value) {
       // Modification
       const { error } = await supabase
-        .from('resources')
+        .from('pev_resources')
         .update(resourceFormData.value)
         .eq('id', editingResource.value.id)
 
@@ -640,7 +640,7 @@ const toggleStatus = async (resource) => {
     }
 
     const { error } = await supabase
-      .from('resources')
+      .from('pev_resources')
       .update(updateData)
       .eq('id', resource.id)
 
@@ -663,7 +663,7 @@ const deleteResource = (resource) => {
 const confirmDelete = async () => {
   try {
     const { error } = await supabase
-      .from('resources')
+      .from('pev_resources')
       .delete()
       .eq('id', resourceToDelete.value.id)
 

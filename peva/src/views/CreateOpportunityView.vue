@@ -954,7 +954,7 @@ const showMessage = (message, color = 'success') => {
 const loadUserCompanies = async () => {
   try {
     const { data, error } = await supabase
-      .from('companies')
+      .from('pev_companies')
       .select('id, name')
       .eq('owner_id', authStore.user?.id)
     

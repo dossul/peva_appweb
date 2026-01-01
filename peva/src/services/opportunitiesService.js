@@ -5,20 +5,9 @@ export const opportunitiesService = {
   async getOpportunities(filters = {}) {
     try {
       let query = supabase
-        .from('opportunities')
-        .select(`
-          *,
-          countries,
-          is_multi_country,
-          visibility,
-          promote_premium,
-          send_notifications,
-          auto_share_social,
-          social_links,
-          attachments
-        `)
+        .from('pev_opportunities')
+        .select('*')
         .eq('status', 'published')
-        .eq('moderation_status', 'approved')
         .order('created_at', { ascending: false })
 
       // Appliquer les filtres
@@ -68,7 +57,7 @@ export const opportunitiesService = {
   async getOpportunityById(id) {
     try {
       const { data, error } = await supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .select('*')
         .eq('id', id)
         .single()
@@ -100,13 +89,13 @@ export const opportunitiesService = {
         const filePath = `opportunities/${fileName}`
 
         const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('documents')
+          .from('greenhub-public')
           .upload(filePath, file)
 
         if (uploadError) throw uploadError
 
         const { data: { publicUrl } } = supabase.storage
-          .from('documents')
+          .from('greenhub-public')
           .getPublicUrl(filePath)
 
         attachments.push({
@@ -119,7 +108,7 @@ export const opportunitiesService = {
         })
       }
 
-      // Adapter les données à la structure Supabase
+      // Adapter les données à la structure Supabase (colonnes réelles uniquement)
       const adaptedData = {
         title: opportunityData.title,
         description: opportunityData.description,
@@ -127,33 +116,22 @@ export const opportunitiesService = {
         category: opportunityData.sector,
         location: opportunityData.location,
         country: opportunityData.country || opportunityData.location,
+        region: opportunityData.region,
+        city: opportunityData.city,
+        is_remote: opportunityData.is_remote || false,
         salary_min: opportunityData.amount_min,
         salary_max: opportunityData.amount_max,
-        currency: opportunityData.currency || 'EUR',
+        currency: opportunityData.currency || 'XOF',
         deadline: opportunityData.deadline,
         requirements: opportunityData.requirements,
         status: 'published',
-        moderation_status: 'pending',
         created_by: opportunityData.created_by,
-        organization: opportunityData.organization,
         // Ajouter company_id si c'est une publication d'entreprise
-        ...(opportunityData.company_id && { company_id: opportunityData.company_id }),
-        // Gérer les pays multiples
-        ...(opportunityData.countries && { countries: JSON.stringify(opportunityData.countries) }),
-        ...(opportunityData.is_multi_country !== undefined && { is_multi_country: opportunityData.is_multi_country }),
-        // Options de publication et visibilité
-        visibility: opportunityData.visibility || 'public',
-        promote_premium: opportunityData.promote_premium || false,
-        send_notifications: opportunityData.send_notifications !== undefined ? opportunityData.send_notifications : true,
-        auto_share_social: opportunityData.auto_share_social || false,
-        // Stocker les liens sociaux en JSON
-        ...(opportunityData.social_links && { social_links: JSON.stringify(opportunityData.social_links) }),
-        // Stocker les fichiers joints en JSON
-        ...(attachments.length > 0 && { attachments: JSON.stringify(attachments) })
+        ...(opportunityData.company_id && { company_id: opportunityData.company_id })
       }
 
       const { data, error } = await supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .insert([adaptedData])
         .select()
         .single()
@@ -177,7 +155,7 @@ export const opportunitiesService = {
   async applyToOpportunity(opportunityId, applicationData) {
     try {
       const { data, error } = await supabase
-        .from('opportunity_applications')
+        .from('pev_opportunity_applications')
         .insert([{
           opportunity_id: opportunityId,
           ...applicationData
@@ -204,9 +182,10 @@ export const opportunitiesService = {
   async addToFavorites(opportunityId, userId) {
     try {
       const { data, error } = await supabase
-        .from('opportunity_favorites')
+        .from('pev_favorites')
         .insert([{
-          opportunity_id: opportunityId,
+          entity_type: 'opportunity',
+          entity_id: opportunityId.toString(),
           user_id: userId
         }])
         .select()
@@ -231,9 +210,10 @@ export const opportunitiesService = {
   async removeFromFavorites(opportunityId, userId) {
     try {
       const { error } = await supabase
-        .from('opportunity_favorites')
+        .from('pev_favorites')
         .delete()
-        .eq('opportunity_id', opportunityId)
+        .eq('entity_type', 'opportunity')
+        .eq('entity_id', opportunityId.toString())
         .eq('user_id', userId)
 
       if (error) throw error

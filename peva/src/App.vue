@@ -21,9 +21,9 @@ const showHeader = computed(() => !hideHeaderRoutes.includes(route.path))
       <div class="tw-min-h-screen tw-bg-background">
         <router-view />
         
-        <!-- Gestionnaire de notifications global -->
+        <!-- Gestionnaire de notifications global - bouton flottant désactivé (OneSignal utilisé) -->
         <NotificationManager 
-          :show-floating-button="true"
+          :show-floating-button="false"
           :auto-show="false"
         />
       </div>

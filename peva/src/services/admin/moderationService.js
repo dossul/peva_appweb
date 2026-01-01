@@ -21,50 +21,50 @@ export const moderationService = {
       switch (contentType) {
         case 'opportunities':
           query = supabase
-            .from('opportunities')
+            .from('pev_opportunities')
             .select(`
               *,
-              profiles:created_by(first_name, last_name, email, avatar_url)
+              pev_profiles:created_by(first_name, last_name, email, avatar_url)
             `)
-            .eq('moderation_status', 'pending')
+            .eq('status', 'draft')
           break
 
         case 'resources':
           query = supabase
-            .from('resources')
+            .from('pev_resources')
             .select(`
               *,
-              profiles:created_by(first_name, last_name, email, avatar_url)
+              pev_profiles:created_by(first_name, last_name, email, avatar_url)
             `)
             .eq('status', 'in_review')
           break
 
         case 'events':
           query = supabase
-            .from('events')
+            .from('pev_events')
             .select(`
               *,
-              profiles:created_by(first_name, last_name, email, avatar_url)
+              pev_profiles:created_by(first_name, last_name, email, avatar_url)
             `)
             .eq('status', 'in_review')
           break
 
         case 'companies':
           query = supabase
-            .from('companies')
+            .from('pev_companies')
             .select(`
               *,
-              profiles:owner_id(first_name, last_name, email, avatar_url)
+              pev_profiles:owner_id(first_name, last_name, email, avatar_url)
             `)
             .eq('status', 'in_review')
           break
 
         case 'forum_topics':
           query = supabase
-            .from('forum_topics')
+            .from('pev_forum_topics')
             .select(`
               *,
-              profiles:user_id(first_name, last_name, email, avatar_url),
+              pev_profiles:user_id(first_name, last_name, email, avatar_url),
               forum_categories:category_id(name)
             `)
             .eq('status', 'pending')
@@ -72,10 +72,10 @@ export const moderationService = {
 
         case 'forum_posts':
           query = supabase
-            .from('forum_posts')
+            .from('pev_forum_posts')
             .select(`
               *,
-              profiles:user_id(first_name, last_name, email, avatar_url),
+              pev_profiles:user_id(first_name, last_name, email, avatar_url),
               forum_topics:topic_id(title)
             `)
           break
@@ -133,38 +133,35 @@ export const moderationService = {
 
       switch (contentType) {
         case 'opportunities':
-          updateData.moderation_status = 'approved'
-          updateData.moderated_by = moderatorId
-          updateData.moderated_at = new Date().toISOString()
-          updateData.moderation_notes = notes
-          query = supabase.from('opportunities').update(updateData).eq('id', contentId)
+          updateData.status = 'published'
+          query = supabase.from('pev_opportunities').update(updateData).eq('id', contentId)
           break
 
         case 'resources':
           updateData.status = 'published'
-          query = supabase.from('resources').update(updateData).eq('id', contentId)
+          query = supabase.from('pev_resources').update(updateData).eq('id', contentId)
           break
 
         case 'events':
           updateData.status = 'published'
-          query = supabase.from('events').update(updateData).eq('id', contentId)
+          query = supabase.from('pev_events').update(updateData).eq('id', contentId)
           break
 
         case 'companies':
           updateData.status = 'published'
           updateData.is_verified = true
-          query = supabase.from('companies').update(updateData).eq('id', contentId)
+          query = supabase.from('pev_companies').update(updateData).eq('id', contentId)
           break
 
         case 'forum_topics':
           updateData.status = 'published'
-          query = supabase.from('forum_topics').update(updateData).eq('id', contentId)
+          query = supabase.from('pev_forum_topics').update(updateData).eq('id', contentId)
           break
 
         case 'forum_posts':
           // Les posts du forum n'ont pas de statut de modération par défaut
           // On peut ajouter une colonne si nécessaire
-          query = supabase.from('forum_posts').update(updateData).eq('id', contentId)
+          query = supabase.from('pev_forum_posts').update(updateData).eq('id', contentId)
           break
 
         default:
@@ -208,36 +205,33 @@ export const moderationService = {
 
       switch (contentType) {
         case 'opportunities':
-          updateData.moderation_status = 'rejected'
-          updateData.moderated_by = moderatorId
-          updateData.moderated_at = new Date().toISOString()
-          updateData.moderation_notes = reason
-          query = supabase.from('opportunities').update(updateData).eq('id', contentId)
+          updateData.status = 'draft'
+          query = supabase.from('pev_opportunities').update(updateData).eq('id', contentId)
           break
 
         case 'resources':
           updateData.status = 'rejected'
-          query = supabase.from('resources').update(updateData).eq('id', contentId)
+          query = supabase.from('pev_resources').update(updateData).eq('id', contentId)
           break
 
         case 'events':
           updateData.status = 'rejected'
-          query = supabase.from('events').update(updateData).eq('id', contentId)
+          query = supabase.from('pev_events').update(updateData).eq('id', contentId)
           break
 
         case 'companies':
           updateData.status = 'rejected'
-          query = supabase.from('companies').update(updateData).eq('id', contentId)
+          query = supabase.from('pev_companies').update(updateData).eq('id', contentId)
           break
 
         case 'forum_topics':
           updateData.status = 'rejected'
-          query = supabase.from('forum_topics').update(updateData).eq('id', contentId)
+          query = supabase.from('pev_forum_topics').update(updateData).eq('id', contentId)
           break
 
         case 'forum_posts':
           // Supprimer le post rejeté
-          query = supabase.from('forum_posts').delete().eq('id', contentId)
+          query = supabase.from('pev_forum_posts').delete().eq('id', contentId)
           break
 
         default:
@@ -277,10 +271,10 @@ export const moderationService = {
       switch (contentType) {
         case 'opportunities':
           query = supabase
-            .from('opportunities')
+            .from('pev_opportunities')
             .select(`
               *,
-              profiles:created_by(first_name, last_name, email, avatar_url, organization),
+              pev_profiles:created_by(first_name, last_name, email, avatar_url, organization),
               companies:company_id(name, logo_url)
             `)
             .eq('id', contentId)
@@ -289,10 +283,10 @@ export const moderationService = {
 
         case 'resources':
           query = supabase
-            .from('resources')
+            .from('pev_resources')
             .select(`
               *,
-              profiles:created_by(first_name, last_name, email, avatar_url, organization)
+              pev_profiles:created_by(first_name, last_name, email, avatar_url, organization)
             `)
             .eq('id', contentId)
             .single()
@@ -300,10 +294,10 @@ export const moderationService = {
 
         case 'events':
           query = supabase
-            .from('events')
+            .from('pev_events')
             .select(`
               *,
-              profiles:created_by(first_name, last_name, email, avatar_url, organization)
+              pev_profiles:created_by(first_name, last_name, email, avatar_url, organization)
             `)
             .eq('id', contentId)
             .single()
@@ -311,10 +305,10 @@ export const moderationService = {
 
         case 'companies':
           query = supabase
-            .from('companies')
+            .from('pev_companies')
             .select(`
               *,
-              profiles:owner_id(first_name, last_name, email, avatar_url)
+              pev_profiles:owner_id(first_name, last_name, email, avatar_url)
             `)
             .eq('id', contentId)
             .single()
@@ -322,10 +316,10 @@ export const moderationService = {
 
         case 'forum_topics':
           query = supabase
-            .from('forum_topics')
+            .from('pev_forum_topics')
             .select(`
               *,
-              profiles:user_id(first_name, last_name, email, avatar_url),
+              pev_profiles:user_id(first_name, last_name, email, avatar_url),
               forum_categories:category_id(name, description)
             `)
             .eq('id', contentId)
@@ -334,10 +328,10 @@ export const moderationService = {
 
         case 'forum_posts':
           query = supabase
-            .from('forum_posts')
+            .from('pev_forum_posts')
             .select(`
               *,
-              profiles:user_id(first_name, last_name, email, avatar_url),
+              pev_profiles:user_id(first_name, last_name, email, avatar_url),
               forum_topics:topic_id(title, category_id)
             `)
             .eq('id', contentId)
@@ -460,36 +454,36 @@ export const moderationService = {
       ] = await Promise.all([
         // Opportunités
         supabase
-          .from('opportunities')
-          .select('moderation_status', { count: 'exact' }),
+          .from('pev_opportunities')
+          .select('status', { count: 'exact' }),
         
         // Ressources
         supabase
-          .from('resources')
+          .from('pev_resources')
           .select('status', { count: 'exact' }),
         
         // Événements
         supabase
-          .from('events')
+          .from('pev_events')
           .select('status', { count: 'exact' }),
         
         // Entreprises
         supabase
-          .from('companies')
+          .from('pev_companies')
           .select('status', { count: 'exact' }),
         
         // Forum topics
         supabase
-          .from('forum_topics')
+          .from('pev_forum_topics')
           .select('status', { count: 'exact' })
       ])
 
       // Calculer les statistiques
       const stats = {
         opportunities: {
-          pending: opportunitiesStats.data?.filter(o => o.moderation_status === 'pending').length || 0,
-          approved: opportunitiesStats.data?.filter(o => o.moderation_status === 'approved').length || 0,
-          rejected: opportunitiesStats.data?.filter(o => o.moderation_status === 'rejected').length || 0,
+          pending: opportunitiesStats.data?.filter(o => o.status === 'draft').length || 0,
+          approved: opportunitiesStats.data?.filter(o => o.status === 'published').length || 0,
+          rejected: 0,
           total: opportunitiesStats.count || 0
         },
         resources: {

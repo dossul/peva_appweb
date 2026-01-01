@@ -399,7 +399,7 @@ const loadUsers = async () => {
   loading.value = true
   try {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('pev_profiles')
       .select('*')
       .order('created_at', { ascending: false })
 
@@ -459,7 +459,7 @@ const saveUser = async () => {
     if (editingUser.value) {
       // Modification
       const { error } = await supabase
-        .from('profiles')
+        .from('pev_profiles')
         .update(userFormData.value)
         .eq('id', editingUser.value.id)
 
@@ -493,7 +493,7 @@ const toggleSuspension = async (user) => {
   try {
     const newStatus = !user.is_suspended
     const { error } = await supabase
-      .from('profiles')
+      .from('pev_profiles')
       .update({ is_suspended: newStatus })
       .eq('id', user.id)
 
@@ -513,7 +513,7 @@ const deleteUser = (user) => {
 const confirmDelete = async () => {
   try {
     const { error } = await supabase
-      .from('profiles')
+      .from('pev_profiles')
       .delete()
       .eq('id', userToDelete.value.id)
 

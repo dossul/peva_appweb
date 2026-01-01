@@ -5,19 +5,9 @@ export const adminService = {
   async getPendingOpportunities() {
     try {
       const { data, error } = await supabase
-        .from('opportunities')
-        .select(`
-          *,
-          countries,
-          is_multi_country,
-          visibility,
-          promote_premium,
-          send_notifications,
-          auto_share_social,
-          social_links,
-          attachments
-        `)
-        .eq('moderation_status', 'pending')
+        .from('pev_opportunities')
+        .select('*')
+        .eq('status', 'draft')
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -40,12 +30,10 @@ export const adminService = {
   async approveOpportunity(opportunityId, adminId, notes = '') {
     try {
       const { data, error } = await supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .update({
-          moderation_status: 'approved',
-          moderated_by: adminId,
-          moderated_at: new Date().toISOString(),
-          moderation_notes: notes
+          status: 'published',
+          updated_at: new Date().toISOString()
         })
         .eq('id', opportunityId)
         .select()
@@ -69,12 +57,10 @@ export const adminService = {
   async rejectOpportunity(opportunityId, adminId, notes = '') {
     try {
       const { data, error } = await supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .update({
-          moderation_status: 'rejected',
-          moderated_by: adminId,
-          moderated_at: new Date().toISOString(),
-          moderation_notes: notes
+          status: 'draft',
+          updated_at: new Date().toISOString()
         })
         .eq('id', opportunityId)
         .select()
@@ -98,15 +84,8 @@ export const adminService = {
   async getAllOpportunities() {
     try {
       const { data, error } = await supabase
-        .from('opportunities')
-        .select(`
-          *,
-          countries,
-          moderation_status,
-          moderated_by,
-          moderated_at,
-          moderation_notes
-        `)
+        .from('pev_opportunities')
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -129,7 +108,7 @@ export const adminService = {
   async deleteOpportunity(opportunityId) {
     try {
       const { error } = await supabase
-        .from('opportunities')
+        .from('pev_opportunities')
         .delete()
         .eq('id', opportunityId)
 
