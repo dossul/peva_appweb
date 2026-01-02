@@ -746,12 +746,14 @@ const opportunityTypes = [
 ]
 
 const sectors = [
-  'Énergie Renouvelable',
+  'Agroalimentaire',
   'Agriculture Durable',
   'Économie Circulaire',
-  'Innovation Technologique',
-  'Finance Verte',
+  'Écotourisme',
+  'Énergie Renouvelable',
   'Entrepreneuriat',
+  'Finance Verte',
+  'Innovation Technologique',
   'Développement Durable',
   'Autre'
 ]

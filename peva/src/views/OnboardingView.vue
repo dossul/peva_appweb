@@ -449,10 +449,11 @@ const userTypes = [
 ]
 
 const greenSectors = [
-  'Énergies renouvelables', 'Agriculture durable', 'Gestion des déchets',
-  'Eau et assainissement', 'Transport durable', 'Construction verte',
-  'Économie circulaire', 'Biodiversité et conservation', 'Financement vert',
-  'Technologies propres', 'Éducation environnementale', 'Tourisme durable'
+  'Agroalimentaire', 'Agriculture durable', 'Énergies renouvelables', 
+  'Gestion des déchets', 'Eau et assainissement', 'Transport durable', 
+  'Construction verte', 'Économie circulaire', 'Biodiversité et conservation', 
+  'Financement vert', 'Technologies propres', 'Éducation environnementale', 
+  'Écotourisme'
 ]
 
 const platformGoals = [

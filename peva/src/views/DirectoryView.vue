@@ -558,9 +558,11 @@ const countries = computed(() => {
 const sectors = computed(() => {
   // Secteurs d'expertise ciblés
   const targetedSectors = [
+    'Agroalimentaire',
     'Bilan carbone',
     'Communication d\'impact',
     'Éco-matériaux',
+    'Écotourisme',
     'Équipementiers',
     'Gestion des déchets',
     'RSE/ESG',
