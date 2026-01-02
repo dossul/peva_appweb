@@ -27,6 +27,7 @@ const ApiDocsView = () => import('@/views/ApiDocsView.vue')
 const CreateOpportunityView = () => import('@/views/CreateOpportunityView.vue')
 const CreateEventView = () => import('@/views/CreateEventView.vue')
 const SubmitResourceView = () => import('@/views/SubmitResourceView.vue')
+const TestimonialSubmitView = () => import('@/views/TestimonialSubmitView.vue')
 const CreateGroupView = () => import('@/views/CreateGroupView.vue')
 const CompanyManagementView = () => import('@/views/CompanyManagementView.vue')
 const RSEDashboard = () => import('@/views/RSEDashboard.vue')
@@ -288,6 +289,15 @@ const router = createRouter({
       meta: { 
         requiresAuth: true,
         title: 'Proposer une Ressource - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/testimonials/submit',
+      name: 'SubmitTestimonial',
+      component: TestimonialSubmitView,
+      meta: { 
+        requiresAuth: true,
+        title: 'Partager mon Témoignage - 2iE GreenHub'
       }
     },
     {

@@ -501,6 +501,38 @@ class DataService {
       return 0
     }
   }
+
+  /**
+   * Récupérer les témoignages approuvés et mis en avant
+   */
+  async getTestimonials(limit = 6) {
+    try {
+      const { data, error } = await supabase
+        .from('pev_testimonials')
+        .select(`
+          *,
+          user:pev_profiles(
+            id,
+            first_name,
+            last_name,
+            avatar_url,
+            user_type,
+            location
+          )
+        `)
+        .eq('is_approved', true)
+        .eq('status', 'published')
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(limit)
+
+      if (error) throw error
+      return data || []
+    } catch (error) {
+      console.error('Erreur lors de la récupération des témoignages:', error)
+      return []
+    }
+  }
 }
 
 // Instance singleton

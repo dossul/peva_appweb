@@ -274,9 +274,46 @@
           </v-row>
           
           <!-- Navigation complète des modules -->
-          <div class="text-center mt-8">
+          <!-- Section: Modules Publics -->
+          <div class="text-center mt-16">
+            <h2 class="text-h3 font-weight-bold text-grey-darken-3 mb-4">
+              <v-icon size="36" color="green" class="mr-2">mdi-earth</v-icon>
+              Accès Public
+            </h2>
+            <p class="text-h6 text-grey-darken-1 font-weight-regular mb-8">
+              Services accessibles à tous sans inscription
+            </p>
+            
             <v-row>
-              <v-col cols="12" md="6" lg="4" v-for="module in platformModules" :key="module.name">
+              <v-col cols="12" md="6" lg="4" v-for="module in publicModules" :key="module.name">
+                <v-card 
+                  class="pa-4 text-center h-100 cursor-pointer module-card" 
+                  elevation="2" 
+                  hover
+                  @click="navigateToModule(module)"
+                >
+                  <v-avatar :color="module.color" size="64" class="mb-3">
+                    <v-icon size="32" color="white">{{ module.icon }}</v-icon>
+                  </v-avatar>
+                  <h4 class="text-h6 font-weight-bold mb-2">{{ module.name }}</h4>
+                  <p class="text-body-2 text-grey-darken-1 mb-3">{{ module.description }}</p>
+                </v-card>
+              </v-col>
+            </v-row>
+          </div>
+
+          <!-- Section: Modules Membres -->
+          <div class="text-center mt-16">
+            <h2 class="text-h3 font-weight-bold text-grey-darken-3 mb-4">
+              <v-icon size="36" color="primary" class="mr-2">mdi-account-lock</v-icon>
+              Espace Membres
+            </h2>
+            <p class="text-h6 text-grey-darken-1 font-weight-regular mb-8">
+              Fonctionnalités réservées aux membres inscrits
+            </p>
+            
+            <v-row>
+              <v-col cols="12" md="6" lg="4" v-for="module in memberModules" :key="module.name">
                 <v-card 
                   class="pa-4 text-center h-100 cursor-pointer module-card" 
                   elevation="2" 
@@ -289,21 +326,12 @@
                   <h4 class="text-h6 font-weight-bold mb-2">{{ module.name }}</h4>
                   <p class="text-body-2 text-grey-darken-1 mb-3">{{ module.description }}</p>
                   <v-chip 
-                    v-if="module.requiresAuth" 
                     size="small" 
                     :color="authStore.isAuthenticated ? 'success' : 'warning'"
                     variant="outlined"
                   >
+                    <v-icon size="16" class="mr-1">{{ authStore.isAuthenticated ? 'mdi-check-circle' : 'mdi-lock' }}</v-icon>
                     {{ authStore.isAuthenticated ? 'Accessible' : 'Connexion requise' }}
-                  </v-chip>
-                  <v-chip 
-                    v-if="module.adminOnly" 
-                    size="small" 
-                    color="error"
-                    variant="outlined"
-                    class="ml-1"
-                  >
-                    Admin uniquement
                   </v-chip>
                 </v-card>
               </v-col>
@@ -362,19 +390,49 @@
             </p>
           </div>
 
-          <v-row>
+          <v-row v-if="testimonials.length > 0">
             <v-col cols="12" md="4" v-for="testimonial in testimonials" :key="testimonial.id">
               <v-card class="pa-6 h-100" elevation="2">
                 <div class="d-flex align-center mb-4">
-                  <v-avatar :color="testimonial.color" size="48" class="mr-3">
-                    <span class="text-white font-weight-bold">{{ testimonial.initials }}</span>
+                  <!-- Avatar avec photo si display_avatar = true -->
+                  <v-avatar 
+                    v-if="testimonial.display_avatar && testimonial.user?.avatar_url" 
+                    size="48" 
+                    class="mr-3"
+                  >
+                    <v-img :src="testimonial.user.avatar_url" :alt="getDisplayName(testimonial)"></v-img>
                   </v-avatar>
+                  <!-- Avatar avec initiales si display_avatar = true mais pas de photo -->
+                  <v-avatar 
+                    v-else-if="testimonial.display_avatar && testimonial.display_name"
+                    color="primary" 
+                    size="48" 
+                    class="mr-3"
+                  >
+                    <span class="text-white font-weight-bold">
+                      {{ testimonial.user?.first_name?.[0] || '' }}{{ testimonial.user?.last_name?.[0] || '' }}
+                    </span>
+                  </v-avatar>
+                  <!-- Avatar anonyme si display_avatar = false -->
+                  <v-avatar 
+                    v-else
+                    color="green" 
+                    size="48" 
+                    class="mr-3"
+                  >
+                    <span class="text-white font-weight-bold">?</span>
+                  </v-avatar>
+                  
                   <div>
-                    <h4 class="text-h6 font-weight-bold">{{ testimonial.name }}</h4>
-                    <p class="text-body-2 text-grey-darken-1 ma-0">{{ testimonial.title }}</p>
+                    <h4 class="text-h6 font-weight-bold">
+                      {{ getDisplayName(testimonial) }}
+                    </h4>
+                    <p class="text-body-2 text-grey-darken-1 ma-0">
+                      {{ getDisplaySubtitle(testimonial) }}
+                    </p>
                   </div>
                 </div>
-                <p class="text-body-1 mb-4">"{{ testimonial.quote }}"</p>
+                <p class="text-body-1 mb-4">"{{ testimonial.content }}"</p>
                 <div class="d-flex">
                   <v-icon v-for="i in 5" :key="i" 
                     :color="i <= testimonial.rating ? 'amber' : 'grey-lighten-2'" 
@@ -386,6 +444,9 @@
               </v-card>
             </v-col>
           </v-row>
+          <div v-else class="text-center pa-8">
+            <p class="text-body-1 text-grey">Aucun témoignage disponible pour le moment.</p>
+          </div>
         </v-container>
       </section>
 
@@ -469,7 +530,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import dataService from '@/services/dataService'
@@ -509,14 +570,16 @@ const loadData = async () => {
   try {
     loading.value = true
     
-    // Charger les statistiques et secteurs en parallèle
-    const [statsData, sectorsData] = await Promise.all([
+    // Charger les statistiques, secteurs et témoignages en parallèle
+    const [statsData, sectorsData, testimonialsData] = await Promise.all([
       dataService.getPlatformStats(),
-      dataService.getSectors()
+      dataService.getSectors(),
+      dataService.getTestimonials(3) // Limiter à 3 témoignages
     ])
     
     platformStats.value = statsData
     sectors.value = sectorsData
+    testimonials.value = testimonialsData
   } catch (error) {
     console.error('Erreur lors du chargement des données:', error)
   } finally {
@@ -730,36 +793,68 @@ const platformModules = ref([
   }
 ])
 
-// Témoignages
-const testimonials = ref([
-  {
-    id: 1,
-    name: 'Aminata Traoré',
-    title: 'Directrice, EcoSolar Burkina',
-    quote: '2iE GreenHub nous a permis de trouver des partenaires stratégiques et de lever 500k€ pour notre expansion.',
-    rating: 5,
-    initials: 'AT',
-    color: 'green'
-  },
-  {
-    id: 2,
-    name: 'Jean-Baptiste Kouassi',
-    title: 'Fondateur, AgriTech Côte d\'Ivoire',
-    quote: 'La plateforme a révolutionné notre approche du networking. Nous avons doublé notre réseau en 6 mois.',
-    rating: 5,
-    initials: 'JK',
-    color: 'blue'
-  },
-  {
-    id: 3,
-    name: 'Fatou Diallo',
-    title: 'Investisseuse, Green Fund Sénégal',
-    quote: 'Un outil indispensable pour identifier les meilleures opportunités d\'investissement en Afrique.',
-    rating: 5,
-    initials: 'FD',
-    color: 'purple'
+// Modules publics (accessibles sans connexion)
+const publicModules = computed(() => {
+  return platformModules.value.filter(module => !module.requiresAuth)
+})
+
+// Modules réservés aux membres
+const memberModules = computed(() => {
+  return platformModules.value.filter(module => 
+    module.requiresAuth && !module.adminOnly
+  )
+})
+
+// Modules admin (si admin connecté)
+const adminModules = computed(() => {
+  if (authStore.isAdmin) {
+    return platformModules.value.filter(module => module.adminOnly)
   }
-])
+  return []
+})
+
+// Témoignages (chargés depuis la BDD)
+const testimonials = ref([])
+
+// Fonctions d'affichage des témoignages selon options de visibilité
+const getDisplayName = (testimonial) => {
+  const parts = []
+  
+  // Afficher le nom si demandé
+  if (testimonial.display_name && testimonial.user) {
+    parts.push(`${testimonial.user.first_name} ${testimonial.user.last_name}`)
+  }
+  
+  // Afficher la structure si demandée
+  if (testimonial.display_company && testimonial.company_name) {
+    parts.push(testimonial.company_name)
+  }
+  
+  // Si rien à afficher, retourner "Membre"
+  return parts.length > 0 ? parts.join(', ') : 'Membre'
+}
+
+const getDisplaySubtitle = (testimonial) => {
+  // Si on affiche le nom mais pas la structure, montrer le type d'utilisateur et location
+  if (testimonial.display_name && !testimonial.display_company && testimonial.user) {
+    const parts = []
+    if (testimonial.user.user_type) {
+      parts.push(testimonial.user.user_type)
+    }
+    if (testimonial.user.location) {
+      parts.push(testimonial.user.location)
+    }
+    return parts.join(' • ') || 'Membre de la communauté'
+  }
+  
+  // Si on affiche la structure, c'est le "titre" principal
+  if (testimonial.display_company && testimonial.company_name) {
+    return 'Membre de la communauté'
+  }
+  
+  // Par défaut
+  return 'Membre de la communauté'
+}
 
 // Actions de création de contenu
 const creationActions = ref([
