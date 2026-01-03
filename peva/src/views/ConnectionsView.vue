@@ -218,77 +218,7 @@ const connections = ref([])
 const receivedRequests = ref([])
 const sentRequests = ref([])
 
-// Mock data pour les connexions actives
-const mockConnections = [
-  {
-    id: 1,
-    name: 'SolarTech Côte d\'Ivoire',
-    initials: 'ST',
-    avatarColor: 'green',
-    location: 'Abidjan, Côte d\'Ivoire',
-    sector: 'Énergies renouvelables',
-    sectorColor: '#22c55e',
-    employees: 45,
-    connectedSince: '2 mois',
-    status: 'active'
-  },
-  {
-    id: 2,
-    name: 'Green Farm Ghana',
-    initials: 'GF',
-    avatarColor: 'blue',
-    location: 'Accra, Ghana',
-    sector: 'Agriculture durable',
-    sectorColor: '#10b981',
-    employees: 120,
-    connectedSince: '1 mois',
-    status: 'active'
-  }
-]
-
-// Mock data pour les demandes reçues
-const mockReceivedRequests = [
-  {
-    id: 3,
-    name: 'EcoTransport Sénégal',
-    initials: 'ET',
-    avatarColor: 'purple',
-    location: 'Dakar, Sénégal',
-    sector: 'Transport vert',
-    sectorColor: '#3b82f6',
-    message: 'Bonjour, je suis intéressé par vos activités et souhaiterais explorer des opportunités de collaboration.',
-    timeAgo: 'il y a 2 heures',
-    status: 'pending'
-  }
-]
-
-// Mock data pour les demandes envoyées
-const mockSentRequests = [
-  {
-    id: 4,
-    name: 'CleanWater Nigeria',
-    initials: 'CW',
-    avatarColor: 'teal',
-    location: 'Lagos, Nigeria',
-    sector: 'Eau et assainissement',
-    sectorColor: '#06b6d4',
-    message: 'Nous aimerions discuter de partenariats potentiels dans le domaine de l\'eau.',
-    timeAgo: 'il y a 1 jour',
-    status: 'pending'
-  },
-  {
-    id: 5,
-    name: 'Atlas Green Morocco',
-    initials: 'AG',
-    avatarColor: 'orange',
-    location: 'Casablanca, Maroc',
-    sector: 'Énergies renouvelables',
-    sectorColor: '#22c55e',
-    message: 'Intéressé par vos solutions solaires.',
-    timeAgo: 'il y a 3 jours',
-    status: 'accepted'
-  }
-]
+// Les données sont chargées depuis la BDD - plus de mock data
 
 // Computed properties
 const activeConnections = computed(() => {
@@ -396,24 +326,18 @@ const getStatusText = (status) => {
   return texts[status] || 'Inconnu'
 }
 
-// Initialize
+// Initialize - charger les données depuis la BDD
 onMounted(async () => {
-  // Charger les données mock
-  connections.value = [...mockConnections]
-  receivedRequests.value = [...mockReceivedRequests]
-  sentRequests.value = [...mockSentRequests]
-  
-  // TODO: Charger les vraies données depuis l'API
-  // try {
-  //   const userId = authStore.user?.id
-  //   if (userId) {
-  //     connections.value = await connectionService.getConnections(userId)
-  //     receivedRequests.value = await connectionService.getReceivedRequests(userId)
-  //     sentRequests.value = await connectionService.getSentRequests(userId)
-  //   }
-  // } catch (error) {
-  //   console.error('Erreur lors du chargement:', error)
-  // }
+  try {
+    const userId = authStore.user?.id
+    if (userId) {
+      connections.value = await connectionService.getConnections(userId)
+      receivedRequests.value = await connectionService.getReceivedRequests(userId)
+      sentRequests.value = await connectionService.getSentRequests(userId)
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des connexions:', error)
+  }
 })
 </script>
 

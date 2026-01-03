@@ -31,28 +31,28 @@
         <v-col cols="12" md="3">
           <v-card class="text-center pa-4" color="blue-lighten-5">
             <v-icon size="32" color="blue-darken-2" class="mb-2">mdi-calendar-check</v-icon>
-            <div class="text-h4 font-weight-bold text-blue-darken-2">24</div>
+            <div class="text-h4 font-weight-bold text-blue-darken-2">{{ stats.upcoming }}</div>
             <div class="text-body-2">Événements à venir</div>
           </v-card>
         </v-col>
         <v-col cols="12" md="3">
           <v-card class="text-center pa-4" color="green-lighten-5">
             <v-icon size="32" color="green-darken-2" class="mb-2">mdi-account-group</v-icon>
-            <div class="text-h4 font-weight-bold text-green-darken-2">1 247</div>
+            <div class="text-h4 font-weight-bold text-green-darken-2">{{ stats.participants }}</div>
             <div class="text-body-2">Participants inscrits</div>
           </v-card>
         </v-col>
         <v-col cols="12" md="3">
           <v-card class="text-center pa-4" color="purple-lighten-5">
             <v-icon size="32" color="purple-darken-2" class="mb-2">mdi-video</v-icon>
-            <div class="text-h4 font-weight-bold text-purple-darken-2">8</div>
+            <div class="text-h4 font-weight-bold text-purple-darken-2">{{ stats.virtual }}</div>
             <div class="text-body-2">Événements virtuels</div>
           </v-card>
         </v-col>
         <v-col cols="12" md="3">
           <v-card class="text-center pa-4" color="orange-lighten-5">
             <v-icon size="32" color="orange-darken-2" class="mb-2">mdi-map-marker</v-icon>
-            <div class="text-h4 font-weight-bold text-orange-darken-2">15</div>
+            <div class="text-h4 font-weight-bold text-orange-darken-2">{{ stats.cities }}</div>
             <div class="text-body-2">Villes actives</div>
           </v-card>
         </v-col>
@@ -271,6 +271,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/lib/supabase'
+import { emailService } from '@/services/emailService'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -279,6 +281,7 @@ const authStore = useAuthStore()
 const activeTab = ref('calendar')
 const createEventDialog = ref(false)
 const currentDate = ref(new Date())
+const loading = ref(false)
 
 const newEvent = ref({
   title: '',
@@ -288,36 +291,140 @@ const newEvent = ref({
   location: ''
 })
 
-// Mock data selon l'image 1
+// Stats depuis Supabase
+const stats = ref({
+  upcoming: 0,
+  participants: 0,
+  virtual: 0,
+  cities: 0
+})
+
+// Données depuis Supabase
 const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+const eventTypes = ref([])
+const upcomingEvents = ref([])
+const allEvents = ref([])
 
-const eventTypes = ref([
-  { name: 'Valorisation des déchets', count: 7, color: 'green', icon: 'mdi-recycle' },
-  { name: 'Bilan carbone', count: 12, color: 'blue', icon: 'mdi-leaf' },
-  { name: 'Économie circulaire', count: 5, color: 'purple', icon: 'mdi-sync' },
-  { name: 'Énergies renouvelables', count: 8, color: 'orange', icon: 'mdi-solar-power' },
-  { name: 'Agriculture durable', count: 6, color: 'teal', icon: 'mdi-sprout' },
-  { name: 'Transport vert', count: 4, color: 'indigo', icon: 'mdi-car-electric' }
-])
+// Charger les statistiques
+const loadStats = async () => {
+  try {
+    const { count: upcomingCount } = await supabase
+      .from('pev_events')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'published')
+      .gte('start_date', new Date().toISOString())
 
-const upcomingEvents = ref([
-  {
-    id: 1,
-    title: 'Intelligence Artificielle et Économie Verte en Afrique',
-    description: 'Une journée dédiée à l\'exploration des applications de l\'IA dans les secteurs verts en Afrique.',
-    date: '25 Mars 2024',
-    location: 'Abidjan, Côte d\'Ivoire',
-    type: 'Conférences'
-  },
-  {
-    id: 2,
-    title: 'Workshop Pratique: Installation Solaire Résidentielle',
-    description: 'Formation pratique pour apprendre les bases de l\'installation de panneaux solaires résidentiels.',
-    date: '27 Mars 2024',
-    location: 'Dakar, Sénégal',
-    type: 'Workshops'
+    const { count: participantsCount } = await supabase
+      .from('pev_event_participants')
+      .select('*', { count: 'exact', head: true })
+
+    const { count: virtualCount } = await supabase
+      .from('pev_events')
+      .select('*', { count: 'exact', head: true })
+      .eq('location_type', 'online')
+      .eq('status', 'published')
+
+    const { data: citiesData } = await supabase
+      .from('pev_events')
+      .select('city')
+      .eq('status', 'published')
+      .not('city', 'is', null)
+
+    const uniqueCities = new Set(citiesData?.map(e => e.city) || [])
+
+    stats.value = {
+      upcoming: upcomingCount || 0,
+      participants: participantsCount || 0,
+      virtual: virtualCount || 0,
+      cities: uniqueCities.size
+    }
+  } catch (error) {
+    console.log('Stats événements non disponibles')
   }
-])
+}
+
+// Charger les catégories
+const loadCategories = async () => {
+  try {
+    const { data } = await supabase
+      .from('pev_event_categories')
+      .select('*')
+      .order('display_order')
+
+    if (data && data.length > 0) {
+      // Compter les événements par catégorie
+      const categoriesWithCount = await Promise.all(data.map(async (cat) => {
+        const { count } = await supabase
+          .from('pev_events')
+          .select('*', { count: 'exact', head: true })
+          .eq('category_id', cat.id)
+          .eq('status', 'published')
+
+        return {
+          name: cat.name,
+          count: count || 0,
+          color: cat.color,
+          icon: cat.icon
+        }
+      }))
+
+      eventTypes.value = categoriesWithCount
+    }
+  } catch (error) {
+    console.log('Catégories non disponibles')
+  }
+}
+
+// Charger les événements à venir
+const loadUpcomingEvents = async () => {
+  try {
+    const { data } = await supabase
+      .from('pev_events')
+      .select(`
+        *,
+        pev_event_categories:category_id(name, icon, color),
+        pev_countries:country_id(name, flag)
+      `)
+      .eq('status', 'published')
+      .gte('start_date', new Date().toISOString())
+      .order('start_date')
+      .limit(5)
+
+    if (data && data.length > 0) {
+      upcomingEvents.value = data.map(e => ({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        date: new Date(e.start_date).toLocaleDateString('fr-FR', { 
+          day: 'numeric', 
+          month: 'long', 
+          year: 'numeric' 
+        }),
+        location: e.location || e.city || 'En ligne',
+        type: e.pev_event_categories?.name || 'Événement',
+        category_id: e.category_id
+      }))
+    }
+  } catch (error) {
+    console.log('Événements à venir non disponibles')
+  }
+}
+
+// Charger tous les événements pour le calendrier
+const loadAllEvents = async () => {
+  try {
+    const { data } = await supabase
+      .from('pev_events')
+      .select('*')
+      .eq('status', 'published')
+
+    if (data) {
+      allEvents.value = data
+    }
+  } catch (error) {
+    console.log('Événements non disponibles')
+  }
+}
 
 // Computed
 const currentMonthYear = computed(() => {
@@ -346,22 +453,15 @@ const calendarDates = computed(() => {
 
 // Methods
 const getEventsForDate = (date) => {
-  // Mock events for specific dates
-  const mockEvents = {
-    '2024-03-15': [
-      { id: 1, title: 'Conférence IA', type: 'conference' },
-      { id: 2, title: 'Workshop Solaire', type: 'workshop' }
-    ],
-    '2024-03-22': [
-      { id: 3, title: 'Networking', type: 'networking' }
-    ],
-    '2024-03-29': [
-      { id: 4, title: 'Formation', type: 'formation' }
-    ]
-  }
-  
   const dateKey = date.toISOString().split('T')[0]
-  return mockEvents[dateKey] || []
+  return allEvents.value.filter(event => {
+    const eventDate = new Date(event.start_date).toISOString().split('T')[0]
+    return eventDate === dateKey
+  }).map(event => ({
+    id: event.id,
+    title: event.title,
+    type: event.event_type
+  }))
 }
 
 const getEventTypeColor = (type) => {
@@ -392,9 +492,68 @@ const nextMonth = () => {
   currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
 }
 
-const registerForEvent = (event) => {
-  console.log('S\'inscrire à l\'événement:', event.title)
-  // TODO: Implémenter l'inscription
+const registerForEvent = async (event) => {
+  if (!authStore.isAuthenticated) {
+    router.push('/auth/login')
+    return
+  }
+
+  try {
+    const userId = authStore.user?.id
+    
+    // Vérifier si déjà inscrit
+    const { data: existing } = await supabase
+      .from('pev_event_participants')
+      .select('id')
+      .eq('event_id', event.id)
+      .eq('user_id', userId)
+      .single()
+
+    if (existing) {
+      alert('Vous êtes déjà inscrit à cet événement')
+      return
+    }
+
+    // Inscrire l'utilisateur
+    const { error } = await supabase
+      .from('pev_event_participants')
+      .insert({
+        event_id: event.id,
+        user_id: userId,
+        status: 'registered'
+      })
+
+    if (error) throw error
+
+    // Envoyer email de confirmation
+    try {
+      const userEmail = authStore.user?.email
+      const userName = authStore.user?.profile?.first_name || 'Utilisateur'
+      
+      await emailService.sendTemplateEmail('event_registration', userEmail, {
+        recipient_name: userName,
+        event_title: event.title,
+        event_date: new Date(event.start_date || event.date).toLocaleDateString('fr-FR', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        event_location: event.location || event.address || 'En ligne',
+        action_url: `${window.location.origin}/events/${event.id}`
+      })
+    } catch (emailError) {
+      console.warn('Erreur envoi email inscription:', emailError)
+    }
+
+    alert('Inscription confirmée ! Un email de confirmation vous a été envoyé.')
+    await loadStats()
+  } catch (error) {
+    console.error('Erreur inscription:', error)
+    alert('Erreur lors de l\'inscription')
+  }
 }
 
 const filterByType = (type) => {
@@ -411,8 +570,15 @@ const createEvent = () => {
 }
 
 // Initialize
-onMounted(() => {
-  // TODO: Charger les événements depuis Supabase
+onMounted(async () => {
+  loading.value = true
+  await Promise.all([
+    loadStats(),
+    loadCategories(),
+    loadUpcomingEvents(),
+    loadAllEvents()
+  ])
+  loading.value = false
 })
 </script>
 

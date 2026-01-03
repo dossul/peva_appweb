@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 
 /**
- * Service de gestion des entreprises pour l'administration PEVA
+ * Service de gestion des entreprises pour l'administration 2iEGreenHub
  * Basé sur la structure exacte de la table companies Supabase
  */
 export const companyManagementService = {

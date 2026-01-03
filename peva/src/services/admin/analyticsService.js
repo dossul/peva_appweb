@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 
 /**
- * Service d'analytics pour l'administration PEVA
+ * Service d'analytics pour l'administration 2iEGreenHub
  * Fournit des métriques et statistiques détaillées de la plateforme
  */
 export const analyticsService = {

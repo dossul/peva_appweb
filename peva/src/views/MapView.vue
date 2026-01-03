@@ -440,9 +440,9 @@ const snackbarMessage = ref('')
 let map = null
 let markersLayer = null
 
-// Données dynamiques basées sur les entreprises réelles (BDD ou mock)
+// Données dynamiques basées sur les entreprises de la BDD uniquement (production)
 const allCompanies = computed(() => {
-  return companiesFromDB.value.length > 0 ? companiesFromDB.value : companies.value
+  return companiesFromDB.value
 })
 
 const sectors = computed(() => {
@@ -512,169 +512,8 @@ const sectorLegends = [
   { name: 'Transport vert', color: '#3b82f6' }
 ].sort((a, b) => a.name.localeCompare(b.name, 'fr'))
 
-// Données des entreprises avec coordonnées GPS réelles
-const companies = ref([
-  {
-    id: 1,
-    name: 'SolarTech Côte d\'Ivoire',
-    sector: { name: 'Énergies renouvelables' },
-    country: 'Côte d\'Ivoire',
-    city: 'Abidjan',
-    coordinates: { lat: 5.3600, lng: -4.0083 },
-    employees: 45,
-    size: 'pme',
-    description: 'Installation et maintenance de panneaux solaires pour l\'Afrique de l\'Ouest',
-    website: 'www.solartech-ci.com',
-    email: 'contact@solartech-ci.com',
-    phone: '+225 20 30 40 50',
-    founded: 2018,
-    revenue: '2.5M €'
-  },
-  {
-    id: 2,
-    name: 'Green Farm Ghana',
-    sector: { name: 'Agriculture durable' },
-    country: 'Ghana',
-    city: 'Accra',
-    coordinates: { lat: 5.6037, lng: -0.1870 },
-    employees: 120,
-    size: 'moyenne',
-    description: 'Agriculture biologique et distribution de produits locaux',
-    website: 'www.greenfarm-gh.com',
-    email: 'info@greenfarm-gh.com',
-    phone: '+233 30 276 8900',
-    founded: 2015,
-    revenue: '5.8M €'
-  },
-  {
-    id: 3,
-    name: 'EcoTransport Sénégal',
-    sector: { name: 'Transport vert' },
-    country: 'Sénégal',
-    city: 'Dakar',
-    coordinates: { lat: 14.7167, lng: -17.4677 },
-    employees: 78,
-    size: 'moyenne',
-    description: 'Transport urbain électrique et solutions de mobilité durable',
-    website: 'www.ecotransport-sn.com',
-    email: 'contact@ecotransport-sn.com',
-    phone: '+221 33 889 62 00',
-    founded: 2019,
-    revenue: '3.2M €'
-  },
-  {
-    id: 4,
-    name: 'WasteToEnergy Mali',
-    sector: { name: 'Gestion des déchets' },
-    country: 'Mali',
-    city: 'Bamako',
-    coordinates: { lat: 12.6392, lng: -8.0029 },
-    employees: 35,
-    size: 'pme',
-    description: 'Transformation des déchets organiques en énergie renouvelable',
-    website: 'www.wastetoenergy-ml.com',
-    email: 'info@wastetoenergy-ml.com',
-    phone: '+223 20 22 45 67',
-    founded: 2020,
-    revenue: '1.8M €'
-  },
-  {
-    id: 5,
-    name: 'CleanWater Nigeria',
-    sector: { name: 'Eau et assainissement' },
-    country: 'Nigeria',
-    city: 'Lagos',
-    coordinates: { lat: 6.5244, lng: 3.3792 },
-    employees: 250,
-    size: 'grande',
-    description: 'Purification d\'eau et systèmes d\'assainissement urbain',
-    website: 'www.cleanwater-ng.com',
-    email: 'contact@cleanwater-ng.com',
-    phone: '+234 1 271 0001',
-    founded: 2012,
-    revenue: '12.5M €'
-  },
-  {
-    id: 6,
-    name: 'EcoBuild Kenya',
-    sector: { name: 'Construction écologique' },
-    country: 'Kenya',
-    city: 'Nairobi',
-    coordinates: { lat: -1.2921, lng: 36.8219 },
-    employees: 95,
-    size: 'moyenne',
-    description: 'Matériaux de construction écologiques et bâtiments durables',
-    website: 'www.ecobuild-ke.com',
-    email: 'info@ecobuild-ke.com',
-    phone: '+254 20 271 0001',
-    founded: 2016,
-    revenue: '4.7M €'
-  },
-  {
-    id: 7,
-    name: 'Renewable Energy SA',
-    sector: { name: 'Énergies renouvelables' },
-    country: 'Afrique du Sud',
-    city: 'Le Cap',
-    coordinates: { lat: -33.9249, lng: 18.4241 },
-    employees: 180,
-    size: 'moyenne',
-    description: 'Parcs éoliens et solaires pour l\'Afrique australe',
-    website: 'www.renewable-sa.com',
-    email: 'contact@renewable-sa.com',
-    phone: '+27 21 418 3000',
-    founded: 2010,
-    revenue: '8.9M €'
-  },
-  {
-    id: 8,
-    name: 'Atlas Green Morocco',
-    sector: { name: 'Énergies renouvelables' },
-    country: 'Maroc',
-    city: 'Casablanca',
-    coordinates: { lat: 33.5731, lng: -7.5898 },
-    employees: 65,
-    size: 'moyenne',
-    description: 'Solutions solaires pour l\'industrie et les particuliers',
-    website: 'www.atlasgreen-ma.com',
-    email: 'info@atlasgreen-ma.com',
-    phone: '+212 522 48 70 00',
-    founded: 2017,
-    revenue: '3.8M €'
-  },
-  {
-    id: 9,
-    name: 'Nile Solar Egypt',
-    sector: { name: 'Énergies renouvelables' },
-    country: 'Égypte',
-    city: 'Le Caire',
-    coordinates: { lat: 30.0444, lng: 31.2357 },
-    employees: 140,
-    size: 'moyenne',
-    description: 'Centrale solaire et distribution d\'énergie verte',
-    website: 'www.nilesolar-eg.com',
-    email: 'contact@nilesolar-eg.com',
-    phone: '+20 2 2735 0000',
-    founded: 2014,
-    revenue: '6.2M €'
-  },
-  {
-    id: 10,
-    name: 'BioFarm Burkina',
-    sector: { name: 'Agriculture durable' },
-    country: 'Burkina Faso',
-    city: 'Ouagadougou',
-    coordinates: { lat: 12.3714, lng: -1.5197 },
-    employees: 28,
-    size: 'pme',
-    description: 'Agriculture biologique et formation des agriculteurs',
-    website: 'www.biofarm-bf.com',
-    email: 'info@biofarm-bf.com',
-    phone: '+226 25 30 60 00',
-    founded: 2019,
-    revenue: '1.2M €'
-  }
-])
+// Les données des entreprises viennent exclusivement de la BDD (companiesFromDB)
+// Plus de données mockées - production mode
 
 // Computed properties
 const filteredCompanies = computed(() => {
@@ -998,11 +837,24 @@ window.contactCompany = (companyId) => {
 
   const company = allCompanies.value.find(c => c.id === companyId)
   if (company) {
-    // Rediriger vers la vue Messages avec un nouveau message pré-rempli
+    // Utiliser l'ID du propriétaire/contact de l'entreprise (UUID) au lieu de l'ID de l'entreprise
+    const contactUserId = company.owner_id || company.contact_person_id || company.created_by
+    
+    // Vérifier que contactUserId est un UUID valide (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    
+    if (!contactUserId || !uuidRegex.test(contactUserId)) {
+      console.warn('Contact UUID invalide pour entreprise:', company.name, '- owner_id:', company.owner_id, '- created_by:', company.created_by)
+      snackbarMessage.value = "Impossible de contacter cette entreprise (aucun contact UUID valide associé)"
+      showSnackbar.value = true
+      return
+    }
+    
+    // Rediriger vers la vue Messages avec l'UUID de l'utilisateur à contacter
     router.push({ 
       name: 'Messages', 
       query: { 
-        contact: companyId,
+        contact: contactUserId,
         contactName: company.name,
         contactType: 'company',
         subject: `Demande de contact - ${company.name}`

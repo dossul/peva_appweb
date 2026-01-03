@@ -442,6 +442,8 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { opportunitiesService } from '@/services/opportunitiesService'
+import { emailService } from '@/services/emailService'
+import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -655,7 +657,7 @@ const applyFilters = () => {
   loadOpportunities()
 }
 
-const applyToOpportunity = (opportunity) => {
+const applyToOpportunity = async (opportunity) => {
   if (!authStore.isAuthenticated) {
     showMessage('Vous devez être connecté pour postuler', 'warning')
     return
@@ -666,8 +668,76 @@ const applyToOpportunity = (opportunity) => {
     showMessage('Vous ne pouvez pas postuler à votre propre opportunité', 'info')
     return
   }
-  
-  router.push(`/opportunities/${opportunity.id}/apply`)
+
+  try {
+    const userId = authStore.user?.id
+    
+    // Vérifier si déjà postulé
+    const { data: existing } = await supabase
+      .from('pev_opportunity_applications')
+      .select('id')
+      .eq('opportunity_id', opportunity.id)
+      .eq('user_id', userId)
+      .single()
+
+    if (existing) {
+      showMessage('Vous avez déjà postulé à cette opportunité', 'info')
+      return
+    }
+
+    // Créer la candidature
+    const { error } = await supabase
+      .from('pev_opportunity_applications')
+      .insert({
+        opportunity_id: opportunity.id,
+        user_id: userId,
+        status: 'pending'
+      })
+
+    if (error) throw error
+
+    // Envoyer email de confirmation au candidat
+    try {
+      const applicantEmail = authStore.user?.email
+      const applicantName = `${authStore.user?.profile?.first_name || ''} ${authStore.user?.profile?.last_name || ''}`.trim() || 'Utilisateur'
+      
+      await emailService.sendTemplateEmail('application_sent', applicantEmail, {
+        recipient_name: applicantName,
+        opportunity_title: opportunity.title,
+        company_name: opportunity.company || 'PEVA',
+        action_url: `${window.location.origin}/user-dashboard`
+      })
+    } catch (emailError) {
+      console.warn('Erreur envoi email candidature:', emailError)
+    }
+
+    // Envoyer email au créateur de l'opportunité
+    try {
+      const { data: creator } = await supabase
+        .from('pev_profiles')
+        .select('email, first_name, last_name')
+        .eq('id', opportunity.created_by)
+        .single()
+
+      if (creator?.email) {
+        const applicantName = `${authStore.user?.profile?.first_name || ''} ${authStore.user?.profile?.last_name || ''}`.trim()
+        
+        await emailService.sendTemplateEmail('application_received', creator.email, {
+          recipient_name: `${creator.first_name} ${creator.last_name}`,
+          applicant_name: applicantName,
+          opportunity_title: opportunity.title,
+          action_url: `${window.location.origin}/opportunities/${opportunity.id}/applications`
+        })
+      }
+    } catch (emailError) {
+      console.warn('Erreur envoi email créateur:', emailError)
+    }
+
+    showMessage('Candidature envoyée ! Un email de confirmation vous a été envoyé.', 'success')
+  } catch (error) {
+    console.error('Erreur candidature:', error)
+    showMessage('Erreur lors de l\'envoi de la candidature', 'error')
+  }
 }
 
 const viewDetails = async (opportunity) => {

@@ -425,16 +425,18 @@ const rules = {
 
 // Options de sélection
 const africanCountries = [
-  'Algérie', 'Angola', 'Bénin', 'Botswana', 'Burkina Faso', 'Burundi',
-  'Cameroun', 'Cap-Vert', 'République centrafricaine', 'Tchad', 'Comores',
-  'République du Congo', 'République démocratique du Congo', 'Djibouti',
-  'Égypte', 'Guinée équatoriale', 'Érythrée', 'Éthiopie', 'Gabon', 'Gambie',
-  'Ghana', 'Guinée', 'Guinée-Bissau', 'Côte d\'Ivoire', 'Kenya', 'Lesotho',
-  'Libéria', 'Libye', 'Madagascar', 'Malawi', 'Mali', 'Mauritanie', 'Maurice',
-  'Maroc', 'Mozambique', 'Namibie', 'Niger', 'Nigéria', 'Rwanda',
-  'São Tomé-et-Príncipe', 'Sénégal', 'Seychelles', 'Sierra Leone', 'Somalie',
-  'Afrique du Sud', 'Soudan du Sud', 'Soudan', 'Eswatini', 'Tanzanie',
-  'Togo', 'Tunisie', 'Ouganda', 'Zambie', 'Zimbabwe'
+  'Afrique du Sud', 'Algérie', 'Angola', 'Bénin', 'Botswana', 'Burkina Faso', 'Burundi',
+  'Cameroun', 'Cap-Vert', 'Comores', 'Côte d\'Ivoire', 'Djibouti',
+  'Égypte', 'Érythrée', 'Eswatini', 'Éthiopie', 
+  'Gabon', 'Gambie', 'Ghana', 'Guinée', 'Guinée équatoriale', 'Guinée-Bissau',
+  'Kenya', 'Lesotho', 'Libéria', 'Libye',
+  'Madagascar', 'Malawi', 'Mali', 'Maroc', 'Maurice', 'Mauritanie', 'Mozambique',
+  'Namibie', 'Niger', 'Nigéria', 'Ouganda',
+  'République centrafricaine', 'République démocratique du Congo', 'République du Congo', 'Rwanda',
+  'São Tomé-et-Príncipe', 'Sénégal', 'Seychelles', 'Sierra Leone', 'Somalie', 'Soudan', 'Soudan du Sud',
+  'Tanzanie', 'Tchad', 'Togo', 'Tunisie',
+  'Zambie', 'Zimbabwe',
+  'Autre'
 ]
 
 const userTypes = [

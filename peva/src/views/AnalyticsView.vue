@@ -250,6 +250,8 @@
 
 <script>
 import { ref, onMounted, nextTick } from 'vue'
+import { analyticsService } from '@/services/admin/analyticsService'
+import { supabase } from '@/lib/supabase'
 
 export default {
   name: 'AnalyticsView',
@@ -257,6 +259,7 @@ export default {
     const selectedPeriod = ref('30d')
     const dateFrom = ref('')
     const dateTo = ref('')
+    const loading = ref(false)
     
     const registrationsChart = ref(null)
     const sectorsChart = ref(null)
@@ -272,15 +275,16 @@ export default {
       { title: 'Personnalisé', value: 'custom' }
     ]
 
+    // KPIs initialisés à 0, seront chargés depuis Supabase
     const kpis = ref({
-      totalUsers: 2847,
-      usersGrowth: 12.5,
-      activeUsers: 1456,
-      activeGrowth: 8.3,
-      totalCompanies: 342,
-      companiesGrowth: 15.2,
-      totalOpportunities: 189,
-      opportunitiesGrowth: -2.1
+      totalUsers: 0,
+      usersGrowth: 0,
+      activeUsers: 0,
+      activeGrowth: 0,
+      totalCompanies: 0,
+      companiesGrowth: 0,
+      totalOpportunities: 0,
+      opportunitiesGrowth: 0
     })
 
     const companiesHeaders = [
@@ -297,88 +301,112 @@ export default {
       { title: 'Score', key: 'activity_score' }
     ]
 
-    const topCompanies = ref([
-      {
-        name: 'EcoTech Solutions',
-        sector: 'Technologies Propres',
-        activity_score: 95,
-        logo: 'https://via.placeholder.com/32'
-      },
-      {
-        name: 'Green Energy Africa',
-        sector: 'Énergies Renouvelables',
-        activity_score: 88,
-        logo: 'https://via.placeholder.com/32'
-      },
-      {
-        name: 'Sustainable Farms',
-        sector: 'Agriculture Durable',
-        activity_score: 82,
-        logo: 'https://via.placeholder.com/32'
-      }
-    ])
+    // Données chargées depuis Supabase
+    const topCompanies = ref([])
+    const topUsers = ref([])
 
-    const topUsers = ref([
-      {
-        name: 'Dr. Amina Kone',
-        role: 'Expert',
-        activity_score: 98,
-        avatar: 'https://via.placeholder.com/32'
-      },
-      {
-        name: 'Prof. Jean Ouedraogo',
-        role: 'Chercheur',
-        activity_score: 94,
-        avatar: 'https://via.placeholder.com/32'
-      },
-      {
-        name: 'Sarah Diallo',
-        role: 'Consultant',
-        activity_score: 89,
-        avatar: 'https://via.placeholder.com/32'
+    // Charger les KPIs depuis Supabase
+    const loadKPIs = async () => {
+      try {
+        const result = await analyticsService.getDashboardKPIs()
+        if (result.success && result.data) {
+          const data = result.data
+          
+          // Calculer le taux de croissance
+          const calcGrowth = (newCount, total) => {
+            if (total === 0) return 0
+            return parseFloat(((newCount / total) * 100).toFixed(1))
+          }
+          
+          kpis.value = {
+            totalUsers: data.users?.total || 0,
+            usersGrowth: calcGrowth(data.users?.new_this_month || 0, data.users?.total || 1),
+            activeUsers: data.users?.onboarding_completed || 0,
+            activeGrowth: calcGrowth(data.users?.new_this_week || 0, data.users?.total || 1),
+            totalCompanies: data.companies?.total || 0,
+            companiesGrowth: calcGrowth(data.companies?.new_this_month || 0, data.companies?.total || 1),
+            totalOpportunities: data.opportunities?.total || 0,
+            opportunitiesGrowth: calcGrowth(data.opportunities?.new_this_month || 0, data.opportunities?.total || 1)
+          }
+        }
+      } catch (error) {
+        console.error('Erreur chargement KPIs:', error)
       }
-    ])
+    }
+
+    // Charger les top entreprises depuis Supabase
+    const loadTopCompanies = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('pev_companies')
+          .select('id, name, sector, logo_url, status')
+          .eq('status', 'published')
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        if (!error && data) {
+          topCompanies.value = data.map((company, index) => ({
+            name: company.name || 'Entreprise',
+            sector: company.sector || 'Non spécifié',
+            activity_score: 100 - (index * 10),
+            logo: company.logo_url || null
+          }))
+        }
+      } catch (error) {
+        console.error('Erreur chargement entreprises:', error)
+      }
+    }
+
+    // Charger les top utilisateurs depuis Supabase
+    const loadTopUsers = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('pev_profiles')
+          .select('id, first_name, last_name, role, avatar_url, user_type')
+          .eq('onboarding_completed', true)
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        if (!error && data) {
+          topUsers.value = data.map((user, index) => ({
+            name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Utilisateur',
+            role: user.user_type || user.role || 'Utilisateur',
+            activity_score: 100 - (index * 5),
+            avatar: user.avatar_url || null
+          }))
+        }
+      } catch (error) {
+        console.error('Erreur chargement utilisateurs:', error)
+      }
+    }
 
     const initCharts = async () => {
       await nextTick()
-      
-      // Ici vous pourriez utiliser Chart.js ou une autre bibliothèque
-      // Pour la démo, on simule juste les graphiques
       console.log('Initialisation des graphiques...')
-      
-      // Exemple avec Chart.js (à installer: npm install chart.js)
-      /*
-      if (registrationsChart.value) {
-        new Chart(registrationsChart.value, {
-          type: 'line',
-          data: {
-            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
-            datasets: [{
-              label: 'Inscriptions',
-              data: [65, 78, 90, 81, 95, 102],
-              borderColor: 'rgb(75, 192, 192)',
-              tension: 0.1
-            }]
-          }
-        })
-      }
-      */
     }
 
-    const updateData = () => {
-      console.log('Mise à jour des données pour la période:', selectedPeriod.value)
-      // Ici vous feriez un appel API pour récupérer les nouvelles données
+    const updateData = async () => {
+      loading.value = true
+      try {
+        await Promise.all([
+          loadKPIs(),
+          loadTopCompanies(),
+          loadTopUsers()
+        ])
+      } catch (error) {
+        console.error('Erreur mise à jour données:', error)
+      } finally {
+        loading.value = false
+      }
     }
 
     const refreshData = () => {
-      console.log('Actualisation des données...')
       updateData()
       initCharts()
     }
 
     const exportData = () => {
       console.log('Export des données analytics...')
-      // Ici vous pourriez générer un fichier Excel ou CSV
     }
 
     const getActivityColor = (score) => {
@@ -387,7 +415,7 @@ export default {
       return 'error'
     }
 
-    onMounted(() => {
+    onMounted(async () => {
       // Définir les dates par défaut
       const today = new Date()
       const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
@@ -395,6 +423,8 @@ export default {
       dateTo.value = today.toISOString().split('T')[0]
       dateFrom.value = thirtyDaysAgo.toISOString().split('T')[0]
       
+      // Charger les données depuis Supabase
+      await updateData()
       initCharts()
     })
 
@@ -402,6 +432,7 @@ export default {
       selectedPeriod,
       dateFrom,
       dateTo,
+      loading,
       registrationsChart,
       sectorsChart,
       regionsChart,

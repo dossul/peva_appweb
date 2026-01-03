@@ -1,9 +1,10 @@
 /**
  * Service pour gérer les connexions entre utilisateurs/entreprises
- * Version complète avec intégration Supabase
+ * Version complète avec intégration Supabase et envoi d'emails
  */
 import { supabase } from '@/lib/supabase'
 import notificationService from './notificationService'
+import { emailService } from './emailService'
 import { ref } from 'vue'
 
 // Cache local pour les connexions
@@ -44,8 +45,8 @@ export const connectionService = {
         })
         .select(`
           *,
-          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, organization),
-          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, organization)
+          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url),
+          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url)
         `)
         .single()
 
@@ -54,12 +55,33 @@ export const connectionService = {
       // Ajouter au cache local
       connectionRequests.value.push(newRequest)
 
-      // Envoyer une notification
+      // Envoyer une notification in-app
       await notificationService.notifyConnectionRequest(
         requestData.targetUserId,
         `${newRequest.requester.first_name} ${newRequest.requester.last_name}`,
         requestData.message
       )
+
+      // Envoyer un email de notification
+      try {
+        const { data: addresseeProfile } = await supabase
+          .from('pev_profiles')
+          .select('email, first_name, last_name')
+          .eq('id', requestData.targetUserId)
+          .single()
+
+        if (addresseeProfile?.email) {
+          await emailService.sendConnectionRequestNotification(
+            addresseeProfile.email,
+            `${addresseeProfile.first_name} ${addresseeProfile.last_name}`,
+            `${newRequest.requester.first_name} ${newRequest.requester.last_name}`,
+            '', // company_name non disponible
+            `${window.location.origin}/connections`
+          )
+        }
+      } catch (emailError) {
+        console.warn('Erreur envoi email connexion:', emailError)
+      }
 
       return { success: true, data: newRequest }
     } catch (error) {
@@ -89,8 +111,8 @@ export const connectionService = {
         .eq('addressee_id', user.id) // S'assurer que l'utilisateur peut accepter cette demande
         .select(`
           *,
-          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, organization),
-          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, organization)
+          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url),
+          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url)
         `)
         .single()
 
@@ -105,11 +127,30 @@ export const connectionService = {
       // Ajouter à la liste des connexions actives
       connections.value.push(updatedRequest)
 
-      // Notifier le demandeur
+      // Notifier le demandeur (in-app)
       await notificationService.notifyConnectionAccepted(
         updatedRequest.requester_id,
         `${updatedRequest.addressee.first_name} ${updatedRequest.addressee.last_name}`
       )
+
+      // Envoyer un email de notification
+      try {
+        const { data: requesterProfile } = await supabase
+          .from('pev_profiles')
+          .select('email, first_name, last_name')
+          .eq('id', updatedRequest.requester_id)
+          .single()
+
+        if (requesterProfile?.email) {
+          await emailService.sendTemplateEmail('connection_accepted', requesterProfile.email, {
+            recipient_name: `${requesterProfile.first_name} ${requesterProfile.last_name}`,
+            accepter_name: `${updatedRequest.addressee.first_name} ${updatedRequest.addressee.last_name}`,
+            action_url: `${window.location.origin}/connections`
+          })
+        }
+      } catch (emailError) {
+        console.warn('Erreur envoi email connexion acceptée:', emailError)
+      }
 
       return { success: true, data: updatedRequest }
     } catch (error) {
@@ -171,8 +212,8 @@ export const connectionService = {
         .from('pev_connections')
         .select(`
           *,
-          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, organization),
-          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, organization)
+          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url),
+          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url)
         `)
         .eq('addressee_id', targetUserId)
         .eq('status', 'pending')
@@ -202,8 +243,8 @@ export const connectionService = {
         .from('pev_connections')
         .select(`
           *,
-          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, organization),
-          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, organization)
+          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url),
+          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url)
         `)
         .eq('requester_id', targetUserId)
         .order('requested_at', { ascending: false })
@@ -232,8 +273,8 @@ export const connectionService = {
         .from('pev_connections')
         .select(`
           *,
-          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, organization),
-          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, organization)
+          requester:pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url),
+          addressee:pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url)
         `)
         .or(`requester_id.eq.${targetUserId},addressee_id.eq.${targetUserId}`)
         .eq('status', 'accepted')

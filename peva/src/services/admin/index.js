@@ -1,11 +1,15 @@
 /**
- * Services d'administration PEVA
+ * Services d'administration 2iEGreenHub
  * Point d'entrée centralisé pour tous les services admin
  */
 
 // Import des services admin
 export { userManagementService } from './userManagementService'
 export { moderationService } from './moderationService'
+export { forumService } from './forumService'
+export { groupService } from './groupService'
+export { eventsService } from './eventsService'
+export { emailTemplatesService } from './emailTemplatesService'
 
 // Service admin principal (existant)
 export { adminService } from '../adminService'

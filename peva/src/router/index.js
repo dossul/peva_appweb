@@ -36,6 +36,11 @@ const AdminDashboardView = () => import('@/views/AdminDashboardView.vue')
 const AdminUsersView = () => import('@/views/admin/AdminUsersView.vue')
 const AdminModerationView = () => import('@/views/admin/AdminModerationView.vue')
 const AdminAnalyticsView = () => import('@/views/admin/AdminAnalyticsView.vue')
+const AdminCountriesView = () => import('@/views/admin/AdminCountriesView.vue')
+const AdminForumView = () => import('@/views/admin/AdminForumView.vue')
+const AdminGroupsView = () => import('@/views/admin/AdminGroupsView.vue')
+const AdminEventsView = () => import('@/views/admin/AdminEventsView.vue')
+const AdminEmailTemplatesView = () => import('@/views/admin/AdminEmailTemplatesView.vue')
 
 const OnboardingView = () => import('@/views/OnboardingView.vue')
 const ProfileView = () => import('@/views/ProfileView.vue')
@@ -405,6 +410,56 @@ const router = createRouter({
         requiresAuth: true,
         requiresAdmin: true,
         title: 'Analytics & Rapports - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/admin/countries',
+      name: 'AdminCountries',
+      component: AdminCountriesView,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: 'Gestion des Pays - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/admin/forum',
+      name: 'AdminForum',
+      component: AdminForumView,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: 'Gestion du Forum - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/admin/groups',
+      name: 'AdminGroups',
+      component: AdminGroupsView,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: 'Gestion des Communautés - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/admin/events',
+      name: 'AdminEvents',
+      component: AdminEventsView,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: 'Gestion des Événements'
+      }
+    },
+    {
+      path: '/admin/email-templates',
+      name: 'AdminEmailTemplates',
+      component: AdminEmailTemplatesView,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: 'Templates Emails - 2iE GreenHub'
       }
     },
     {

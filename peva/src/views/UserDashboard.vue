@@ -501,212 +501,59 @@ const quickStats = ref([
   }
 ])
 
-// Recent opportunities
-const recentOpportunities = ref([
-  {
-    id: 1,
-    title: 'Développeur Frontend Vue.js',
-    description: 'Rejoignez notre équipe pour développer des solutions d\'énergie renouvelable',
-    category: { name: 'Tech', color: 'blue' },
-    location: 'Dakar, Sénégal',
-    date: '2024-01-15'
-  },
-  {
-    id: 2,
-    title: 'Consultant en Énergie Solaire',
-    description: 'Expertise technique pour projets solaires en Afrique de l\'Ouest',
-    category: { name: 'Énergie', color: 'green' },
-    location: 'Abidjan, Côte d\'Ivoire',
-    date: '2024-01-14'
-  },
-  {
-    id: 3,
-    title: 'Responsable Marketing Digital',
-    description: 'Promouvoir les solutions d\'économie verte auprès des entreprises',
-    category: { name: 'Marketing', color: 'purple' },
-    location: 'Lagos, Nigeria',
-    date: '2024-01-13'
-  },
-  {
-    id: 4,
-    title: 'Ingénieur Environnemental',
-    description: 'Évaluation d\'impact environnemental pour projets verts',
-    category: { name: 'Environnement', color: 'teal' },
-    location: 'Accra, Ghana',
-    date: '2024-01-12'
-  }
-])
+// Recent opportunities - chargées depuis la BDD
+const recentOpportunities = ref([])
 
-// My applications
-const myApplications = ref([
-  {
-    id: 1,
-    title: 'Développeur Full Stack',
-    date: '2024-01-10',
-    status: { text: 'En cours', color: 'orange', icon: 'mdi-clock' }
-  },
-  {
-    id: 2,
-    title: 'Chef de Projet Énergie',
-    date: '2024-01-08',
-    status: { text: 'Acceptée', color: 'green', icon: 'mdi-check-circle' }
-  },
-  {
-    id: 3,
-    title: 'Analyste Données',
-    date: '2024-01-05',
-    status: { text: 'Refusée', color: 'red', icon: 'mdi-close-circle' }
-  }
-])
+// My applications - chargées depuis la BDD
+const myApplications = ref([])
 
-// Learning resources
-const learningResources = ref([
-  {
-    id: 1,
-    title: 'Énergie Solaire',
-    description: 'Cours complet sur les technologies solaires',
-    icon: 'mdi-solar-power',
-    color: 'orange'
-  },
-  {
-    id: 2,
-    title: 'Développement Durable',
-    description: 'Principes de l\'économie verte',
-    icon: 'mdi-leaf',
-    color: 'green'
-  },
-  {
-    id: 3,
-    title: 'Financement Vert',
-    description: 'Mécanismes de financement des projets verts',
-    icon: 'mdi-currency-usd',
-    color: 'blue'
-  }
-])
+// Learning resources - chargées depuis la BDD
+const learningResources = ref([])
 
 // Profile completion
 const profileCompletion = ref(75)
 const profileSteps = ref([
-  { id: 1, title: 'Photo de profil', completed: true },
-  { id: 2, title: 'Informations personnelles', completed: true },
-  { id: 3, title: 'Expérience professionnelle', completed: true },
-  { id: 4, title: 'Compétences', completed: false },
-  { id: 5, title: 'Certifications', completed: false }
+  {
+    id: 1,
+    title: 'Photo de profil',
+    completed: true
+  },
+  {
+    id: 2,
+    title: 'Informations personnelles',
+    completed: true
+  },
+  {
+    id: 3,
+    title: 'Expérience professionnelle',
+    completed: true
+  },
+  {
+    id: 4,
+    title: 'Compétences',
+    completed: false
+  },
+  {
+    id: 5,
+    title: 'Certifications',
+    completed: false
+  }
 ])
 
 // Quick actions
 const quickActions = ref([
-  {
-    id: 1,
-    title: 'Rechercher Opportunités',
-    icon: 'mdi-magnify',
-    color: 'primary',
-    route: '/opportunities/search'
-  },
-  {
-    id: 2,
-    title: 'Publier Opportunité',
-    icon: 'mdi-plus',
-    color: 'green',
-    route: '/opportunities/create'
-  },
-  {
-    id: 3,
-    title: 'Rejoindre Réseau',
-    icon: 'mdi-account-plus',
-    color: 'blue',
-    route: '/network/join'
-  },
-  {
-    id: 4,
-    title: 'Suivre Formation',
-    icon: 'mdi-school',
-    color: 'purple',
-    route: '/learning/courses'
-  }
+  { id: 1, title: 'Rechercher Opportunités', icon: 'mdi-magnify', color: 'primary', route: '/opportunities/search' },
+  { id: 2, title: 'Publier Opportunité', icon: 'mdi-plus', color: 'green', route: '/opportunities/create' },
+  { id: 3, title: 'Rejoindre Réseau', icon: 'mdi-account-plus', color: 'blue', route: '/network/join' },
+  { id: 4, title: 'Suivre Formation', icon: 'mdi-school', color: 'purple', route: '/learning/courses' }
 ])
 
-// Network activity
-const networkActivity = ref([
-  {
-    id: 1,
-    user: 'Marie Diallo',
-    action: 'a publié une nouvelle opportunité',
-    avatar: '/api/placeholder/32/32',
-    time: '2h'
-  },
-  {
-    id: 2,
-    user: 'Ahmed Kone',
-    action: 'a rejoint le réseau',
-    avatar: '/api/placeholder/32/32',
-    time: '4h'
-  },
-  {
-    id: 3,
-    user: 'Fatou Sow',
-    action: 'a terminé une formation',
-    avatar: '/api/placeholder/32/32',
-    time: '1j'
-  },
-  {
-    id: 4,
-    user: 'Ibrahim Diop',
-    action: 'a partagé un article',
-    avatar: '/api/placeholder/32/32',
-    time: '2j'
-  }
-])
+// Network activity - chargée depuis la BDD
+const networkActivity = ref([])
 
-// Connection requests data
-const connectionStats = ref({
-  active: 12,
-  pending: 3,
-  received: 2
-})
-
-const recentConnectionRequests = ref([
-  {
-    id: 1,
-    name: 'SolarTech Côte d\'Ivoire',
-    initials: 'ST',
-    avatarColor: 'green',
-    type: 'sent',
-    status: 'pending',
-    timeAgo: 'il y a 2h',
-    message: 'Intéressé par vos solutions solaires'
-  },
-  {
-    id: 2,
-    name: 'EcoTransport Sénégal',
-    initials: 'ET',
-    avatarColor: 'blue',
-    type: 'received',
-    status: 'pending',
-    timeAgo: 'il y a 4h',
-    message: 'Souhaite explorer des partenariats'
-  },
-  {
-    id: 3,
-    name: 'Green Farm Ghana',
-    initials: 'GF',
-    avatarColor: 'teal',
-    type: 'sent',
-    status: 'accepted',
-    timeAgo: 'il y a 1j',
-    message: 'Collaboration en agriculture durable'
-  },
-  {
-    id: 4,
-    name: 'CleanWater Nigeria',
-    initials: 'CW',
-    avatarColor: 'purple',
-    type: 'received',
-    status: 'pending',
-    timeAgo: 'il y a 2j',
-    message: 'Partenariat dans le domaine de l\'eau'
-  }
-])
+// Connection requests data - chargées depuis la BDD
+const connectionStats = ref({ active: 0, pending: 0, received: 0 })
+const recentConnectionRequests = ref([])
 
 // Methods
 const navigateTo = (route) => {

@@ -1,16 +1,24 @@
 <template>
   <div class="messages-view">
     <!-- Header avec icône Messages -->
-    <div class="messages-header bg-blue-darken-1 text-white py-4">
+    <div class="messages-header bg-blue-darken-1 text-white py-6">
       <v-container>
-        <div class="d-flex align-center">
-          <v-icon size="32" class="mr-3">mdi-message</v-icon>
-          <h1 class="text-h4 font-weight-bold">Messages</h1>
+        <div class="d-flex align-center justify-space-between">
+          <div class="d-flex align-center">
+            <v-icon size="32" class="mr-3">mdi-message</v-icon>
+            <div>
+              <h1 class="text-h4 font-weight-bold mb-1">Messages</h1>
+              <p class="text-body-2 ma-0 opacity-80">Vos conversations sur 2iE GreenHub</p>
+            </div>
+          </div>
+          <v-btn color="white" variant="flat" class="text-blue-darken-1" prepend-icon="mdi-plus" @click="startNewConversation">
+            Nouvelle conversation
+          </v-btn>
         </div>
       </v-container>
     </div>
 
-    <v-container fluid class="pa-0">
+    <v-container class="py-6">
       <v-row no-gutters style="height: calc(100vh - 120px);">
         <!-- Sidebar gauche avec conversations -->
         <v-col cols="12" md="4" class="conversations-sidebar">
@@ -264,11 +272,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { messagesService } from '@/services/messagesService'
+import { emailService } from '@/services/emailService'
+import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 // Reactive data
@@ -278,146 +290,85 @@ const selectedConversation = ref(null)
 const newMessage = ref('')
 const replyOnEnter = ref(true)
 const messagesContainer = ref(null)
+const loading = ref(false)
+const sendingMessage = ref(false)
 
-// Mock data selon l'image
-const conversations = ref([
-  {
-    id: 1,
-    name: 'Sarah Okoye',
-    initials: 'SO',
-    avatarColor: 'green',
-    lastMessage: 'Salut Amina ! J\'ai vu ton message sur le forum à propos du financement pour ta startup solaire en Côte d\'Ivoire. C\'est exactement le type de projet qui nous intéresse chez nous !',
-    time: '14:22',
-    isOnline: true,
-    unreadCount: 2,
-    type: 'direct',
-    category: 'En ligne',
-    isFavorite: false,
-    status: 'Investisseuse Impact',
-    messages: [
-      {
-        id: 1,
-        sender: 'other',
-        content: 'Salut Amina ! J\'ai vu ton message sur le forum à propos du financement pour ta startup solaire en Côte d\'Ivoire. C\'est exactement le type de projet qui nous intéresse chez nous !',
-        time: '14:22',
-        read: true
-      },
-      {
-        id: 2,
-        sender: 'other',
-        content: 'Je peux te faire une intro avec quelques contacts chez I&P si tu veux. Ils sont très actifs en Afrique francophone et financent des projets d\'énergie verte.',
-        time: '14:30',
-        read: true
-      },
-      {
-        id: 3,
-        sender: 'other',
-        content: 'Tu as déjà un business plan finalisé ? Et quel est ton timeline pour lever les fonds ?',
-        time: '14:30',
-        read: true
-      },
-      {
-        id: 4,
-        sender: 'me',
-        content: 'Merci beaucoup Sarah ! C\'est super gentil de proposer ton aide. 🙏',
-        time: '14:35',
-        read: true
-      }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Ahmed Ben Ali',
-    initials: 'AA',
-    avatarColor: 'blue',
-    lastMessage: 'Merci pour tes conseils sur l\'installation solaire !',
-    time: 'hier',
-    isOnline: false,
-    unreadCount: 0,
-    type: 'direct',
-    category: 'Hier',
-    isFavorite: true,
-    status: 'Hors ligne depuis 2h',
-    messages: [
-      {
-        id: 1,
-        sender: 'other',
-        content: 'Merci pour tes conseils sur l\'installation solaire !',
-        time: 'hier',
-        read: true
-      }
-    ]
-  },
-  {
-    id: 3,
-    name: 'Groupe Energie Solaire CI',
-    initials: 'ES',
-    avatarColor: 'purple',
-    lastMessage: 'Marie: Quelqu\'un connaît un bon installateur à Abidjan ?',
-    time: '09:15',
-    isOnline: true,
-    unreadCount: 5,
-    type: 'group',
-    category: 'Groupe',
-    isFavorite: false,
-    status: '12 membres',
-    messages: [
-      {
-        id: 1,
-        sender: 'other',
-        content: 'Quelqu\'un connaît un bon installateur à Abidjan ?',
-        time: '09:15',
-        read: true
-      }
-    ]
-  },
-  {
-    id: 4,
-    name: 'Marie Diop',
-    initials: 'MD',
-    avatarColor: 'orange',
-    lastMessage: 'Super présentation à la conférence ! On peut collaborer ?',
-    time: 'mar',
-    isOnline: false,
-    unreadCount: 0,
-    type: 'direct',
-    category: 'Cette semaine',
-    isFavorite: false,
-    status: 'Hors ligne depuis 1j',
-    messages: [
-      {
-        id: 1,
-        sender: 'other',
-        content: 'Super présentation à la conférence ! On peut collaborer ?',
-        time: 'mar',
-        read: true
-      }
-    ]
-  },
-  {
-    id: 5,
-    name: 'Kwame Asante',
-    initials: 'KA',
-    avatarColor: 'teal',
-    lastMessage: 'Les documents sont prêts pour signature',
-    time: 'lun',
-    isOnline: false,
-    unreadCount: 0,
-    type: 'direct',
-    category: 'Cette semaine',
-    isFavorite: false,
-    status: 'Hors ligne depuis 3j',
-    messages: [
-      {
-        id: 1,
-        sender: 'other',
-        content: 'Les documents sont prêts pour signature',
-        time: 'lun',
-        read: true
-      }
-    ]
+// Données depuis Supabase
+const conversations = ref([])
+const currentUserId = ref(null)
+
+// Channel temps réel
+let conversationChannel = null
+let userChannel = null
+
+// Charger les conversations depuis Supabase
+const loadConversations = async () => {
+  loading.value = true
+  try {
+    const result = await messagesService.getConversations({
+      type: activeFilter.value === 'groups' ? 'group' : null,
+      favorites: activeFilter.value === 'favorites',
+      unreadOnly: activeFilter.value === 'unread'
+    })
+
+    if (result.success) {
+      conversations.value = result.data.map(conv => ({
+        id: conv.id,
+        name: conv.display_name || conv.name || 'Conversation',
+        initials: getInitials(conv.display_name || conv.name),
+        avatarColor: getAvatarColor(conv.id),
+        avatarUrl: conv.avatar_url,
+        lastMessage: conv.last_message_preview || 'Aucun message',
+        time: formatTime(conv.last_message_at),
+        isOnline: false, // À implémenter avec presence
+        unreadCount: conv.unread_count || 0,
+        type: conv.type,
+        category: getCategoryFromTime(conv.last_message_at),
+        isFavorite: conv.is_favorite,
+        isMuted: conv.is_muted,
+        otherUserId: conv.other_user_id,
+        messages: []
+      }))
+    }
+  } catch (error) {
+    console.error('Erreur chargement conversations:', error)
   }
-])
+  loading.value = false
+}
+
+// Charger les messages d'une conversation
+const loadMessages = async (conversationId) => {
+  try {
+    const result = await messagesService.getConversation(conversationId)
+    
+    if (result.success && result.data) {
+      const conv = conversations.value.find(c => c.id === conversationId)
+      if (conv) {
+        conv.messages = result.data.messages.map(msg => ({
+          id: msg.id,
+          sender: msg.sender_id === currentUserId.value ? 'me' : 'other',
+          senderId: msg.sender_id,
+          senderName: msg.sender ? `${msg.sender.first_name} ${msg.sender.last_name}` : 'Utilisateur',
+          senderAvatar: msg.sender?.avatar_url,
+          content: msg.content,
+          time: formatMessageTime(msg.created_at),
+          read: true,
+          isEdited: msg.is_edited
+        }))
+      }
+    }
+  } catch (error) {
+    console.error('Erreur chargement messages:', error)
+  }
+}
+
+// Obtenir l'utilisateur courant
+const getCurrentUser = async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    currentUserId.value = user.id
+  }
+}
 
 // Computed
 const filteredConversations = computed(() => {
@@ -431,47 +382,167 @@ const filteredConversations = computed(() => {
     )
   }
 
-  // Filtrer par type
-  switch (activeFilter.value) {
-    case 'unread':
-      filtered = filtered.filter(conv => conv.unreadCount > 0)
-      break
-    case 'favorites':
-      filtered = filtered.filter(conv => conv.isFavorite)
-      break
-    case 'groups':
-      filtered = filtered.filter(conv => conv.type === 'group')
-      break
-  }
-
   return filtered
 })
 
-// Methods
-const selectConversation = (conversation) => {
-  selectedConversation.value = conversation
-  // Marquer comme lu
-  conversation.unreadCount = 0
+// Helpers
+const getInitials = (name) => {
+  if (!name) return '?'
+  const parts = name.split(' ')
+  return parts.map(p => p[0]).join('').substring(0, 2).toUpperCase()
 }
 
-const sendMessage = () => {
-  if (!newMessage.value.trim() || !selectedConversation.value) return
+const getAvatarColor = (id) => {
+  const colors = ['blue', 'green', 'purple', 'orange', 'teal', 'red', 'indigo']
+  return colors[id % colors.length]
+}
 
-  const message = {
-    id: Date.now(),
-    sender: 'me',
-    content: newMessage.value,
-    time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-    read: false
+const formatTime = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) {
+    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  } else if (diffDays === 1) {
+    return 'hier'
+  } else if (diffDays < 7) {
+    return date.toLocaleDateString('fr-FR', { weekday: 'short' })
+  } else {
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
   }
+}
 
-  selectedConversation.value.messages.push(message)
-  selectedConversation.value.lastMessage = newMessage.value
-  selectedConversation.value.time = message.time
+const formatMessageTime = (dateString) => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+}
 
+const getCategoryFromTime = (dateString) => {
+  if (!dateString) return 'Nouveau'
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) return 'Aujourd\'hui'
+  if (diffDays === 1) return 'Hier'
+  if (diffDays < 7) return 'Cette semaine'
+  return 'Plus ancien'
+}
+
+const getCategoryColor = (category) => {
+  const colors = {
+    'Aujourd\'hui': 'green',
+    'Hier': 'blue',
+    'Cette semaine': 'orange',
+    'Plus ancien': 'grey',
+    'Groupe': 'purple'
+  }
+  return colors[category] || 'grey'
+}
+
+// Methods
+const selectConversation = async (conversation) => {
+  selectedConversation.value = conversation
+  
+  // Charger les messages si pas encore chargés
+  if (!conversation.messages || conversation.messages.length === 0) {
+    await loadMessages(conversation.id)
+  }
+  
+  // Marquer comme lu
+  if (conversation.unreadCount > 0) {
+    await messagesService.markAsRead(conversation.id)
+    conversation.unreadCount = 0
+  }
+  
+  // S'abonner aux nouveaux messages
+  setupConversationRealtime(conversation.id)
+  
+  // Scroll vers le bas
+  scrollToBottom()
+}
+
+const sendMessage = async () => {
+  if (!newMessage.value.trim() || !selectedConversation.value || sendingMessage.value) return
+
+  sendingMessage.value = true
+  const messageContent = newMessage.value
   newMessage.value = ''
 
-  // Scroll vers le bas
+  try {
+    const result = await messagesService.sendMessage(selectedConversation.value.id, messageContent)
+    
+    if (result.success) {
+      // Ajouter le message localement
+      const message = {
+        id: result.data.id,
+        sender: 'me',
+        senderId: currentUserId.value,
+        content: messageContent,
+        time: formatMessageTime(new Date().toISOString()),
+        read: false
+      }
+      
+      selectedConversation.value.messages.push(message)
+      selectedConversation.value.lastMessage = messageContent
+      selectedConversation.value.time = message.time
+      
+      // Envoyer notification email au destinataire
+      await sendEmailNotification(messageContent)
+      
+      scrollToBottom()
+    } else {
+      newMessage.value = messageContent // Restaurer le message en cas d'erreur
+      console.error('Erreur envoi message:', result.error)
+    }
+  } catch (error) {
+    newMessage.value = messageContent
+    console.error('Erreur envoi message:', error)
+  }
+  
+  sendingMessage.value = false
+}
+
+// Envoyer notification email
+const sendEmailNotification = async (messageContent) => {
+  if (!selectedConversation.value?.otherUserId) return
+  
+  try {
+    // Récupérer les infos du destinataire
+    const { data: recipient } = await supabase
+      .from('pev_profiles')
+      .select('email, first_name, last_name')
+      .eq('id', selectedConversation.value.otherUserId)
+      .single()
+    
+    if (recipient?.email) {
+      const { data: sender } = await supabase
+        .from('pev_profiles')
+        .select('first_name, last_name')
+        .eq('id', currentUserId.value)
+        .single()
+      
+      const senderName = sender ? `${sender.first_name} ${sender.last_name}` : 'Un utilisateur'
+      const recipientName = `${recipient.first_name || ''} ${recipient.last_name || ''}`.trim() || 'Utilisateur'
+      const preview = messageContent.substring(0, 100)
+      const conversationUrl = `${window.location.origin}/messages?conversation=${selectedConversation.value.id}`
+      
+      await emailService.sendNewMessageNotification(
+        recipient.email,
+        recipientName,
+        senderName,
+        preview,
+        conversationUrl
+      )
+    }
+  } catch (error) {
+    console.log('Notification email non envoyée:', error.message)
+  }
+}
+
+const scrollToBottom = () => {
   setTimeout(() => {
     if (messagesContainer.value) {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
@@ -480,75 +551,95 @@ const sendMessage = () => {
 }
 
 const startNewConversation = () => {
-  // TODO: Ouvrir un dialog pour créer une nouvelle conversation
-  console.log('Nouvelle conversation')
+  router.push('/connections')
 }
 
-const getCategoryColor = (category) => {
-  const colors = {
-    'En ligne': 'green',
-    'Hier': 'blue',
-    'Groupe': 'purple',
-    'Cette semaine': 'orange'
+// Temps réel
+const setupConversationRealtime = (conversationId) => {
+  // Désabonner de l'ancienne conversation
+  if (conversationChannel) {
+    messagesService.unsubscribe(conversationChannel)
   }
-  return colors[category] || 'grey'
+  
+  // S'abonner à la nouvelle conversation
+  conversationChannel = messagesService.subscribeToConversation(conversationId, (event) => {
+    if (event.type === 'new_message' && event.data.sender_id !== currentUserId.value) {
+      // Nouveau message reçu
+      const message = {
+        id: event.data.id,
+        sender: 'other',
+        senderId: event.data.sender_id,
+        senderName: event.data.sender ? `${event.data.sender.first_name} ${event.data.sender.last_name}` : 'Utilisateur',
+        content: event.data.content,
+        time: formatMessageTime(event.data.created_at),
+        read: true
+      }
+      
+      selectedConversation.value.messages.push(message)
+      scrollToBottom()
+    }
+  })
 }
+
+// Gérer le contact depuis la carte
+const handleContactFromMap = async (queryParams) => {
+  const { contact, contactName, subject } = queryParams
+  
+  if (contact) {
+    try {
+      // Créer ou récupérer la conversation directe
+      const result = await messagesService.getOrCreateDirectConversation(contact)
+      
+      if (result.success) {
+        await loadConversations()
+        
+        const conv = conversations.value.find(c => c.id === result.data.id)
+        if (conv) {
+          await selectConversation(conv)
+          
+          if (subject) {
+            newMessage.value = `Bonjour,\n\nJe vous contacte depuis 2iE GreenHub concernant : ${subject}\n\n`
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erreur création conversation:', error)
+    }
+  }
+}
+
+// Watch pour le filtre actif
+watch(activeFilter, () => {
+  loadConversations()
+})
 
 // Initialize
-onMounted(() => {
-  // Vérifier si on arrive depuis la carte avec un contact
-  const route = useRoute()
+onMounted(async () => {
+  await getCurrentUser()
+  await loadConversations()
+  
+  // Vérifier si on arrive avec des paramètres
   if (route.query.contact) {
-    handleContactFromMap(route.query)
-  } else {
-    // Sélectionner la première conversation par défaut
-    if (conversations.value.length > 0) {
-      selectConversation(conversations.value[0])
+    await handleContactFromMap(route.query)
+  } else if (route.query.conversation) {
+    const conv = conversations.value.find(c => c.id === parseInt(route.query.conversation))
+    if (conv) {
+      await selectConversation(conv)
     }
+  } else if (conversations.value.length > 0) {
+    await selectConversation(conversations.value[0])
   }
 })
 
-// Gérer le contact depuis la carte
-const handleContactFromMap = (queryParams) => {
-  const { contact, contactName, contactType, subject } = queryParams
-  
-  // Vérifier si une conversation existe déjà avec ce contact
-  let existingConversation = conversations.value.find(conv => 
-    conv.contactId === contact
-  )
-  
-  if (!existingConversation) {
-    // Créer une nouvelle conversation
-    const newConversation = {
-      id: Date.now(),
-      contactId: contact,
-      name: contactName || 'Nouveau Contact',
-      initials: contactName ? contactName.substring(0, 2).toUpperCase() : 'NC',
-      avatarColor: contactType === 'company' ? 'green' : 'blue',
-      lastMessage: `Conversation avec ${contactName}`,
-      time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-      isOnline: false,
-      unreadCount: 0,
-      type: 'direct',
-      category: 'Nouveau',
-      isFavorite: false,
-      status: 'Nouveau contact',
-      messages: []
-    }
-    
-    // Ajouter la conversation en haut de la liste
-    conversations.value.unshift(newConversation)
-    existingConversation = newConversation
+// Cleanup
+onUnmounted(() => {
+  if (conversationChannel) {
+    messagesService.unsubscribe(conversationChannel)
   }
-  
-  // Sélectionner la conversation
-  selectConversation(existingConversation)
-  
-  // Pré-remplir le message si un sujet est fourni
-  if (subject) {
-    newMessage.value = `Bonjour,\n\nJe vous contacte depuis la carte interactive PEVA concernant : ${subject}\n\n`
+  if (userChannel) {
+    messagesService.unsubscribe(userChannel)
   }
-}
+})
 </script>
 
 <style scoped>
@@ -564,6 +655,12 @@ const handleContactFromMap = (queryParams) => {
 .conversations-sidebar {
   border-right: 1px solid #e0e0e0;
   background: white;
+  border-radius: 12px 0 0 12px;
+  overflow: hidden;
+}
+
+.chat-main {
+  border-radius: 0 12px 12px 0;
 }
 
 .conversation-item {

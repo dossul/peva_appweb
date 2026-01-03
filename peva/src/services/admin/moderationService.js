@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 
 /**
- * Service de modération pour l'administration PEVA
+ * Service de modération pour l'administration 2iEGreenHub
  * Gère la modération de tous les types de contenu
  */
 export const moderationService = {

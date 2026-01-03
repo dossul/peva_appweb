@@ -7,8 +7,8 @@
           <div class="d-flex align-center">
             <v-icon size="48" class="mr-4">mdi-forum</v-icon>
             <div>
-              <h1 class="text-h3 font-weight-bold mb-2">Forum PEVA</h1>
-              <p class="text-h6 font-weight-regular ma-0">Échangez, partagez et débattez avec la communauté de l'économie verte africaine</p>
+              <h1 class="text-h3 font-weight-bold mb-2">Forum 2iEGreenHub</h1>
+              <p class="text-h6 font-weight-regular ma-0">Échangez, partagez et débattez avec la communauté de l'économie verte</p>
             </div>
           </div>
           <v-btn
@@ -31,28 +31,28 @@
         <v-col cols="12" md="3">
           <v-card class="text-center pa-4" color="blue-lighten-5">
             <v-icon size="32" color="blue-darken-2" class="mb-2">mdi-forum</v-icon>
-            <div class="text-h4 font-weight-bold text-blue-darken-2">1 247</div>
+            <div class="text-h4 font-weight-bold text-blue-darken-2">{{ formatNumber(stats.discussions) }}</div>
             <div class="text-body-2">Discussions actives</div>
           </v-card>
         </v-col>
         <v-col cols="12" md="3">
           <v-card class="text-center pa-4" color="green-lighten-5">
             <v-icon size="32" color="green-darken-2" class="mb-2">mdi-account-multiple</v-icon>
-            <div class="text-h4 font-weight-bold text-green-darken-2">3 456</div>
+            <div class="text-h4 font-weight-bold text-green-darken-2">{{ formatNumber(stats.members) }}</div>
             <div class="text-body-2">Membres actifs</div>
           </v-card>
         </v-col>
         <v-col cols="12" md="3">
           <v-card class="text-center pa-4" color="purple-lighten-5">
             <v-icon size="32" color="purple-darken-2" class="mb-2">mdi-message-reply</v-icon>
-            <div class="text-h4 font-weight-bold text-purple-darken-2">89</div>
+            <div class="text-h4 font-weight-bold text-purple-darken-2">{{ stats.repliesToday }}</div>
             <div class="text-body-2">Réponses aujourd'hui</div>
           </v-card>
         </v-col>
         <v-col cols="12" md="3">
           <v-card class="text-center pa-4" color="orange-lighten-5">
             <v-icon size="32" color="orange-darken-2" class="mb-2">mdi-trending-up</v-icon>
-            <div class="text-h4 font-weight-bold text-orange-darken-2">12</div>
+            <div class="text-h4 font-weight-bold text-orange-darken-2">{{ stats.trending }}</div>
             <div class="text-body-2">Sujets tendance</div>
           </v-card>
         </v-col>
@@ -320,6 +320,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -328,6 +329,7 @@ const authStore = useAuthStore()
 const searchQuery = ref('')
 const selectedCategory = ref('Toutes catégories')
 const createTopicDialog = ref(false)
+const loading = ref(false)
 
 const newTopic = ref({
   title: '',
@@ -335,200 +337,212 @@ const newTopic = ref({
   content: ''
 })
 
-// Mock data selon l'image 5
-const categories = ref([
-  {
-    id: 1,
-    name: 'Énergie Renouvelable',
-    description: 'Solaire, éolien, hydroélectrique',
-    discussions: 234,
-    messages: 1547,
-    color: 'orange',
-    icon: 'mdi-solar-power'
-  },
-  {
-    id: 2,
-    name: 'Agriculture Durable',
-    description: 'Permaculture, irrigation, sols',
-    discussions: 186,
-    messages: 1234,
-    color: 'green',
-    icon: 'mdi-leaf'
-  },
-  {
-    id: 3,
-    name: 'Finance Verte',
-    description: 'Financement, investissement',
-    discussions: 114,
-    messages: 967,
-    color: 'blue',
-    icon: 'mdi-currency-eur'
-  },
-  {
-    id: 4,
-    name: 'Transport Vert',
-    description: 'Mobilité durable',
-    discussions: 98,
-    messages: 654,
-    color: 'purple',
-    icon: 'mdi-car-electric'
-  },
-  {
-    id: 5,
-    name: 'Économie Circulaire',
-    description: 'Recyclage, réutilisation',
-    discussions: 171,
-    messages: 789,
-    color: 'teal',
-    icon: 'mdi-recycle'
-  },
-  {
-    id: 6,
-    name: 'Innovation & Tech',
-    description: 'IoT, blockchain',
-    discussions: 167,
-    messages: 1143,
-    color: 'pink',
-    icon: 'mdi-lightbulb'
-  }
-])
+// Stats depuis Supabase
+const stats = ref({
+  discussions: 0,
+  members: 0,
+  repliesToday: 0,
+  trending: 0
+})
 
-const popularDiscussions = ref([
-  {
-    id: 1,
-    title: 'Conseils pour financer une startup solaire en Côte d\'Ivoire',
-    author: 'Dr Amina Koné',
-    authorInitials: 'AK',
-    authorColor: 'green',
-    category: 'Énergie Verte',
-    categoryColor: 'orange',
-    time: 'il y a 2h',
-    replies: 42,
-    views: 1205,
-    isPinned: true
-  },
-  {
-    id: 2,
-    title: 'À votre prédiction des rendements agricoles au Maroc',
-    author: 'Dr Ahmed Sow',
-    authorInitials: 'AS',
-    authorColor: 'blue',
-    category: 'Innovation Verte',
-    categoryColor: 'green',
-    time: 'il y a 5h',
-    replies: 28,
-    views: 892,
-    isPinned: false
-  },
-  {
-    id: 3,
-    title: 'Startup recyclage plastique à Ouagadougou - Recherche partenaires',
-    author: 'Fatou Diallo',
-    authorInitials: 'FD',
-    authorColor: 'purple',
-    category: 'Économie Verte',
-    categoryColor: 'teal',
-    time: 'il y a 1j',
-    replies: 15,
-    views: 634,
-    isPinned: false
-  }
-])
+// Données depuis Supabase
+const categories = ref([])
+const popularDiscussions = ref([])
+const recentDiscussions = ref([])
+const activeMembers = ref([])
 
-const recentDiscussions = ref([
-  {
-    id: 4,
-    title: 'Obtenir une certification carbone au Ghana',
-    author: 'Marie Carbou',
-    authorInitials: 'MC',
-    authorColor: 'indigo',
-    category: 'Financement Vert',
-    categoryColor: 'blue',
-    time: 'il y a 30min',
-    replies: 3,
-    views: 45
-  },
-  {
-    id: 5,
-    title: 'Installation bornes de recharge véhicules électriques',
-    author: 'Bakari Jv',
-    authorInitials: 'BJ',
-    authorColor: 'brown',
-    category: 'Transport Vert',
-    categoryColor: 'purple',
-    time: 'il y a 1h',
-    replies: 8,
-    views: 123
-  },
-  {
-    id: 6,
-    title: 'IoT pour irrigation intelligente au Sénégal',
-    author: 'Fatou Tall',
-    authorInitials: 'FT',
-    authorColor: 'pink',
-    category: 'Innovation Verte',
-    categoryColor: 'pink',
-    time: 'il y a 2h',
-    replies: 12,
-    views: 267
-  },
-  {
-    id: 7,
-    title: 'Mini-grid solaire en zone rurale au Kenya',
-    author: 'John Mwai',
-    authorInitials: 'JM',
-    authorColor: 'orange',
-    category: 'Énergie Renouvelable',
-    categoryColor: 'orange',
-    time: 'il y a 3h',
-    replies: 19,
-    views: 445
-  }
-])
+// Catégories par défaut (utilisées si la table n'existe pas)
+const defaultCategories = [
+  { id: 1, name: 'Énergie Renouvelable', description: 'Solaire, éolien, hydroélectrique', color: 'orange', icon: 'mdi-solar-power' },
+  { id: 2, name: 'Agriculture Durable', description: 'Permaculture, irrigation, sols', color: 'green', icon: 'mdi-leaf' },
+  { id: 3, name: 'Finance Verte', description: 'Financement, investissement', color: 'blue', icon: 'mdi-currency-eur' },
+  { id: 4, name: 'Transport Vert', description: 'Mobilité durable', color: 'purple', icon: 'mdi-car-electric' },
+  { id: 5, name: 'Économie Circulaire', description: 'Recyclage, réutilisation', color: 'teal', icon: 'mdi-recycle' },
+  { id: 6, name: 'Innovation & Tech', description: 'IoT, blockchain', color: 'pink', icon: 'mdi-lightbulb' }
+]
 
-const activeMembers = ref([
-  {
-    id: 1,
-    name: 'Dr Amina Koné',
-    title: 'Expert Énergie Verte',
-    initials: 'DE',
-    color: 'green',
-    status: 'Expert confirmé',
-    statusColor: 'green'
-  },
-  {
-    id: 2,
-    name: 'Marie Diop',
-    title: 'Entrepreneur AgriTech',
-    initials: 'MS',
-    color: 'blue',
-    status: 'Contributeur',
-    statusColor: 'blue'
-  },
-  {
-    id: 3,
-    name: 'Ahmed Ben Ali',
-    title: 'Développeur IoT',
-    initials: 'AT',
-    color: 'purple',
-    status: 'Modérateur',
-    statusColor: 'purple'
-  },
-  {
-    id: 4,
-    name: 'Sarah Okoye',
-    title: 'Investisseuse Impact',
-    initials: 'SI',
-    color: 'orange',
-    status: 'Mentor',
-    statusColor: 'orange'
+// Charger les statistiques
+const loadStats = async () => {
+  try {
+    // Compter les topics
+    const { count: topicsCount } = await supabase
+      .from('pev_forum_topics')
+      .select('*', { count: 'exact', head: true })
+    
+    // Compter les membres actifs
+    const { count: membersCount } = await supabase
+      .from('pev_profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('onboarding_completed', true)
+    
+    // Compter les posts d'aujourd'hui
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const { count: postsToday } = await supabase
+      .from('pev_forum_posts')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', today.toISOString())
+    
+    stats.value = {
+      discussions: topicsCount || 0,
+      members: membersCount || 0,
+      repliesToday: postsToday || 0,
+      trending: Math.min(topicsCount || 0, 10)
+    }
+  } catch (error) {
+    console.log('Stats forum non disponibles')
   }
-])
+}
+
+// Charger les catégories
+const loadCategories = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('pev_forum_categories')
+      .select('*')
+      .order('name')
+    
+    if (!error && data && data.length > 0) {
+      categories.value = data.map(cat => ({
+        ...cat,
+        discussions: 0,
+        messages: 0
+      }))
+    } else {
+      categories.value = defaultCategories.map(cat => ({ ...cat, discussions: 0, messages: 0 }))
+    }
+  } catch (error) {
+    categories.value = defaultCategories.map(cat => ({ ...cat, discussions: 0, messages: 0 }))
+  }
+}
+
+// Charger les discussions populaires
+const loadPopularDiscussions = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('pev_forum_topics')
+      .select(`
+        id, title, views_count, created_at,
+        pev_profiles:user_id(first_name, last_name)
+      `)
+      .order('views_count', { ascending: false })
+      .limit(5)
+    
+    if (!error && data) {
+      popularDiscussions.value = data.map(topic => ({
+        id: topic.id,
+        title: topic.title || 'Sans titre',
+        author: topic.pev_profiles ? `${topic.pev_profiles.first_name || ''} ${topic.pev_profiles.last_name || ''}`.trim() : 'Anonyme',
+        authorInitials: getInitials(topic.pev_profiles),
+        authorColor: getRandomColor(),
+        category: 'Forum',
+        categoryColor: 'purple',
+        time: formatTimeAgo(topic.created_at),
+        replies: 0,
+        views: topic.views_count || 0,
+        isPinned: false
+      }))
+    }
+  } catch (error) {
+    console.log('Discussions populaires non disponibles')
+  }
+}
+
+// Charger les discussions récentes
+const loadRecentDiscussions = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('pev_forum_topics')
+      .select(`
+        id, title, views_count, created_at,
+        pev_profiles:user_id(first_name, last_name)
+      `)
+      .order('created_at', { ascending: false })
+      .limit(5)
+    
+    if (!error && data) {
+      recentDiscussions.value = data.map(topic => ({
+        id: topic.id,
+        title: topic.title || 'Sans titre',
+        author: topic.pev_profiles ? `${topic.pev_profiles.first_name || ''} ${topic.pev_profiles.last_name || ''}`.trim() : 'Anonyme',
+        authorInitials: getInitials(topic.pev_profiles),
+        authorColor: getRandomColor(),
+        category: 'Forum',
+        categoryColor: 'green',
+        time: formatTimeAgo(topic.created_at),
+        replies: 0,
+        views: topic.views_count || 0
+      }))
+    }
+  } catch (error) {
+    console.log('Discussions récentes non disponibles')
+  }
+}
+
+// Charger les membres actifs
+const loadActiveMembers = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('pev_profiles')
+      .select('id, first_name, last_name, user_type, role')
+      .eq('onboarding_completed', true)
+      .order('created_at', { ascending: false })
+      .limit(5)
+    
+    if (!error && data) {
+      activeMembers.value = data.map(member => ({
+        id: member.id,
+        name: `${member.first_name || ''} ${member.last_name || ''}`.trim() || 'Membre',
+        title: member.user_type || 'Membre',
+        initials: getInitials(member),
+        color: getRandomColor(),
+        status: member.role === 'admin' ? 'Modérateur' : 'Contributeur',
+        statusColor: member.role === 'admin' ? 'purple' : 'blue'
+      }))
+    }
+  } catch (error) {
+    console.log('Membres actifs non disponibles')
+  }
+}
+
+// Helpers
+const getInitials = (profile) => {
+  if (!profile) return '?'
+  const first = (profile.first_name || '')[0] || ''
+  const last = (profile.last_name || '')[0] || ''
+  return (first + last).toUpperCase() || '?'
+}
+
+const getRandomColor = () => {
+  const colors = ['green', 'blue', 'purple', 'orange', 'teal', 'pink', 'indigo']
+  return colors[Math.floor(Math.random() * colors.length)]
+}
+
+const formatTimeAgo = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now - date
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+  
+  if (diffMins < 1) return 'à l\'instant'
+  if (diffMins < 60) return `il y a ${diffMins}min`
+  if (diffHours < 24) return `il y a ${diffHours}h`
+  if (diffDays < 7) return `il y a ${diffDays}j`
+  return date.toLocaleDateString('fr-FR')
+}
+
+const formatNumber = (num) => {
+  if (!num) return '0'
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
+  return num.toString()
+}
 
 // Methods
 const selectCategory = (category) => {
   console.log('Sélection catégorie:', category.name)
-  // Navigation vers la catégorie
 }
 
 const createTopic = () => {
@@ -539,9 +553,27 @@ const createTopic = () => {
   }
 }
 
+// Charger toutes les données
+const loadAllData = async () => {
+  loading.value = true
+  try {
+    await Promise.all([
+      loadStats(),
+      loadCategories(),
+      loadPopularDiscussions(),
+      loadRecentDiscussions(),
+      loadActiveMembers()
+    ])
+  } catch (error) {
+    console.error('Erreur chargement forum:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
 // Initialize
 onMounted(() => {
-  // TODO: Charger les données depuis Supabase
+  loadAllData()
 })
 </script>
 

@@ -5,6 +5,7 @@
 
 import { supabase } from '@/lib/supabase'
 import { ref, computed } from 'vue'
+import { emailService } from './emailService'
 
 class NotificationService {
   constructor() {
@@ -519,12 +520,72 @@ class NotificationService {
     })
   }
 
-  async notifyEventReminder(recipientId, eventTitle, timeUntil) {
-    return this.createNotification(recipientId, null, 'event_reminder', {
+  async notifyEventReminder(recipientId, eventTitle, timeUntil, eventData = {}) {
+    // Créer notification in-app
+    const result = await this.createNotification(recipientId, null, 'event_reminder', {
       title: 'Rappel d\'événement',
       message: `"${eventTitle}" commence ${timeUntil}`,
       priority: 'high'
     })
+
+    // Envoyer email de rappel
+    try {
+      const { data: recipient } = await supabase
+        .from('pev_profiles')
+        .select('email, first_name, last_name')
+        .eq('id', recipientId)
+        .single()
+
+      if (recipient?.email) {
+        await emailService.sendTemplateEmail('event_reminder', recipient.email, {
+          recipient_name: `${recipient.first_name} ${recipient.last_name}`,
+          event_title: eventTitle,
+          event_date: eventData.date || timeUntil,
+          event_location: eventData.location || 'Voir les détails',
+          action_url: eventData.url || `${window.location.origin}/events`
+        })
+      }
+    } catch (emailError) {
+      console.warn('Erreur envoi email rappel événement:', emailError)
+    }
+
+    return result
+  }
+
+  /**
+   * Envoyer notification + email pour nouvelle opportunité correspondant aux critères
+   */
+  async notifyNewOpportunityMatch(recipientId, opportunity) {
+    // Créer notification in-app
+    const result = await this.createNotification(recipientId, null, 'new_opportunity', {
+      title: 'Nouvelle opportunité',
+      message: `"${opportunity.title}" correspond à vos critères`,
+      priority: 'normal'
+    })
+
+    // Envoyer email
+    try {
+      const { data: recipient } = await supabase
+        .from('pev_profiles')
+        .select('email, first_name, last_name')
+        .eq('id', recipientId)
+        .single()
+
+      if (recipient?.email) {
+        await emailService.sendTemplateEmail('new_opportunity', recipient.email, {
+          recipient_name: `${recipient.first_name} ${recipient.last_name}`,
+          opportunity_title: opportunity.title,
+          opportunity_type: opportunity.type || 'Opportunité',
+          opportunity_sector: opportunity.sector || 'Économie verte',
+          deadline: opportunity.deadline || 'Non spécifié',
+          action_url: `${window.location.origin}/opportunities/${opportunity.id}`
+        })
+      }
+    } catch (emailError) {
+      console.warn('Erreur envoi email nouvelle opportunité:', emailError)
+    }
+
+    return result
   }
 }
 

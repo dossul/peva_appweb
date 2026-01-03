@@ -478,167 +478,24 @@ const showInfoNotification = (message) => {
   }
 }
 
-// Données du dashboard
+// Données du dashboard - chargées depuis la BDD
 const dashboardData = ref({
-  stats: {
-    projects: { value: '156', trend: '+12%' },
-    members: { value: '1,247', trend: '+8%' },
-    partnerships: { value: '89', trend: '+15%' },
-    impact: { value: '2.8M', trend: '+25%' }
-  },
-  companies: [
-    { name: 'EcoTech Ghana', sector: 'Technologie Verte', status: 'verified', color: 'blue', icon: 'mdi-factory' },
-    { name: 'Green Energy Mali', sector: 'Énergie Renouvelable', status: 'verified', color: 'green', icon: 'mdi-solar-power' },
-    { name: 'Sustainable Farms', sector: 'Agriculture Durable', status: 'pending', color: 'orange', icon: 'mdi-sprout' }
-  ],
-  events: [
-    { title: 'Sommet de l\'Économie Verte', date: '15 Mars 2024', location: 'Dakar', type: 'conference', color: 'purple', icon: 'mdi-microphone' },
-    { title: 'Forum Innovation Durable', date: '22 Mars 2024', location: 'Abidjan', type: 'workshop', color: 'teal', icon: 'mdi-lightbulb' },
-    { title: 'Conférence Climat Afrique', date: '5 Avril 2024', location: 'Lagos', type: 'conference', color: 'indigo', icon: 'mdi-earth' }
-  ]
+  stats: { projects: { value: '0', trend: '' }, members: { value: '0', trend: '' }, partnerships: { value: '0', trend: '' }, impact: { value: '0', trend: '' } },
+  companies: [],
+  events: []
 })
 
-// Données des statistiques principales
-const mainStats = ref([
-  {
-    id: 1,
-    label: 'Projets Actifs',
-    value: '156',
-    icon: 'mdi-rocket-launch',
-    color: 'blue-lighten-5',
-    avatarColor: 'blue-darken-2',
-    trend: '+12%',
-    trendIcon: 'mdi-trending-up',
-    trendColor: 'success'
-  },
-  {
-    id: 2,
-    label: 'Membres Actifs',
-    value: '1,247',
-    icon: 'mdi-account-group',
-    color: 'green-lighten-5',
-    avatarColor: 'green-darken-2',
-    trend: '+8%',
-    trendIcon: 'mdi-trending-up',
-    trendColor: 'success'
-  },
-  {
-    id: 3,
-    label: 'Partenariats',
-    value: '89',
-    icon: 'mdi-handshake',
-    color: 'purple-lighten-5',
-    avatarColor: 'purple-darken-2',
-    trend: '+15%',
-    trendIcon: 'mdi-trending-up',
-    trendColor: 'success'
-  },
-  {
-    id: 4,
-    label: 'Impact CO2',
-    value: '2.8M kg',
-    icon: 'mdi-leaf',
-    color: 'teal-lighten-5',
-    avatarColor: 'teal-darken-2',
-    trend: '+25%',
-    trendIcon: 'mdi-trending-up',
-    trendColor: 'success'
-  }
-])
+// Données des statistiques principales - chargées depuis la BDD
+const mainStats = ref([])
 
-// Données du forum
-const forumTopics = ref([
-  {
-    id: 1,
-    title: 'Financement des projets verts en Afrique',
-    author: 'Marie Diallo',
-    replies: 23,
-    status: 'hot',
-    color: 'red',
-    icon: 'mdi-fire'
-  },
-  {
-    id: 2,
-    title: 'Technologies solaires adaptées au climat africain',
-    author: 'Ahmed Kone',
-    replies: 15,
-    status: 'normal',
-    color: 'orange',
-    icon: 'mdi-solar-panel'
-  },
-  {
-    id: 3,
-    title: 'Partenariats public-privé pour l\'économie verte',
-    author: 'Grace Okafor',
-    replies: 31,
-    status: 'hot',
-    color: 'green',
-    icon: 'mdi-handshake'
-  }
-])
+// Données du forum - chargées depuis la BDD
+const forumTopics = ref([])
 
-// Données des opportunités
-const opportunities = ref([
-  {
-    id: 1,
-    title: 'Ingénieur Énergies Renouvelables',
-    company: 'SolarTech Africa',
-    location: 'Accra, Ghana',
-    type: 'job',
-    color: 'blue',
-    icon: 'mdi-briefcase'
-  },
-  {
-    id: 2,
-    title: 'Stage en Agriculture Durable',
-    company: 'GreenFarms Mali',
-    location: 'Bamako, Mali',
-    type: 'internship',
-    color: 'green',
-    icon: 'mdi-school'
-  },
-  {
-    id: 3,
-    title: 'Consultant en Développement Durable',
-    company: 'EcoConsult',
-    location: 'Dakar, Sénégal',
-    type: 'job',
-    color: 'purple',
-    icon: 'mdi-account-tie'
-  }
-])
+// Données des opportunités - chargées depuis la BDD
+const opportunities = ref([])
 
-// Données des objectifs ODD
-const sdgGoals = ref([
-  {
-    id: 7,
-    name: 'Énergie Propre',
-    progress: 78,
-    color: 'yellow-darken-2',
-    icon: 'mdi-lightning-bolt'
-  },
-  {
-    id: 13,
-    name: 'Lutte Climat',
-    progress: 65,
-    color: 'green-darken-2',
-    icon: 'mdi-earth'
-  },
-  {
-    id: 15,
-    name: 'Vie Terrestre',
-    progress: 82,
-    color: 'brown-darken-2',
-    icon: 'mdi-tree'
-  },
-  {
-    id: 17,
-    name: 'Partenariats',
-    progress: 71,
-    color: 'blue-darken-2',
-    icon: 'mdi-handshake'
-  }
-])
+// Données des objectifs ODD - chargées depuis la BDD
+const sdgGoals = ref([])
 
 // Fonctions utilitaires
 const navigateTo = (route) => {

@@ -8,7 +8,7 @@
             <div class="d-flex align-center mb-4">
               <v-icon size="48" class="mr-4">mdi-account-group</v-icon>
               <div>
-                <h1 class="text-h3 font-weight-bold mb-2">Communautés PEVA</h1>
+                <h1 class="text-h3 font-weight-bold mb-2">Communautés 2iEGreenHub</h1>
                 <p class="text-h6 font-weight-regular ma-0">Rejoignez des groupes thématiques et connectez-vous avec des professionnels de votre secteur</p>
               </div>
             </div>
@@ -36,7 +36,7 @@
             <div class="d-flex align-center">
               <v-icon size="32" class="mr-3">mdi-account-group</v-icon>
               <div>
-                <div class="text-h4 font-weight-bold">127</div>
+                <div class="text-h4 font-weight-bold">{{ formatNumber(stats.groups) }}</div>
                 <div class="text-body-2">Groupes actifs</div>
               </div>
             </div>
@@ -47,7 +47,7 @@
             <div class="d-flex align-center">
               <v-icon size="32" class="mr-3">mdi-account-multiple</v-icon>
               <div>
-                <div class="text-h4 font-weight-bold">12,456</div>
+                <div class="text-h4 font-weight-bold">{{ formatNumber(stats.members) }}</div>
                 <div class="text-body-2">Total membres</div>
               </div>
             </div>
@@ -58,7 +58,7 @@
             <div class="d-flex align-center">
               <v-icon size="32" class="mr-3">mdi-message</v-icon>
               <div>
-                <div class="text-h4 font-weight-bold">896</div>
+                <div class="text-h4 font-weight-bold">{{ stats.discussions }}</div>
                 <div class="text-body-2">Discussions cette semaine</div>
               </div>
             </div>
@@ -69,7 +69,7 @@
             <div class="d-flex align-center">
               <v-icon size="32" class="mr-3">mdi-calendar</v-icon>
               <div>
-                <div class="text-h4 font-weight-bold">24</div>
+                <div class="text-h4 font-weight-bold">{{ stats.events }}</div>
                 <div class="text-body-2">Événements programmés</div>
               </div>
             </div>
@@ -356,6 +356,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -364,6 +365,7 @@ const authStore = useAuthStore()
 const activeTab = ref('recommended')
 const searchQuery = ref('')
 const selectedCategory = ref(null)
+const loading = ref(false)
 
 const snackbar = ref({
   show: false,
@@ -371,115 +373,212 @@ const snackbar = ref({
   color: 'success'
 })
 
-// Static data
-const categories = [
-  'Énergies Renouvelables',
-  'Agriculture Durable',
-  'Gestion des Déchets',
-  'Transport Vert',
-  'Construction Écologique',
-  'Fintech Verte'
-]
+// Stats depuis Supabase
+const stats = ref({
+  groups: 0,
+  members: 0,
+  discussions: 0,
+  events: 0
+})
 
-const recommendedGroups = ref([
-  {
-    id: 1,
-    name: 'Énergie Solaire Afrique de l\'Ouest',
-    description: 'Communauté dédiée au développement de l\'énergie solaire en Afrique de l\'Ouest. Partagez vos expériences, découvrez les innovations technologiques.',
-    members: 1234,
-    posts: 125,
-    category: 'Énergies Renouvelables',
-    categoryColor: 'green',
-    type: 'public',
-    color: 'blue',
-    icon: 'mdi-solar-power',
-    cover: null
-  },
-  {
-    id: 2,
-    name: 'Fintech Verte Afrique',
-    description: 'Innovation financière pour l\'économie verte africaine. Blockchain, paiements verts, solutions fintech environnementales et nouvelles technologies.',
-    members: 876,
-    posts: 89,
-    category: 'Fintech Verte',
-    categoryColor: 'purple',
-    type: 'public',
-    color: 'teal',
-    icon: 'mdi-leaf',
-    cover: null
-  },
-  {
-    id: 3,
-    name: 'AgriTech & Innovation',
-    description: 'Technologies agricoles durables et drones pour l\'agriculture. Techniques de pointe pour une agriculture respectueuse de l\'environnement.',
-    members: 1104,
-    posts: 234,
-    category: 'Agriculture Durable',
-    categoryColor: 'green',
-    type: 'private',
-    color: 'green',
-    icon: 'mdi-sprout',
-    cover: null
-  }
-])
+// Données depuis Supabase
+const categories = ref([])
+const recommendedGroups = ref([])
+const popularGroups = ref([])
+const countriesWithGroups = ref([])
 
-const popularGroups = ref([
-  {
-    id: 4,
-    name: 'Économie Circulaire Afrique',
-    description: 'Communauté dédiée à l\'économie circulaire en Afrique',
-    members: '1,567 membres',
-    activity: 'Très actif',
-    type: 'public',
-    color: 'orange',
-    icon: 'mdi-recycle'
-  },
-  {
-    id: 5,
-    name: 'Carbon Trading Africa',
-    description: 'Marché du carbone et compensation carbone en Afrique',
-    members: '234 membres',
-    activity: 'Actif',
-    type: 'private',
-    color: 'red',
-    icon: 'mdi-chart-line'
-  }
-])
+// Charger les statistiques
+const loadStats = async () => {
+  try {
+    const { count: groupsCount } = await supabase
+      .from('pev_groups')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true)
 
-const countriesWithGroups = ref([
-  {
-    name: 'Nigeria',
-    flag: '🇳🇬',
-    groupCount: 23,
-    memberCount: '2,789 membres',
-    color: 'green'
-  },
-  {
-    name: 'Kenya',
-    flag: '🇰🇪',
-    groupCount: 18,
-    memberCount: '2,098 membres',
-    color: 'red'
-  },
-  {
-    name: 'Maroc',
-    flag: '🇲🇦',
-    groupCount: 15,
-    memberCount: '1,567 membres',
-    color: 'red'
-  },
-  {
-    name: 'Ghana',
-    flag: '🇬🇭',
-    groupCount: 12,
-    memberCount: '1,234 membres',
-    color: 'orange'
+    const { count: membersCount } = await supabase
+      .from('pev_group_members')
+      .select('*', { count: 'exact', head: true })
+
+    const oneWeekAgo = new Date()
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+    const { count: discussionsCount } = await supabase
+      .from('pev_group_posts')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', oneWeekAgo.toISOString())
+
+    // Charger les événements (optionnel si la table existe)
+    let eventsCount = 0
+    try {
+      const { count } = await supabase
+        .from('pev_events')
+        .select('*', { count: 'exact', head: true })
+        .gte('start_date', new Date().toISOString())
+      eventsCount = count || 0
+    } catch {
+      // Table pev_events n'existe pas encore - pas grave
+    }
+
+    stats.value = {
+      groups: groupsCount || 0,
+      members: membersCount || 0,
+      discussions: discussionsCount || 0,
+      events: eventsCount
+    }
+  } catch (error) {
+    console.log('Stats groupes non disponibles')
   }
-])
+}
+
+// Charger les catégories
+const loadCategories = async () => {
+  try {
+    const { data } = await supabase
+      .from('pev_group_categories')
+      .select('name')
+      .order('name')
+
+    if (data && data.length > 0) {
+      categories.value = data.map(c => c.name)
+    } else {
+      categories.value = [
+        'Énergies Renouvelables',
+        'Agriculture Durable',
+        'Gestion des Déchets',
+        'Transport Vert',
+        'Construction Écologique',
+        'Fintech Verte'
+      ]
+    }
+  } catch (error) {
+    categories.value = ['Énergies Renouvelables', 'Agriculture Durable']
+  }
+}
+
+// Charger les groupes recommandés
+const loadRecommendedGroups = async () => {
+  try {
+    const { data } = await supabase
+      .from('pev_groups')
+      .select('*')
+      .eq('is_active', true)
+      .order('members_count', { ascending: false })
+      .limit(6)
+
+    if (data && data.length > 0) {
+      recommendedGroups.value = data.map(g => ({
+        id: g.id,
+        name: g.name,
+        description: g.description || '',
+        members: g.members_count || 0,
+        posts: g.posts_count || 0,
+        category: g.category || 'Général',
+        categoryColor: g.category_color || 'teal',
+        type: g.is_public ? 'public' : 'private',
+        color: g.color || 'teal',
+        icon: g.icon || 'mdi-account-group',
+        cover: g.cover_url
+      }))
+    }
+  } catch (error) {
+    console.log('Groupes recommandés non disponibles')
+  }
+}
+
+// Charger les groupes populaires
+const loadPopularGroups = async () => {
+  try {
+    const { data } = await supabase
+      .from('pev_groups')
+      .select('*')
+      .eq('is_active', true)
+      .order('members_count', { ascending: false })
+      .limit(4)
+
+    if (data && data.length > 0) {
+      popularGroups.value = data.map(g => ({
+        id: g.id,
+        name: g.name,
+        description: g.description || '',
+        members: `${g.members_count || 0} membres`,
+        activity: g.posts_count > 50 ? 'Très actif' : 'Actif',
+        type: g.is_public ? 'public' : 'private',
+        color: g.color || 'teal',
+        icon: g.icon || 'mdi-account-group'
+      }))
+    }
+  } catch (error) {
+    console.log('Groupes populaires non disponibles')
+  }
+}
+
+// Charger les groupes par pays
+const loadCountriesWithGroups = async () => {
+  try {
+    const { data } = await supabase
+      .from('pev_countries')
+      .select('id, name, flag, code')
+      .order('name')
+      .limit(8)
+
+    if (data && data.length > 0) {
+      const countriesData = await Promise.all(data.map(async (country) => {
+        const { count: groupCount } = await supabase
+          .from('pev_groups')
+          .select('*', { count: 'exact', head: true })
+          .eq('country_id', country.id)
+          .eq('is_active', true)
+
+        return {
+          id: country.id,
+          name: country.name,
+          flag: country.flag || '🌍',
+          groupCount: groupCount || 0,
+          memberCount: '0 membres',
+          color: 'teal'
+        }
+      }))
+
+      countriesWithGroups.value = countriesData.filter(c => c.groupCount > 0)
+    }
+  } catch (error) {
+    console.log('Pays avec groupes non disponibles')
+  }
+}
+
+// Helpers
+const formatNumber = (num) => {
+  if (!num) return '0'
+  if (num >= 1000) return (num / 1000).toFixed(1).replace('.', ',') + 'K'
+  return num.toString()
+}
 
 // Methods
-const joinGroup = (group) => {
-  showMessage(`Demande d'adhésion envoyée pour "${group.name}"`, 'success')
+const joinGroup = async (group) => {
+  if (!authStore.isAuthenticated) {
+    showMessage('Connectez-vous pour rejoindre un groupe', 'warning')
+    return
+  }
+
+  try {
+    const { error } = await supabase
+      .from('pev_group_members')
+      .insert({
+        group_id: group.id,
+        user_id: authStore.user?.id,
+        status: group.type === 'public' ? 'approved' : 'pending',
+        joined_at: new Date().toISOString()
+      })
+
+    if (error) throw error
+    showMessage(
+      group.type === 'public' 
+        ? `Vous avez rejoint "${group.name}"` 
+        : `Demande d'adhésion envoyée pour "${group.name}"`,
+      'success'
+    )
+  } catch (error) {
+    showMessage('Erreur lors de l\'adhésion', 'error')
+  }
 }
 
 const seeAllRecommended = () => {
@@ -491,16 +590,30 @@ const viewCountryGroups = (country) => {
 }
 
 const showMessage = (message, color = 'success') => {
-  snackbar.value = {
-    show: true,
-    message,
-    color
+  snackbar.value = { show: true, message, color }
+}
+
+// Charger toutes les données
+const loadAllData = async () => {
+  loading.value = true
+  try {
+    await Promise.all([
+      loadStats(),
+      loadCategories(),
+      loadRecommendedGroups(),
+      loadPopularGroups(),
+      loadCountriesWithGroups()
+    ])
+  } catch (error) {
+    console.error('Erreur chargement groupes:', error)
+  } finally {
+    loading.value = false
   }
 }
 
 // Initialize
 onMounted(() => {
-  // TODO: Charger les données depuis Supabase
+  loadAllData()
 })
 </script>
 
