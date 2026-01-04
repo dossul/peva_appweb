@@ -14,14 +14,7 @@ export class ViewsService {
     try {
       let query = supabase
         .from('pev_opportunities')
-        .select(`
-          *,
-          pev_profiles!pev_opportunities_created_by_fkey(
-            first_name,
-            last_name,
-            company_name
-          )
-        `)
+        .select('*')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
 
@@ -76,14 +69,7 @@ export class ViewsService {
     try {
       let query = supabase
         .from('pev_events')
-        .select(`
-          *,
-          pev_profiles!pev_events_created_by_fkey(
-            first_name,
-            last_name,
-            company_name
-          )
-        `)
+        .select('*')
         .eq('status', 'published')
         .order('start_date', { ascending: true })
 
@@ -135,8 +121,7 @@ export class ViewsService {
           *,
           pev_profiles!pev_resources_created_by_fkey(
             first_name,
-            last_name,
-            company_name
+            last_name
           )
         `)
         .eq('status', 'published')
@@ -216,9 +201,17 @@ export class ViewsService {
   
   /**
    * Récupère tous les profils pour l'annuaire
+   * IMPORTANT: Exclut les profils admin, super_admin et moderator de l'annuaire public
    */
   async getProfiles(filters = {}) {
     try {
+      // Emails des comptes admin à exclure de l'annuaire public
+      const adminEmails = [
+        'admin@2iegreenhub.org',
+        'superadmin@2iegreenhub.org',
+        'moderator@2iegreenhub.org'
+      ]
+      
       let query = supabase
         .from('pev_profiles')
         .select(`
@@ -228,6 +221,8 @@ export class ViewsService {
             logo_url
           )
         `)
+        // Exclure les profils admin de l'annuaire public par email
+        .not('email', 'in', `(${adminEmails.join(',')})`)
         .order('created_at', { ascending: false })
 
       // Appliquer le filtre de type de profil uniquement s'il est valide

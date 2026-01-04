@@ -29,14 +29,14 @@
     </div>
 
     <v-container class="py-8">
-      <!-- Statistiques des ressources -->
+      <!-- Statistiques des ressources (données réelles de la BDD) -->
       <v-row class="mb-8">
         <v-col cols="12" md="3">
           <v-card color="blue-darken-2" class="text-white pa-4" elevation="3">
             <div class="d-flex align-center">
               <v-icon size="32" class="mr-3">mdi-book-open</v-icon>
               <div>
-                <div class="text-h4 font-weight-bold">156</div>
+                <div class="text-h4 font-weight-bold">{{ stats.guides }}</div>
                 <div class="text-body-2">Guides</div>
               </div>
             </div>
@@ -47,7 +47,7 @@
             <div class="d-flex align-center">
               <v-icon size="32" class="mr-3">mdi-chart-line</v-icon>
               <div>
-                <div class="text-h4 font-weight-bold">89</div>
+                <div class="text-h4 font-weight-bold">{{ stats.rapports }}</div>
                 <div class="text-body-2">Rapports</div>
               </div>
             </div>
@@ -58,7 +58,7 @@
             <div class="d-flex align-center">
               <v-icon size="32" class="mr-3">mdi-tools</v-icon>
               <div>
-                <div class="text-h4 font-weight-bold">67</div>
+                <div class="text-h4 font-weight-bold">{{ stats.outils }}</div>
                 <div class="text-body-2">Outils</div>
               </div>
             </div>
@@ -69,7 +69,7 @@
             <div class="d-flex align-center">
               <v-icon size="32" class="mr-3">mdi-school</v-icon>
               <div>
-                <div class="text-h4 font-weight-bold">34</div>
+                <div class="text-h4 font-weight-bold">{{ stats.formations }}</div>
                 <div class="text-body-2">Formations</div>
               </div>
             </div>
@@ -155,10 +155,21 @@
       <div class="mb-8">
         <div class="d-flex align-center justify-space-between mb-4">
           <h2 class="text-h5 font-weight-bold">Ressources Populaires</h2>
-          <v-btn variant="text" color="green-darken-2">Voir toutes →</v-btn>
+          <v-btn v-if="resources.length > 0" variant="text" color="green-darken-2">Voir toutes →</v-btn>
         </div>
         
-        <v-row>
+        <!-- Message si aucune ressource -->
+        <v-alert
+          v-if="!loading && popularResources.length === 0"
+          type="info"
+          variant="tonal"
+          class="mb-4"
+        >
+          <v-alert-title>Aucune ressource disponible</v-alert-title>
+          La bibliothèque de ressources est actuellement vide. Soyez le premier à proposer une ressource !
+        </v-alert>
+        
+        <v-row v-if="popularResources.length > 0">
           <v-col
             v-for="resource in popularResources"
             :key="resource.id"
@@ -239,8 +250,8 @@
         </v-row>
       </div>
 
-      <!-- Sections par catégorie -->
-      <div class="mb-8">
+      <!-- Sections par catégorie (données réelles) -->
+      <div v-if="resources.length > 0" class="mb-8">
         <h2 class="text-h5 font-weight-bold mb-6">Explorer par Catégorie</h2>
         
         <v-row>
@@ -250,20 +261,10 @@
                 <v-icon class="mr-2" color="blue-darken-2">mdi-book-open</v-icon>
                 Guides Pratiques
                 <v-spacer />
-                <span class="text-body-2">156 ressources</span>
+                <span class="text-body-2">{{ stats.guides }} ressources</span>
               </v-card-title>
               <v-card-text class="pa-4">
                 <p class="text-body-2 mb-3">Des guides étape par étape pour vous accompagner dans vos projets d'économie verte.</p>
-                <div class="d-flex flex-column ga-2">
-                  <div class="d-flex align-center">
-                    <v-icon size="16" class="mr-2">mdi-circle</v-icon>
-                    <span class="text-body-2">Guide du Financement pour Startups Vertes</span>
-                  </div>
-                  <div class="d-flex align-center">
-                    <v-icon size="16" class="mr-2">mdi-circle</v-icon>
-                    <span class="text-body-2">Calculateur d'Empreinte Carbone</span>
-                  </div>
-                </div>
               </v-card-text>
               <v-card-actions class="pa-4 pt-0">
                 <v-btn color="blue-darken-2" variant="flat" size="small" block>
@@ -279,20 +280,10 @@
                 <v-icon class="mr-2" color="purple-darken-2">mdi-chart-line</v-icon>
                 Rapports & Études
                 <v-spacer />
-                <span class="text-body-2">89 ressources</span>
+                <span class="text-body-2">{{ stats.rapports }} ressources</span>
               </v-card-title>
               <v-card-text class="pa-4">
                 <p class="text-body-2 mb-3">Analyses de marché, études sectorielles et recherches sur l'économie verte en Afrique.</p>
-                <div class="d-flex flex-column ga-2">
-                  <div class="d-flex align-center">
-                    <v-icon size="16" class="mr-2">mdi-circle</v-icon>
-                    <span class="text-body-2">État de l'Énergie Solaire en Afrique 2024</span>
-                  </div>
-                  <div class="d-flex align-center">
-                    <v-icon size="16" class="mr-2">mdi-circle</v-icon>
-                    <span class="text-body-2">Rapport sur l'Économie Verte</span>
-                  </div>
-                </div>
               </v-card-text>
               <v-card-actions class="pa-4 pt-0">
                 <v-btn color="purple-darken-2" variant="flat" size="small" block>
@@ -308,20 +299,10 @@
                 <v-icon class="mr-2" color="red-darken-2">mdi-school</v-icon>
                 Formations
                 <v-spacer />
-                <span class="text-body-2">34 ressources</span>
+                <span class="text-body-2">{{ stats.formations }} ressources</span>
               </v-card-title>
               <v-card-text class="pa-4">
                 <p class="text-body-2 mb-3">Cours en ligne, webinaires et programmes de formation certifiés.</p>
-                <div class="d-flex flex-column ga-2">
-                  <div class="d-flex align-center">
-                    <v-icon size="16" class="mr-2">mdi-circle</v-icon>
-                    <span class="text-body-2">Formation Leadership Vert</span>
-                  </div>
-                  <div class="d-flex align-center">
-                    <v-icon size="16" class="mr-2">mdi-circle</v-icon>
-                    <span class="text-body-2">Certification ESG</span>
-                  </div>
-                </div>
               </v-card-text>
               <v-card-actions class="pa-4 pt-0">
                 <v-btn color="red-darken-2" variant="flat" size="small" block>
@@ -351,9 +332,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { viewsService } from '@/services/viewsService'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -363,6 +345,8 @@ const searchQuery = ref('')
 const selectedType = ref(null)
 const selectedSector = ref(null)
 const selectedLevel = ref(null)
+const loading = ref(false)
+const resources = ref([])
 
 const filters = ref({
   freeOnly: false,
@@ -374,6 +358,15 @@ const snackbar = ref({
   show: false,
   message: '',
   color: 'success'
+})
+
+// Statistiques calculées depuis les vraies données
+const stats = computed(() => {
+  const guides = resources.value.filter(r => r.type === 'guide' || r.type === 'Guide').length
+  const rapports = resources.value.filter(r => r.type === 'rapport' || r.type === 'Rapport').length
+  const outils = resources.value.filter(r => r.type === 'outil' || r.type === 'Outil').length
+  const formations = resources.value.filter(r => r.type === 'formation' || r.type === 'Formation').length
+  return { guides, rapports, outils, formations }
 })
 
 // Static data
@@ -412,50 +405,8 @@ const levels = [
   'Expert'
 ]
 
-const popularResources = ref([
-  {
-    id: 1,
-    title: 'Guide du Financement pour Startups Vertes',
-    description: 'Un guide complet pour comprendre les différentes options de financement disponibles pour les entreprises vertes en Afrique.',
-    type: 'Guide',
-    category: 'Financement',
-    categoryColor: 'green',
-    author: 'PEVA Team',
-    rating: 4.8,
-    views: '2.3k',
-    downloads: 945,
-    price: null,
-    thumbnail: null
-  },
-  {
-    id: 2,
-    title: 'État de l\'Énergie Solaire en Afrique 2024',
-    description: 'Rapport détaillé sur l\'évolution du marché de l\'énergie solaire avec projections et opportunités.',
-    type: 'Rapport',
-    category: 'Énergie',
-    categoryColor: 'blue',
-    author: 'Dr. Amina Kone',
-    rating: 4.5,
-    views: '1.8k',
-    downloads: 567,
-    price: null,
-    thumbnail: null
-  },
-  {
-    id: 3,
-    title: 'Calculateur d\'Empreinte Carbone',
-    description: 'Outil Excel pour calculer facilement l\'empreinte carbone de votre entreprise ou projet.',
-    type: 'Outil',
-    category: 'Environnement',
-    categoryColor: 'orange',
-    author: 'Green Analytics',
-    rating: 4.7,
-    views: '945',
-    downloads: 234,
-    price: null,
-    thumbnail: null
-  }
-])
+// Ressources populaires - chargées depuis la BDD
+const popularResources = ref([])
 
 // Methods
 const resetFilters = () => {
@@ -496,9 +447,36 @@ const showMessage = (message, color = 'success') => {
   }
 }
 
+// Charger les ressources depuis la BDD
+const loadResources = async () => {
+  try {
+    loading.value = true
+    const data = await viewsService.getResources()
+    resources.value = data || []
+    
+    // Mettre à jour popularResources avec les vraies données
+    if (resources.value.length > 0) {
+      popularResources.value = resources.value.slice(0, 3).map(r => ({
+        ...r,
+        categoryColor: getTypeColor(r.type),
+        views: r.views_count || 0,
+        downloads: r.downloads_count || 0
+      }))
+    } else {
+      popularResources.value = []
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des ressources:', error)
+    resources.value = []
+    popularResources.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
 // Initialize
 onMounted(() => {
-  // TODO: Charger les données depuis Supabase
+  loadResources()
 })
 </script>
 

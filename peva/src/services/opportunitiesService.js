@@ -124,7 +124,8 @@ export const opportunitiesService = {
         currency: opportunityData.currency || 'XOF',
         deadline: opportunityData.deadline,
         requirements: opportunityData.requirements,
-        status: 'published',
+        // IMPORTANT: status='pending' pour modération avant publication
+        status: 'pending',
         created_by: opportunityData.created_by,
         // Ajouter company_id si c'est une publication d'entreprise
         ...(opportunityData.company_id && { company_id: opportunityData.company_id })

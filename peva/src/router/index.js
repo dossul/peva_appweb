@@ -46,6 +46,7 @@ const OnboardingView = () => import('@/views/OnboardingView.vue')
 const ProfileView = () => import('@/views/ProfileView.vue')
 const MapView = () => import('@/views/MapView.vue')
 const ConnectionsView = () => import('@/views/ConnectionsView.vue')
+const OpportunityApplicationsView = () => import('@/views/OpportunityApplicationsView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -285,6 +286,15 @@ const router = createRouter({
       meta: { 
         requiresAuth: true,
         title: 'Publier une Opportunité - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/opportunities/:id/applications',
+      name: 'OpportunityApplications',
+      component: OpportunityApplicationsView,
+      meta: { 
+        requiresAuth: true,
+        title: 'Candidatures - 2iE GreenHub'
       }
     },
     {

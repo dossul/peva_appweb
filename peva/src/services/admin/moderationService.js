@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { emailService } from '@/services/emailService'
 
 /**
  * Service de modération pour l'administration 2iEGreenHub
@@ -175,6 +176,9 @@ export const moderationService = {
       // Log de l'action
       await this.logModerationAction(moderatorId, 'approve', contentType, contentId, { notes })
 
+      // Envoyer email de notification au créateur
+      await this.sendModerationEmail(contentType, contentId, 'approved')
+
       return {
         success: true,
         data: data[0]
@@ -244,6 +248,9 @@ export const moderationService = {
 
       // Log de l'action
       await this.logModerationAction(moderatorId, 'reject', contentType, contentId, { reason })
+
+      // Envoyer email de notification au créateur avec le motif de rejet
+      await this.sendModerationEmail(contentType, contentId, 'rejected', reason)
 
       return {
         success: true,
@@ -556,6 +563,87 @@ export const moderationService = {
     } catch (error) {
       console.error('Erreur lors du logging de modération:', error)
       // Ne pas faire échouer l'opération principale si le log échoue
+    }
+  },
+
+  /**
+   * Envoyer un email de modération au créateur du contenu
+   * @param {string} contentType - Type de contenu (opportunities, resources, events)
+   * @param {string|number} contentId - ID du contenu
+   * @param {string} action - 'approved' ou 'rejected'
+   * @param {string} reason - Motif de rejet (optionnel)
+   */
+  async sendModerationEmail(contentType, contentId, action, reason = '') {
+    try {
+      // Récupérer les détails du contenu et du créateur
+      const details = await this.getContentDetails(contentType, contentId)
+      if (!details.success || !details.data) return
+
+      const content = details.data
+      const creator = content.pev_profiles || content.creator
+      
+      if (!creator?.email) {
+        console.warn('Email du créateur non trouvé pour la notification')
+        return
+      }
+
+      const recipientName = `${creator.first_name || ''} ${creator.last_name || ''}`.trim() || 'Utilisateur'
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://2iegreenhub.org'
+
+      // Déterminer le template et les variables selon le type de contenu
+      let templateCode, variables
+
+      switch (contentType) {
+        case 'opportunities':
+          templateCode = action === 'approved' ? 'opportunity_approved' : 'opportunity_rejected'
+          variables = {
+            recipient_name: recipientName,
+            opportunity_title: content.title,
+            opportunity_type: content.type || 'Opportunité',
+            rejection_reason: reason,
+            action_url: `${baseUrl}/opportunities/${contentId}`
+          }
+          break
+
+        case 'events':
+          templateCode = action === 'approved' ? 'event_approved' : 'event_rejected'
+          variables = {
+            recipient_name: recipientName,
+            event_title: content.title,
+            event_date: content.start_date ? new Date(content.start_date).toLocaleDateString('fr-FR') : 'Non définie',
+            event_location: content.location || 'En ligne',
+            rejection_reason: reason,
+            action_url: `${baseUrl}/events/${contentId}`
+          }
+          break
+
+        case 'resources':
+          templateCode = action === 'approved' ? 'resource_approved' : 'resource_rejected'
+          variables = {
+            recipient_name: recipientName,
+            resource_title: content.title,
+            resource_type: content.type || 'Ressource',
+            rejection_reason: reason,
+            action_url: `${baseUrl}/resources/${contentId}`
+          }
+          break
+
+        default:
+          console.warn(`Type de contenu non supporté pour les emails: ${contentType}`)
+          return
+      }
+
+      // Envoyer l'email
+      const result = await emailService.sendTemplateEmail(templateCode, creator.email, variables)
+      
+      if (result.success) {
+        console.log(`✅ Email de modération (${action}) envoyé à ${creator.email}`)
+      } else {
+        console.warn(`⚠️ Échec envoi email modération: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email de modération:', error)
+      // Ne pas faire échouer l'opération principale si l'email échoue
     }
   }
 }

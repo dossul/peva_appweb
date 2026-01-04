@@ -380,11 +380,7 @@ const loadUpcomingEvents = async () => {
   try {
     const { data } = await supabase
       .from('pev_events')
-      .select(`
-        *,
-        pev_event_categories:category_id(name, icon, color),
-        pev_countries:country_id(name, flag)
-      `)
+      .select('*')
       .eq('status', 'published')
       .gte('start_date', new Date().toISOString())
       .order('start_date')
@@ -401,7 +397,7 @@ const loadUpcomingEvents = async () => {
           year: 'numeric' 
         }),
         location: e.location || e.city || 'En ligne',
-        type: e.pev_event_categories?.name || 'Événement',
+        type: e.type || e.event_type || 'Événement',
         category_id: e.category_id
       }))
     }

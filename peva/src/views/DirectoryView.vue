@@ -583,8 +583,18 @@ const loadProfiles = async () => {
       // Ne pas filtrer par statut pour éviter les erreurs d'enum
     })
     
+    // Filtrer côté client : EXCLURE les emails admin (double sécurité)
+    const adminEmails = [
+      'admin@2iegreenhub.org',
+      'superadmin@2iegreenhub.org',
+      'moderator@2iegreenhub.org'
+    ]
+    const filteredData = allData.filter(profile => {
+      return !adminEmails.includes(profile.email?.toLowerCase())
+    })
+    
     // Transformer les données de la BDD au format attendu
-    profiles.value = allData.map(profile => ({
+    profiles.value = filteredData.map(profile => ({
       ...profile,
       full_name: `${profile.first_name} ${profile.last_name}`,
       initials: `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase(),

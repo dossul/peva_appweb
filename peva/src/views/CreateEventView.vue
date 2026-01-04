@@ -430,9 +430,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const isSubmitting = ref(false)
 
 // Reactive data
 const formValid = ref(false)
@@ -539,16 +541,53 @@ const saveDraft = () => {
   showMessage('Événement sauvegardé en brouillon', 'info')
 }
 
-const publishEvent = () => {
+const publishEvent = async () => {
   if (!formValid.value) {
     showMessage('Veuillez remplir tous les champs obligatoires', 'error')
     return
   }
   
-  showMessage('Événement publié avec succès !', 'success')
-  setTimeout(() => {
-    router.push('/events')
-  }, 2000)
+  isSubmitting.value = true
+  
+  try {
+    // Préparer les données de l'événement
+    const eventPayload = {
+      title: eventData.value.title,
+      description: eventData.value.description,
+      type: eventData.value.type,
+      category: eventData.value.category,
+      start_date: eventData.value.start_date ? `${eventData.value.start_date}T${eventData.value.start_time || '00:00'}:00` : null,
+      end_date: eventData.value.end_date ? `${eventData.value.end_date}T${eventData.value.end_time || '23:59'}:00` : null,
+      location_type: eventData.value.location_type,
+      location: eventData.value.venue || eventData.value.address || (eventData.value.location_type === 'online' ? 'En ligne' : ''),
+      online_link: eventData.value.online_link,
+      is_free: eventData.value.is_free,
+      price: eventData.value.is_free ? 0 : eventData.value.price,
+      max_participants: eventData.value.max_participants,
+      contact_email: eventData.value.contact_email,
+      contact_phone: eventData.value.contact_phone,
+      // IMPORTANT: status='pending' pour modération avant publication
+      status: 'pending',
+      created_by: authStore.user?.id || null
+    }
+    
+    const { data, error } = await supabase
+      .from('pev_events')
+      .insert([eventPayload])
+      .select()
+    
+    if (error) throw error
+    
+    showMessage('Événement soumis avec succès ! Il sera visible après validation par un modérateur.', 'success')
+    setTimeout(() => {
+      router.push('/events')
+    }, 3000)
+  } catch (error) {
+    console.error('Erreur lors de la création de l\'événement:', error)
+    showMessage('Erreur lors de la soumission. Veuillez réessayer.', 'error')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const goBack = () => {
