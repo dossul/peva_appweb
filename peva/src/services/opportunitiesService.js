@@ -89,13 +89,13 @@ export const opportunitiesService = {
         const filePath = `opportunities/${fileName}`
 
         const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('greenhub-public')
+          .from('documents')
           .upload(filePath, file)
 
         if (uploadError) throw uploadError
 
         const { data: { publicUrl } } = supabase.storage
-          .from('greenhub-public')
+          .from('documents')
           .getPublicUrl(filePath)
 
         attachments.push({
@@ -129,10 +129,11 @@ export const opportunitiesService = {
         }
       }
 
-      // Adapter les données à la structure Supabase (colonnes réelles uniquement)
+      // TOUS les champs du formulaire - Migration add_opportunity_extra_fields.sql requise
       const adaptedData = {
         title: opportunityData.title,
         description: opportunityData.description,
+        detailed_description: opportunityData.detailed_description,
         type: opportunityData.type,
         category: opportunityData.sector,
         location: opportunityData.location,
@@ -145,17 +146,38 @@ export const opportunitiesService = {
         currency: opportunityData.currency || 'XOF',
         deadline: opportunityData.deadline,
         requirements: opportunityData.requirements,
-        // IMPORTANT: status='pending' pour modération avant publication
-        status: 'pending',
+        status: 'in_review',
         created_by: opportunityData.created_by,
-        // Ajouter company_id si c'est une publication d'entreprise
         ...(opportunityData.company_id && { company_id: opportunityData.company_id }),
-        // Sauvegarder les fichiers joints
-        attachments: attachments,
-        // Options de publication
+        attachments: attachments.length > 0 ? attachments : null,
         promote_premium: opportunityData.promote_premium || false,
         auto_share_social: opportunityData.auto_share_social || false,
-        social_links: opportunityData.social_links
+        social_links: opportunityData.social_links || null,
+        // Champs supplémentaires
+        budget_salary: opportunityData.budget_salary,
+        required_skills: opportunityData.required_skills?.length > 0 ? opportunityData.required_skills : null,
+        organization: opportunityData.organization,
+        contact_email: opportunityData.contact_email,
+        contact_phone: opportunityData.contact_phone,
+        // Financement
+        funding_amount: opportunityData.funding_amount ? parseFloat(opportunityData.funding_amount) : null,
+        funding_type: opportunityData.funding_type,
+        equity_percentage: opportunityData.equity_percentage ? parseFloat(opportunityData.equity_percentage) : null,
+        stage: opportunityData.stage,
+        // Emploi
+        job_title: opportunityData.job_title,
+        contract_type: opportunityData.contract_type,
+        // Partenariat
+        partnership_type: opportunityData.partnership_type,
+        duration: opportunityData.duration,
+        partnership_benefits: opportunityData.partnership_benefits,
+        // Mission
+        mission_duration: opportunityData.mission_duration,
+        daily_rate: opportunityData.daily_rate ? parseFloat(opportunityData.daily_rate) : null,
+        // Autres
+        start_date: opportunityData.start_date || null,
+        visibility: opportunityData.visibility || 'public',
+        send_notifications: opportunityData.send_notifications !== false
       }
 
       const { data, error } = await supabase
@@ -251,6 +273,192 @@ export const opportunitiesService = {
       }
     } catch (error) {
       console.error('Erreur lors de la suppression des favoris:', error)
+      return {
+        success: false,
+        error: error.message
+      }
+    }
+  },
+
+  // Sauvegarder un brouillon d'opportunité
+  async saveDraft(opportunityData, files = []) {
+    try {
+      // Upload des fichiers d'abord
+      const attachments = []
+      
+      for (const file of files) {
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+        const filePath = `opportunities/drafts/${fileName}`
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(filePath, file)
+
+        if (uploadError) throw uploadError
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('documents')
+          .getPublicUrl(filePath)
+
+        attachments.push({
+          title: file.name.split('.')[0],
+          filename: file.name,
+          url: publicUrl,
+          size: file.size,
+          type: file.type,
+          uploaded_at: new Date().toISOString()
+        })
+      }
+
+      // TOUS les champs du formulaire - Migration add_opportunity_extra_fields.sql requise
+      const adaptedData = {
+        title: opportunityData.title || 'Brouillon sans titre',
+        description: opportunityData.description,
+        detailed_description: opportunityData.detailed_description,
+        type: opportunityData.type,
+        category: opportunityData.sector,
+        location: opportunityData.location,
+        country: opportunityData.country || opportunityData.location,
+        region: opportunityData.region,
+        city: opportunityData.city,
+        is_remote: opportunityData.remote_possible || false,
+        salary_min: opportunityData.salary_min || null,
+        salary_max: opportunityData.salary_max || null,
+        currency: opportunityData.currency || 'XOF',
+        deadline: opportunityData.deadline,
+        requirements: opportunityData.requirements,
+        status: 'draft',
+        created_by: opportunityData.created_by,
+        ...(opportunityData.company_id && { company_id: opportunityData.company_id }),
+        attachments: attachments.length > 0 ? attachments : (opportunityData.attachments || null),
+        promote_premium: opportunityData.promote_premium || false,
+        auto_share_social: opportunityData.auto_share_social || false,
+        social_links: opportunityData.social_links || null,
+        // Champs supplémentaires
+        budget_salary: opportunityData.budget_salary,
+        required_skills: opportunityData.required_skills?.length > 0 ? opportunityData.required_skills : null,
+        organization: opportunityData.organization,
+        contact_email: opportunityData.contact_email,
+        contact_phone: opportunityData.contact_phone,
+        // Financement
+        funding_amount: opportunityData.funding_amount ? parseFloat(opportunityData.funding_amount) : null,
+        funding_type: opportunityData.funding_type,
+        equity_percentage: opportunityData.equity_percentage ? parseFloat(opportunityData.equity_percentage) : null,
+        stage: opportunityData.stage,
+        // Emploi
+        job_title: opportunityData.job_title,
+        contract_type: opportunityData.contract_type,
+        // Partenariat
+        partnership_type: opportunityData.partnership_type,
+        duration: opportunityData.duration,
+        partnership_benefits: opportunityData.partnership_benefits,
+        // Mission
+        mission_duration: opportunityData.mission_duration,
+        daily_rate: opportunityData.daily_rate ? parseFloat(opportunityData.daily_rate) : null,
+        // Autres
+        start_date: opportunityData.start_date || null,
+        visibility: opportunityData.visibility || 'public',
+        send_notifications: opportunityData.send_notifications !== false
+      }
+
+      // Si l'opportunité existe déjà (update), sinon insert
+      if (opportunityData.id) {
+        const { data, error } = await supabase
+          .from('pev_opportunities')
+          .update(adaptedData)
+          .eq('id', opportunityData.id)
+          .eq('created_by', opportunityData.created_by)
+          .select()
+          .single()
+
+        if (error) throw error
+        return { success: true, data }
+      } else {
+        const { data, error } = await supabase
+          .from('pev_opportunities')
+          .insert([adaptedData])
+          .select()
+          .single()
+
+        if (error) throw error
+        return { success: true, data }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde du brouillon:', error)
+      return {
+        success: false,
+        error: error.message
+      }
+    }
+  },
+
+  // Récupérer les opportunités de l'utilisateur (brouillons + soumises + publiées)
+  async getUserOpportunities(userId) {
+    try {
+      const { data, error } = await supabase
+        .from('pev_opportunities')
+        .select('*')
+        .eq('created_by', userId)
+        .order('updated_at', { ascending: false })
+
+      if (error) throw error
+
+      return {
+        success: true,
+        data: data || []
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des opportunités utilisateur:', error)
+      return {
+        success: false,
+        error: error.message,
+        data: []
+      }
+    }
+  },
+
+  // Récupérer uniquement les brouillons de l'utilisateur
+  async getUserDrafts(userId) {
+    try {
+      const { data, error } = await supabase
+        .from('pev_opportunities')
+        .select('*')
+        .eq('created_by', userId)
+        .eq('status', 'draft')
+        .order('updated_at', { ascending: false })
+
+      if (error) throw error
+
+      return {
+        success: true,
+        data: data || []
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des brouillons:', error)
+      return {
+        success: false,
+        error: error.message,
+        data: []
+      }
+    }
+  },
+
+  // Supprimer un brouillon
+  async deleteDraft(opportunityId, userId) {
+    try {
+      const { error } = await supabase
+        .from('pev_opportunities')
+        .delete()
+        .eq('id', opportunityId)
+        .eq('created_by', userId)
+        .eq('status', 'draft')
+
+      if (error) throw error
+
+      return { success: true }
+    } catch (error) {
+      console.error('Erreur lors de la suppression du brouillon:', error)
       return {
         success: false,
         error: error.message

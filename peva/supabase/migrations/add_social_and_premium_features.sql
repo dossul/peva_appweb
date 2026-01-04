@@ -5,9 +5,10 @@
 -- et des colonnes pour la gestion Premium des opportunités.
 -- =====================================================
 
--- 1. Mettre à jour la table pev_opportunities pour le Premium
+-- 1. Mettre à jour la table pev_opportunities pour le Premium et les fichiers joints
 -- Ajout des colonnes manquantes si elles n'existent pas
 ALTER TABLE public.pev_opportunities 
+ADD COLUMN IF NOT EXISTS attachments JSONB,
 ADD COLUMN IF NOT EXISTS promote_premium BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS auto_share_social BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS social_links JSONB,

@@ -162,6 +162,13 @@
                 <v-list-item-title>Publier une Opportunité</v-list-item-title>
                 <v-list-item-subtitle>Financement, emploi, partenariat</v-list-item-subtitle>
               </v-list-item>
+              <v-list-item @click="navigateTo('/my-opportunities')" :disabled="!authStore.isAuthenticated">
+                <template v-slot:prepend>
+                  <v-icon>mdi-briefcase-edit</v-icon>
+                </template>
+                <v-list-item-title>Mes Opportunités</v-list-item-title>
+                <v-list-item-subtitle>Brouillons et opportunités publiées</v-list-item-subtitle>
+              </v-list-item>
               <v-list-item @click="navigateTo('/resources/submit')" :disabled="!authStore.isAuthenticated">
                 <template v-slot:prepend>
                   <v-icon>mdi-file-plus</v-icon>

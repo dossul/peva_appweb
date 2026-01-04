@@ -500,34 +500,22 @@
                 
                 <v-col cols="12">
                   <v-file-input
-                    v-model="selectedFiles"
-                    label="Sélectionner des fichiers"
+                    :model-value="[]"
+                    @update:model-value="addFiles"
+                    label="Sélectionner des fichiers (cliquez pour en ajouter)"
                     variant="outlined"
                     multiple
                     accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt"
                     prepend-icon="mdi-paperclip"
                     show-size
-                    counter
                     :rules="fileRules"
+                    hint="Vous pouvez sélectionner plusieurs fichiers à la fois ou les ajouter un par un"
+                    persistent-hint
                   >
-                    <template v-slot:selection="{ fileNames }">
-                      <template v-for="(fileName, index) in fileNames" :key="fileName">
-                        <v-chip
-                          v-if="index < 2"
-                          color="primary"
-                          size="small"
-                          label
-                          class="me-2"
-                        >
-                          {{ fileName }}
-                        </v-chip>
-                        <span
-                          v-else-if="index === 2"
-                          class="text-overline text-grey-darken-1 mx-2"
-                        >
-                          +{{ selectedFiles.length - 2 }} fichier(s)
-                        </span>
-                      </template>
+                    <template v-slot:selection>
+                      <span class="text-caption text-grey">
+                        {{ selectedFiles.length }} fichier(s) sélectionné(s)
+                      </span>
                     </template>
                   </v-file-input>
                   
@@ -659,13 +647,17 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { opportunitiesService } from '@/services/opportunitiesService'
 import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
+
+// ID de l'opportunité en édition (null si création)
+const editingOpportunityId = ref(null)
 
 // Reactive data
 const selectedFiles = ref([])
@@ -904,8 +896,45 @@ const fileRules = [
 ]
 
 // Methods
-const saveDraft = () => {
-  showMessage('💾 Brouillon sauvegardé ! Vous pouvez continuer plus tard.', 'info')
+const saveDraft = async () => {
+  loading.value = true
+  try {
+    // Filtrer les liens sociaux non vides
+    const filteredSocialLinks = Object.fromEntries(
+      Object.entries(socialLinks.value).filter(([key, value]) => value.trim() !== '')
+    )
+    
+    // Préparer les données du brouillon
+    const dataToSubmit = {
+      ...opportunityData.value,
+      created_by: authStore.user?.id,
+      ...(editingOpportunityId.value && { id: editingOpportunityId.value }),
+      ...(publicationType.value === 'organization' && selectedCompany.value && { 
+        company_id: selectedCompany.value 
+      }),
+      ...(Object.keys(filteredSocialLinks).length > 0 && { 
+        social_links: filteredSocialLinks 
+      })
+    }
+    
+    const result = await opportunitiesService.saveDraft(
+      dataToSubmit,
+      selectedFiles.value
+    )
+    
+    if (result.success) {
+      // Mémoriser l'ID pour les futures mises à jour
+      editingOpportunityId.value = result.data.id
+      showMessage('💾 Brouillon sauvegardé ! Retrouvez-le dans "Mes opportunités"', 'success')
+    } else {
+      showMessage('❌ Erreur lors de la sauvegarde: ' + result.error, 'error')
+    }
+  } catch (error) {
+    console.error('Erreur sauvegarde brouillon:', error)
+    showMessage('Erreur lors de la sauvegarde du brouillon', 'error')
+  } finally {
+    loading.value = false
+  }
 }
 
 const publishOpportunity = async () => {
@@ -1059,6 +1088,16 @@ const handlePasteSkills = (event) => {
 }
 
 // Fonctions utilitaires pour les fichiers
+const addFiles = (newFiles) => {
+  if (!newFiles || newFiles.length === 0) return
+  
+  // Ajouter les nouveaux fichiers au tableau existant (éviter les doublons par nom)
+  const existingNames = selectedFiles.value.map(f => f.name)
+  const filesToAdd = newFiles.filter(f => !existingNames.includes(f.name))
+  
+  selectedFiles.value = [...selectedFiles.value, ...filesToAdd]
+}
+
 const removeFile = (index) => {
   selectedFiles.value.splice(index, 1)
 }
@@ -1080,6 +1119,97 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
+// Charger un brouillon existant
+const loadDraft = async (id) => {
+  try {
+    loading.value = true
+    const { data, error } = await supabase
+      .from('pev_opportunities')
+      .select('*')
+      .eq('id', id)
+      .eq('created_by', authStore.user?.id)
+      .single()
+    
+    if (error) throw error
+    if (!data) throw new Error('Brouillon non trouvé')
+    
+    // Remplir TOUS les champs du formulaire avec les données du brouillon
+    editingOpportunityId.value = data.id
+    opportunityData.value.title = data.title || ''
+    opportunityData.value.description = data.description || ''
+    opportunityData.value.detailed_description = data.detailed_description || ''
+    opportunityData.value.type = data.type || ''
+    opportunityData.value.sector = data.category || ''
+    opportunityData.value.location = data.location || ''
+    opportunityData.value.country = data.country || ''
+    opportunityData.value.region = data.region || ''
+    opportunityData.value.city = data.city || ''
+    opportunityData.value.remote_possible = data.is_remote || false
+    opportunityData.value.salary_min = data.salary_min || ''
+    opportunityData.value.salary_max = data.salary_max || ''
+    opportunityData.value.currency = data.currency || 'XOF'
+    opportunityData.value.deadline = data.deadline || ''
+    opportunityData.value.requirements = data.requirements || ''
+    opportunityData.value.promote_premium = data.promote_premium || false
+    opportunityData.value.auto_share_social = data.auto_share_social || false
+    // Champs supplémentaires
+    opportunityData.value.budget_salary = data.budget_salary || ''
+    opportunityData.value.required_skills = data.required_skills || []
+    opportunityData.value.organization = data.organization || ''
+    opportunityData.value.contact_email = data.contact_email || ''
+    opportunityData.value.contact_phone = data.contact_phone || ''
+    // Financement
+    opportunityData.value.funding_amount = data.funding_amount || ''
+    opportunityData.value.funding_type = data.funding_type || ''
+    opportunityData.value.equity_percentage = data.equity_percentage || ''
+    opportunityData.value.stage = data.stage || ''
+    // Emploi
+    opportunityData.value.job_title = data.job_title || ''
+    opportunityData.value.contract_type = data.contract_type || ''
+    // Partenariat
+    opportunityData.value.partnership_type = data.partnership_type || ''
+    opportunityData.value.duration = data.duration || ''
+    opportunityData.value.partnership_benefits = data.partnership_benefits || ''
+    // Mission
+    opportunityData.value.mission_duration = data.mission_duration || ''
+    opportunityData.value.daily_rate = data.daily_rate || ''
+    // Autres
+    opportunityData.value.start_date = data.start_date || ''
+    opportunityData.value.visibility = data.visibility || 'public'
+    opportunityData.value.send_notifications = data.send_notifications !== false
+    
+    // Charger les liens sociaux
+    if (data.social_links) {
+      Object.assign(socialLinks.value, data.social_links)
+    }
+    
+    // Charger l'entreprise et son nom
+    if (data.company_id) {
+      publicationType.value = 'organization'
+      selectedCompany.value = data.company_id
+      const company = userCompanies.value.find(c => c.id === data.company_id)
+      if (company) {
+        opportunityData.value.organization = company.name
+      }
+    } else if (data.organization) {
+      opportunityData.value.organization = data.organization
+    }
+    
+    // Mettre à jour la sélection de pays pour le champ localisation
+    if (data.location) {
+      selectedCountries.value = data.location.split(', ').filter(c => c.trim())
+    }
+    
+    showMessage('Brouillon chargé', 'info')
+  } catch (error) {
+    console.error('Erreur lors du chargement du brouillon:', error)
+    showMessage('Erreur lors du chargement du brouillon', 'error')
+    router.push('/my-opportunities')
+  } finally {
+    loading.value = false
+  }
+}
+
 // Initialize
 onMounted(async () => {
   // Initialiser avec les données utilisateur
@@ -1089,6 +1219,11 @@ onMounted(async () => {
   
   // Charger les entreprises de l'utilisateur
   await loadUserCompanies()
+  
+  // Si un id est présent, charger le brouillon
+  if (route.params.id) {
+    await loadDraft(route.params.id)
+  }
 })
 </script>
 

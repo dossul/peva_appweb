@@ -48,6 +48,7 @@ const ProfileView = () => import('@/views/ProfileView.vue')
 const MapView = () => import('@/views/MapView.vue')
 const ConnectionsView = () => import('@/views/ConnectionsView.vue')
 const OpportunityApplicationsView = () => import('@/views/OpportunityApplicationsView.vue')
+const MyOpportunitiesView = () => import('@/views/MyOpportunitiesView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -290,12 +291,30 @@ const router = createRouter({
       }
     },
     {
+      path: '/opportunities/edit/:id',
+      name: 'EditOpportunity',
+      component: CreateOpportunityView,
+      meta: { 
+        requiresAuth: true,
+        title: 'Modifier une Opportunité - 2iE GreenHub'
+      }
+    },
+    {
       path: '/opportunities/:id/applications',
       name: 'OpportunityApplications',
       component: OpportunityApplicationsView,
       meta: { 
         requiresAuth: true,
         title: 'Candidatures - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/my-opportunities',
+      name: 'MyOpportunities',
+      component: MyOpportunitiesView,
+      meta: { 
+        requiresAuth: true,
+        title: 'Mes Opportunités - 2iE GreenHub'
       }
     },
     {
