@@ -41,6 +41,7 @@ const AdminForumView = () => import('@/views/admin/AdminForumView.vue')
 const AdminGroupsView = () => import('@/views/admin/AdminGroupsView.vue')
 const AdminEventsView = () => import('@/views/admin/AdminEventsView.vue')
 const AdminEmailTemplatesView = () => import('@/views/admin/AdminEmailTemplatesView.vue')
+const AdminSocialView = () => import('@/views/admin/AdminSocialView.vue')
 
 const OnboardingView = () => import('@/views/OnboardingView.vue')
 const ProfileView = () => import('@/views/ProfileView.vue')
@@ -470,6 +471,16 @@ const router = createRouter({
         requiresAuth: true,
         requiresAdmin: true,
         title: 'Templates Emails - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/admin/social',
+      name: 'AdminSocial',
+      component: AdminSocialView,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: 'Gestion Réseaux Sociaux - 2iE GreenHub'
       }
     },
     {

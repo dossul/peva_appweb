@@ -108,6 +108,27 @@ export const opportunitiesService = {
         })
       }
 
+      // Logique de mapping des montants selon le type
+      let minAmount = null
+      let maxAmount = null
+
+      if (opportunityData.type === 'Financement' && opportunityData.funding_amount) {
+        minAmount = parseFloat(opportunityData.funding_amount)
+        maxAmount = minAmount
+      } else if (opportunityData.type === 'Mission' && opportunityData.daily_rate) {
+        minAmount = parseFloat(opportunityData.daily_rate)
+        maxAmount = minAmount
+      } else if (opportunityData.type === 'Emploi') {
+        minAmount = opportunityData.salary_min ? parseFloat(opportunityData.salary_min) : null
+        maxAmount = opportunityData.salary_max ? parseFloat(opportunityData.salary_max) : null
+      } else if (opportunityData.budget_salary) {
+        // Essayer de parser le champ texte budget_salary si possible (ex: "50000")
+        const parsed = parseFloat(opportunityData.budget_salary.replace(/[^0-9.]/g, ''))
+        if (!isNaN(parsed)) {
+          minAmount = parsed
+        }
+      }
+
       // Adapter les données à la structure Supabase (colonnes réelles uniquement)
       const adaptedData = {
         title: opportunityData.title,
@@ -118,9 +139,9 @@ export const opportunitiesService = {
         country: opportunityData.country || opportunityData.location,
         region: opportunityData.region,
         city: opportunityData.city,
-        is_remote: opportunityData.is_remote || false,
-        salary_min: opportunityData.amount_min,
-        salary_max: opportunityData.amount_max,
+        is_remote: opportunityData.remote_possible || false,
+        salary_min: minAmount,
+        salary_max: maxAmount,
         currency: opportunityData.currency || 'XOF',
         deadline: opportunityData.deadline,
         requirements: opportunityData.requirements,
@@ -128,7 +149,13 @@ export const opportunitiesService = {
         status: 'pending',
         created_by: opportunityData.created_by,
         // Ajouter company_id si c'est une publication d'entreprise
-        ...(opportunityData.company_id && { company_id: opportunityData.company_id })
+        ...(opportunityData.company_id && { company_id: opportunityData.company_id }),
+        // Sauvegarder les fichiers joints
+        attachments: attachments,
+        // Options de publication
+        promote_premium: opportunityData.promote_premium || false,
+        auto_share_social: opportunityData.auto_share_social || false,
+        social_links: opportunityData.social_links
       }
 
       const { data, error } = await supabase

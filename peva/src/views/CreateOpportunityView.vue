@@ -362,7 +362,7 @@
                     :label="getDeadlineLabel()"
                     type="date"
                     variant="outlined"
-                    :rules="[rules.required]"
+                    :rules="[rules.required, rules.futureDate]"
                   />
                 </v-col>
                 
@@ -372,6 +372,7 @@
                     label="Date de début souhaitée"
                     type="date"
                     variant="outlined"
+                    :rules="[rules.afterDeadline]"
                   />
                 </v-col>
               </v-row>
@@ -860,7 +861,20 @@ const partnershipTypes = [
 // Validation rules
 const rules = {
   required: value => !!value || 'Ce champ est requis',
-  email: value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 'Email invalide'
+  email: value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 'Email invalide',
+  futureDate: value => {
+    if (!value) return true
+    const date = new Date(value)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return date >= today || 'La date doit être ultérieure ou égale à aujourd\'hui'
+  },
+  afterDeadline: (value) => {
+    if (!value || !opportunityData.value.deadline) return true
+    const startDate = new Date(value)
+    const deadline = new Date(opportunityData.value.deadline)
+    return startDate > deadline || 'La date de début doit être après la date limite'
+  }
 }
 
 // Validation du formulaire complet
@@ -877,6 +891,8 @@ const isFormValid = computed(() => {
     data.organization &&
     countries && countries.length > 0 &&
     data.deadline &&
+    rules.futureDate(data.deadline) === true &&
+    (!data.start_date || rules.afterDeadline(data.start_date) === true) &&
     data.contact_email
   )
   

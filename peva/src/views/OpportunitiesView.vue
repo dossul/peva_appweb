@@ -153,6 +153,7 @@
               v-for="opportunity in paginatedOpportunities"
               :key="opportunity.id"
               class="mb-4 opportunity-card"
+              :class="{ 'premium-card': opportunity.promote_premium }"
               elevation="2"
               hover
             >
@@ -161,6 +162,16 @@
                   <div class="flex-grow-1">
                     <!-- Header avec badges -->
                     <div class="d-flex align-center mb-2">
+                      <v-chip
+                        v-if="opportunity.promote_premium"
+                        color="amber-darken-2"
+                        variant="flat"
+                        size="small"
+                        class="mr-2 font-weight-bold"
+                        prepend-icon="mdi-star"
+                      >
+                        À la une
+                      </v-chip>
                       <v-chip
                         :color="getTypeColor(opportunity.type)"
                         size="small"
@@ -545,6 +556,28 @@ const filteredOpportunities = computed(() => {
     filtered = filtered.filter(opp => opp.amount <= parseFloat(maxAmount.value))
   }
 
+  // Tri
+  if (sortBy.value === 'Trier par pertinence') {
+    // Premium d'abord, puis par date
+    filtered.sort((a, b) => {
+      if (a.promote_premium && !b.promote_premium) return -1
+      if (!a.promote_premium && b.promote_premium) return 1
+      return new Date(b.created_at) - new Date(a.created_at)
+    })
+  } else if (sortBy.value === 'Plus récent') {
+    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+  } else if (sortBy.value === 'Montant croissant') {
+    filtered.sort((a, b) => (parseFloat(a.salary_min) || 0) - (parseFloat(b.salary_min) || 0))
+  } else if (sortBy.value === 'Montant décroissant') {
+    filtered.sort((a, b) => (parseFloat(b.salary_min) || 0) - (parseFloat(a.salary_min) || 0))
+  } else if (sortBy.value === 'Deadline proche') {
+    filtered.sort((a, b) => {
+      if (!a.deadline) return 1
+      if (!b.deadline) return -1
+      return new Date(a.deadline) - new Date(b.deadline)
+    })
+  }
+
   return filtered
 })
 
@@ -882,6 +915,15 @@ onMounted(() => {
 .opportunity-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+.premium-card {
+  border: 2px solid #FFC107;
+  background: linear-gradient(to bottom right, #fff, #fffbf0);
+}
+
+.premium-card:hover {
+  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.2) !important;
 }
 
 .v-card {
