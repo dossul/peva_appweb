@@ -106,8 +106,66 @@ Si la BDD nécessite des modifications :
 
 ---
 
+## Règle #6 : Foreign Keys Obligatoires pour Jointures (Ajoutée 2026-01-04)
+
+**Les jointures Supabase/PostgREST nécessitent des FK explicites.**
+
+### Exemple d'erreur :
+```javascript
+// ❌ ERREUR si pas de FK
+.select('id, pev_profiles:created_by(first_name)')
+// → "Could not find a relationship between 'table' and 'created_by'"
+```
+
+### Solution :
+```sql
+-- ✅ Ajouter la FK
+ALTER TABLE pev_events 
+ADD CONSTRAINT pev_events_created_by_fkey 
+FOREIGN KEY (created_by) REFERENCES pev_profiles(id);
+```
+
+---
+
+## Règle #7 : Policies RLS Sans Récursion (Ajoutée 2026-01-04)
+
+**JAMAIS créer de policies RLS qui se référencent circulairement.**
+
+### ❌ INTERDIT (cause erreur 500) :
+```sql
+-- Table A référence B
+CREATE POLICY ON table_a USING (x IN (SELECT y FROM table_b WHERE ...))
+-- Table B référence A
+CREATE POLICY ON table_b USING (y IN (SELECT x FROM table_a WHERE ...))
+```
+
+### ✅ CORRECT :
+```sql
+-- Policies simples basées sur auth.uid() uniquement
+CREATE POLICY ON table_a USING (user_id = auth.uid());
+CREATE POLICY ON table_b USING (owner_id = auth.uid());
+```
+
+---
+
+## Règle #8 : Colonnes Timestamps Obligatoires (Ajoutée 2026-01-04)
+
+**Toute nouvelle table DOIT avoir ces colonnes :**
+
+```sql
+CREATE TABLE nouvelle_table (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  -- colonnes métier...
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+---
+
 ## HISTORIQUE DES CORRECTIONS
 
 | Date | Problème | Solution | Fichier |
 |------|----------|----------|---------|
 | 2026-01-04 | Buckets Storage manquants | Création des 6 buckets + policies RLS | `docs/HISTORIQUE_CORRECTIONS_STORAGE.md` |
+| 2026-01-04 | Erreurs Admin Dashboard (6) | Tables, colonnes, FK, RLS corrigés | `docs/ANALYSE_ERREURS_ADMIN_DASHBOARD.md` |

@@ -1,7 +1,7 @@
 <template>
   <div class="admin-moderation">
     <!-- Header avec statistiques -->
-    <div class="admin-header bg-red-darken-2 text-white py-6">
+    <div class="admin-header bg-red-lighten-1 text-white py-6">
       <v-container>
         <div class="d-flex align-center justify-space-between">
           <div>

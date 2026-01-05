@@ -27,7 +27,7 @@ export const moderationService = {
               *,
               pev_profiles:created_by(first_name, last_name, email, avatar_url)
             `)
-            .eq('status', 'draft')
+            .eq('status', 'in_review')
           break
 
         case 'resources':
@@ -488,7 +488,7 @@ export const moderationService = {
       // Calculer les statistiques
       const stats = {
         opportunities: {
-          pending: opportunitiesStats.data?.filter(o => o.status === 'draft').length || 0,
+          pending: opportunitiesStats.data?.filter(o => o.status === 'in_review').length || 0,
           approved: opportunitiesStats.data?.filter(o => o.status === 'published').length || 0,
           rejected: 0,
           total: opportunitiesStats.count || 0

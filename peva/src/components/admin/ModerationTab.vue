@@ -391,15 +391,15 @@ const getItemLocation = (item) => {
 }
 
 const getAuthorName = (item) => {
-  const profile = item.profiles || item.profile
+  const profile = item.pev_profiles || item.profiles || item.profile
   if (profile) {
-    return profile.display_name || `${profile.first_name} ${profile.last_name}`
+    return profile.display_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.email
   }
   return 'Utilisateur inconnu'
 }
 
 const getAuthorAvatar = (item) => {
-  const profile = item.profiles || item.profile
+  const profile = item.pev_profiles || item.profiles || item.profile
   return profile?.avatar_url || null
 }
 
