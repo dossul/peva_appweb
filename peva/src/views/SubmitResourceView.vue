@@ -58,7 +58,17 @@
               </v-card-title>
               <v-card-text class="pa-6">
                 <v-row>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="6">
+                    <v-select
+                      v-model="resourceData.type"
+                      :items="resourceTypes"
+                      label="Type de Ressource *"
+                      variant="outlined"
+                      :rules="[rules.required]"
+                    />
+                  </v-col>
+                  
+                  <v-col cols="12" md="6">
                     <v-select
                       v-model="resourceData.sector"
                       :items="sectors"
@@ -206,6 +216,8 @@
                 variant="outlined"
                 prepend-icon="mdi-content-save"
                 @click="saveDraft"
+                :loading="isSavingDraft"
+                :disabled="isSubmitting"
               >
                 Enregistrer en Brouillon
               </v-btn>
@@ -223,7 +235,8 @@
                   color="green-darken-2"
                   variant="flat"
                   prepend-icon="mdi-send"
-                  :disabled="!formValid"
+                  :disabled="!formValid || isSavingDraft"
+                  :loading="isSubmitting"
                   @click="submitResource"
                 >
                   Soumettre pour Révision
@@ -395,9 +408,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { resourcesService } from '@/services/resourcesService'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+// Loading states
+const isSubmitting = ref(false)
+const isSavingDraft = ref(false)
 
 // Reactive data
 const formValid = ref(false)
@@ -406,6 +424,7 @@ const resourceForm = ref(null)
 const resourceData = ref({
   title: '',
   description: '',
+  type: 'guide',
   sector: '',
   difficulty_level: '',
   language: 'Français',
@@ -427,6 +446,17 @@ const snackbar = ref({
 })
 
 // Static data
+const resourceTypes = [
+  { title: 'Guide pratique', value: 'guide' },
+  { title: 'Rapport / Étude', value: 'report' },
+  { title: 'Outil / Template', value: 'tool' },
+  { title: 'Formation / Cours', value: 'training' },
+  { title: 'Article / Publication', value: 'article' },
+  { title: 'Vidéo', value: 'video' },
+  { title: 'Infographie', value: 'infographic' },
+  { title: 'Autre', value: 'other' }
+]
+
 const sectors = [
   'Agroalimentaire',
   'Agriculture Durable',
@@ -493,20 +523,89 @@ const getSectorColor = (sector) => {
   return colors[sector] || 'grey'
 }
 
-const saveDraft = () => {
-  showMessage('Ressource sauvegardée en brouillon', 'info')
+const saveDraft = async () => {
+  if (isSavingDraft.value) return
+  
+  isSavingDraft.value = true
+  
+  try {
+    // Vérifier que l'utilisateur est connecté
+    if (!authStore.user?.id) {
+      showMessage('Vous devez être connecté pour sauvegarder', 'error')
+      return
+    }
+
+    // Préparer les données
+    const dataToSave = {
+      ...resourceData.value,
+      created_by: authStore.user.id
+    }
+
+    // Extraire les fichiers
+    const mainFile = resourceData.value.files?.[0] || resourceData.value.files
+    const coverImage = resourceData.value.cover_image?.[0] || resourceData.value.cover_image
+
+    const result = await resourcesService.saveDraft(dataToSave, mainFile, coverImage)
+
+    if (result.success) {
+      // Mettre à jour l'ID pour les futures sauvegardes
+      resourceData.value.id = result.data.id
+      showMessage('Brouillon sauvegardé avec succès !', 'success')
+    } else {
+      showMessage(`Erreur: ${result.error}`, 'error')
+    }
+  } catch (error) {
+    console.error('Erreur saveDraft:', error)
+    showMessage('Erreur lors de la sauvegarde', 'error')
+  } finally {
+    isSavingDraft.value = false
+  }
 }
 
-const submitResource = () => {
+const submitResource = async () => {
   if (!formValid.value) {
     showMessage('Veuillez remplir tous les champs obligatoires', 'error')
     return
   }
-  
-  showMessage('Ressource soumise pour révision !', 'success')
-  setTimeout(() => {
-    router.push('/resources')
-  }, 2000)
+
+  if (isSubmitting.value) return
+
+  isSubmitting.value = true
+
+  try {
+    // Vérifier que l'utilisateur est connecté
+    if (!authStore.user?.id) {
+      showMessage('Vous devez être connecté pour soumettre une ressource', 'error')
+      router.push('/login')
+      return
+    }
+
+    // Préparer les données
+    const dataToSubmit = {
+      ...resourceData.value,
+      created_by: authStore.user.id
+    }
+
+    // Extraire les fichiers
+    const mainFile = resourceData.value.files?.[0] || resourceData.value.files
+    const coverImage = resourceData.value.cover_image?.[0] || resourceData.value.cover_image
+
+    const result = await resourcesService.createResource(dataToSubmit, mainFile, coverImage)
+
+    if (result.success) {
+      showMessage('Ressource soumise pour révision ! Vous serez notifié par email.', 'success')
+      setTimeout(() => {
+        router.push('/resources')
+      }, 2000)
+    } else {
+      showMessage(`Erreur: ${result.error}`, 'error')
+    }
+  } catch (error) {
+    console.error('Erreur submitResource:', error)
+    showMessage('Erreur lors de la soumission', 'error')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const goBack = () => {
