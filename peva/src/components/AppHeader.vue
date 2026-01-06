@@ -176,6 +176,13 @@
                 <v-list-item-title>Partager une Ressource</v-list-item-title>
                 <v-list-item-subtitle>Guides, rapports, outils</v-list-item-subtitle>
               </v-list-item>
+              <v-list-item @click="navigateTo('/my-resources')" :disabled="!authStore.isAuthenticated">
+                <template v-slot:prepend>
+                  <v-icon>mdi-file-document-edit</v-icon>
+                </template>
+                <v-list-item-title>Mes Ressources</v-list-item-title>
+                <v-list-item-subtitle>Brouillons et ressources publiées</v-list-item-subtitle>
+              </v-list-item>
               <v-list-item @click="navigateTo('/events/create')" :disabled="!authStore.isAuthenticated">
                 <template v-slot:prepend>
                   <v-icon>mdi-calendar-plus</v-icon>

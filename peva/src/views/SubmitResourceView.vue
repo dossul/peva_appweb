@@ -211,18 +211,20 @@
             </v-card>
 
             <!-- Actions -->
-            <div class="d-flex justify-space-between">
+            <div class="d-flex flex-wrap ga-3 justify-space-between align-center mt-4">
               <v-btn
                 variant="outlined"
+                color="primary"
                 prepend-icon="mdi-content-save"
                 @click="saveDraft"
                 :loading="isSavingDraft"
                 :disabled="isSubmitting"
+                size="large"
               >
                 Enregistrer en Brouillon
               </v-btn>
               
-              <div class="d-flex ga-2">
+              <div class="d-flex ga-2 flex-wrap">
                 <v-btn
                   variant="outlined"
                   prepend-icon="mdi-arrow-left"
@@ -238,6 +240,7 @@
                   :disabled="!formValid || isSavingDraft"
                   :loading="isSubmitting"
                   @click="submitResource"
+                  size="large"
                 >
                   Soumettre pour Révision
                 </v-btn>
@@ -532,6 +535,7 @@ const saveDraft = async () => {
     // Vérifier que l'utilisateur est connecté
     if (!authStore.user?.id) {
       showMessage('Vous devez être connecté pour sauvegarder', 'error')
+      isSavingDraft.value = false
       return
     }
 

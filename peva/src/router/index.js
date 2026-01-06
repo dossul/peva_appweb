@@ -49,6 +49,7 @@ const MapView = () => import('@/views/MapView.vue')
 const ConnectionsView = () => import('@/views/ConnectionsView.vue')
 const OpportunityApplicationsView = () => import('@/views/OpportunityApplicationsView.vue')
 const MyOpportunitiesView = () => import('@/views/MyOpportunitiesView.vue')
+const MyResourcesView = () => import('@/views/MyResourcesView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -315,6 +316,15 @@ const router = createRouter({
       meta: { 
         requiresAuth: true,
         title: 'Mes Opportunités - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/my-resources',
+      name: 'MyResources',
+      component: MyResourcesView,
+      meta: { 
+        requiresAuth: true,
+        title: 'Mes Ressources - 2iE GreenHub'
       }
     },
     {
