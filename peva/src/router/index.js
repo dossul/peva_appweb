@@ -219,6 +219,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/resources/:id',
+      name: 'ResourceDetail',
+      component: () => import('@/views/ResourceDetailView.vue'),
+      meta: { 
+        title: 'Détail Ressource - 2iE GreenHub'
+      }
+    },
+    {
       path: '/forum',
       name: 'Forum',
       component: ForumView,
@@ -334,6 +342,15 @@ const router = createRouter({
       meta: { 
         requiresAuth: true,
         title: 'Proposer une Ressource - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/resources/edit/:id',
+      name: 'EditResource',
+      component: SubmitResourceView,
+      meta: { 
+        requiresAuth: true,
+        title: 'Modifier ma Ressource - 2iE GreenHub'
       }
     },
     {

@@ -227,8 +227,9 @@
           </v-btn>
           <v-btn 
             color="success" 
-            @click="handleApprove(selectedContentType, selectedContent.id)"
+            @click="handleApprove(selectedContentType, selectedContent?.id)"
             :loading="moderating"
+            :disabled="!selectedContent?.id"
           >
             <v-icon class="mr-2">mdi-check</v-icon>
             Approuver
@@ -342,6 +343,7 @@ const loadAllStats = async () => {
 }
 
 const handleApprove = async (contentType, contentId) => {
+  console.log('handleApprove called:', { contentType, contentId })
   moderating.value = true
   try {
     const result = await moderationService.approveContent(
@@ -350,16 +352,18 @@ const handleApprove = async (contentType, contentId) => {
       authStore.user.id,
       'Approuvé par l\'administrateur'
     )
+    console.log('approveContent result:', result)
     
     if (result.success) {
       showMessage('Contenu approuvé avec succès', 'success')
       detailsDialog.value = false
       await loadAllStats()
     } else {
-      showMessage('Erreur lors de l\'approbation', 'error')
+      showMessage('Erreur lors de l\'approbation: ' + (result.error || 'Erreur inconnue'), 'error')
     }
   } catch (error) {
-    showMessage('Erreur lors de l\'approbation', 'error')
+    console.error('handleApprove error:', error)
+    showMessage('Erreur lors de l\'approbation: ' + error.message, 'error')
   } finally {
     moderating.value = false
   }

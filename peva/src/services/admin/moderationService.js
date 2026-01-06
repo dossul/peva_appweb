@@ -173,11 +173,9 @@ export const moderationService = {
 
       if (error) throw error
 
-      // Log de l'action
-      await this.logModerationAction(moderatorId, 'approve', contentType, contentId, { notes })
-
-      // Envoyer email de notification au créateur
-      await this.sendModerationEmail(contentType, contentId, 'approved')
+      // Log et email en arrière-plan (non-bloquants)
+      this.logModerationAction(moderatorId, 'approve', contentType, contentId, { notes }).catch(() => {})
+      this.sendModerationEmail(contentType, contentId, 'approved').catch(() => {})
 
       return {
         success: true,
@@ -246,11 +244,9 @@ export const moderationService = {
 
       if (error) throw error
 
-      // Log de l'action
-      await this.logModerationAction(moderatorId, 'reject', contentType, contentId, { reason })
-
-      // Envoyer email de notification au créateur avec le motif de rejet
-      await this.sendModerationEmail(contentType, contentId, 'rejected', reason)
+      // Log et email en arrière-plan (non-bloquants)
+      this.logModerationAction(moderatorId, 'reject', contentType, contentId, { reason }).catch(() => {})
+      this.sendModerationEmail(contentType, contentId, 'rejected', reason).catch(() => {})
 
       return {
         success: true,
@@ -281,7 +277,7 @@ export const moderationService = {
             .from('pev_opportunities')
             .select(`
               *,
-              pev_profiles:created_by(first_name, last_name, email, avatar_url, organization),
+              pev_profiles:created_by(first_name, last_name, email, avatar_url),
               companies:company_id(name, logo_url)
             `)
             .eq('id', contentId)
@@ -293,7 +289,7 @@ export const moderationService = {
             .from('pev_resources')
             .select(`
               *,
-              pev_profiles:created_by(first_name, last_name, email, avatar_url, organization)
+              pev_profiles:created_by(first_name, last_name, email, avatar_url)
             `)
             .eq('id', contentId)
             .single()
@@ -304,7 +300,7 @@ export const moderationService = {
             .from('pev_events')
             .select(`
               *,
-              pev_profiles:created_by(first_name, last_name, email, avatar_url, organization)
+              pev_profiles:created_by(first_name, last_name, email, avatar_url)
             `)
             .eq('id', contentId)
             .single()
@@ -376,7 +372,7 @@ export const moderationService = {
   async getModerationHistory(contentType, contentId) {
     try {
       const { data, error } = await supabase
-        .from('audit_logs')
+        .from('pev_audit_logs')
         .select(`
           *,
           profiles:actor_id(first_name, last_name, email)
@@ -551,7 +547,7 @@ export const moderationService = {
   async logModerationAction(moderatorId, action, contentType, contentId, payload = {}) {
     try {
       await supabase
-        .from('audit_logs')
+        .from('pev_audit_logs')
         .insert({
           actor_id: moderatorId,
           action: `${action}_${contentType}`,
@@ -633,17 +629,20 @@ export const moderationService = {
           return
       }
 
-      // Envoyer l'email
-      const result = await emailService.sendTemplateEmail(templateCode, creator.email, variables)
-      
-      if (result.success) {
-        console.log(`✅ Email de modération (${action}) envoyé à ${creator.email}`)
-      } else {
-        console.warn(`⚠️ Échec envoi email modération: ${result.error}`)
-      }
+      // Envoyer l'email (en arrière-plan, jamais bloquant)
+      emailService.sendTemplateEmail(templateCode, creator.email, variables)
+        .then(result => {
+          if (result?.success) {
+            console.log(`✅ Email de modération (${action}) envoyé à ${creator.email}`)
+          } else {
+            console.warn(`⚠️ Échec envoi email modération: ${result?.error}`)
+          }
+        })
+        .catch(err => {
+          console.warn('Email modération échoué:', err.message)
+        })
     } catch (error) {
-      console.error('Erreur lors de l\'envoi de l\'email de modération:', error)
-      // Ne pas faire échouer l'opération principale si l'email échoue
+      console.warn('Erreur email modération (ignorée):', error.message)
     }
   }
 }

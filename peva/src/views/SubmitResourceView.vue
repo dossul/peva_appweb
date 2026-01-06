@@ -122,9 +122,35 @@
                 <v-row>
                   <v-col cols="12">
                     <div class="file-upload-area">
+                      <!-- Afficher fichier existant si en mode édition -->
+                      <v-alert 
+                        v-if="resourceData.media_url" 
+                        type="info" 
+                        variant="tonal" 
+                        class="mb-3"
+                        closable
+                      >
+                        <div class="d-flex align-center justify-space-between">
+                          <span>
+                            <v-icon class="mr-2">mdi-file-check</v-icon>
+                            Fichier existant
+                          </span>
+                          <v-btn 
+                            size="small" 
+                            variant="tonal" 
+                            color="primary"
+                            :href="resourceData.media_url" 
+                            target="_blank"
+                            prepend-icon="mdi-download"
+                          >
+                            Télécharger
+                          </v-btn>
+                        </div>
+                      </v-alert>
+                      
                       <v-file-input
                         v-model="resourceData.files"
-                        label="Fichier Principal"
+                        :label="resourceData.media_url ? 'Remplacer le fichier (optionnel)' : 'Fichier Principal'"
                         variant="outlined"
                         accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
                         prepend-icon="mdi-paperclip"
@@ -211,41 +237,47 @@
             </v-card>
 
             <!-- Actions -->
-            <div class="d-flex flex-wrap ga-3 justify-space-between align-center mt-4">
-              <v-btn
-                variant="outlined"
-                color="primary"
-                prepend-icon="mdi-content-save"
-                @click="saveDraft"
-                :loading="isSavingDraft"
-                :disabled="isSubmitting"
-                size="large"
-              >
-                Enregistrer en Brouillon
-              </v-btn>
-              
-              <div class="d-flex ga-2 flex-wrap">
-                <v-btn
-                  variant="outlined"
-                  prepend-icon="mdi-arrow-left"
-                  @click="goBack"
-                >
-                  Annuler
-                </v-btn>
-                
-                <v-btn
-                  color="green-darken-2"
-                  variant="flat"
-                  prepend-icon="mdi-send"
-                  :disabled="!formValid || isSavingDraft"
-                  :loading="isSubmitting"
-                  @click="submitResource"
-                  size="large"
-                >
-                  Soumettre pour Révision
-                </v-btn>
-              </div>
-            </div>
+            <v-card class="pa-4 mt-4" variant="outlined">
+              <v-row>
+                <v-col cols="12" sm="4">
+                  <v-btn
+                    variant="tonal"
+                    color="blue-darken-2"
+                    prepend-icon="mdi-content-save"
+                    @click="saveDraft"
+                    :loading="isSavingDraft"
+                    :disabled="isSubmitting"
+                    block
+                  >
+                    Enregistrer en Brouillon
+                  </v-btn>
+                </v-col>
+                <v-col cols="12" sm="4">
+                  <v-btn
+                    variant="outlined"
+                    prepend-icon="mdi-arrow-left"
+                    @click="goBack"
+                    :disabled="isSavingDraft || isSubmitting"
+                    block
+                  >
+                    Annuler
+                  </v-btn>
+                </v-col>
+                <v-col cols="12" sm="4">
+                  <v-btn
+                    color="green-darken-2"
+                    variant="flat"
+                    prepend-icon="mdi-send"
+                    :disabled="!formValid || isSavingDraft"
+                    :loading="isSubmitting"
+                    @click="submitResource"
+                    block
+                  >
+                    Soumettre pour Révision
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card>
           </v-col>
 
           <!-- Sidebar droite -->
@@ -409,11 +441,12 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { resourcesService } from '@/services/resourcesService'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 // Loading states
@@ -530,6 +563,7 @@ const saveDraft = async () => {
   if (isSavingDraft.value) return
   
   isSavingDraft.value = true
+  console.log('saveDraft: Début...')
   
   try {
     // Vérifier que l'utilisateur est connecté
@@ -538,30 +572,48 @@ const saveDraft = async () => {
       isSavingDraft.value = false
       return
     }
+    
+    console.log('saveDraft: User ID =', authStore.user.id)
 
-    // Préparer les données
+    // Préparer les données - ne pas inclure les fichiers File dans l'objet
     const dataToSave = {
-      ...resourceData.value,
+      id: resourceData.value.id || null,
+      title: resourceData.value.title,
+      description: resourceData.value.description,
+      type: resourceData.value.type,
+      sector: resourceData.value.sector,
+      difficulty_level: resourceData.value.difficulty_level,
+      language: resourceData.value.language,
+      tags: resourceData.value.tags,
+      external_link: resourceData.value.external_link,
+      is_free: resourceData.value.is_free,
+      allow_download: resourceData.value.allow_download,
+      allow_sharing: resourceData.value.allow_sharing,
+      media_url: resourceData.value.media_url || null,
+      cover_image_url: resourceData.value.cover_image_url || null,
       created_by: authStore.user.id
     }
 
     // Extraire les fichiers
     const mainFile = resourceData.value.files?.[0] || resourceData.value.files
     const coverImage = resourceData.value.cover_image?.[0] || resourceData.value.cover_image
+    console.log('saveDraft: mainFile =', mainFile ? mainFile.name : 'aucun')
+    console.log('saveDraft: coverImage =', coverImage ? coverImage.name : 'aucun')
 
     const result = await resourcesService.saveDraft(dataToSave, mainFile, coverImage)
+    console.log('saveDraft: Résultat =', result)
 
     if (result.success) {
-      // Mettre à jour l'ID pour les futures sauvegardes
       resourceData.value.id = result.data.id
       showMessage('Brouillon sauvegardé avec succès !', 'success')
     } else {
       showMessage(`Erreur: ${result.error}`, 'error')
     }
   } catch (error) {
-    console.error('Erreur saveDraft:', error)
-    showMessage('Erreur lors de la sauvegarde', 'error')
+    console.error('saveDraft: Exception:', error)
+    showMessage('Erreur lors de la sauvegarde: ' + error.message, 'error')
   } finally {
+    console.log('saveDraft: Fin')
     isSavingDraft.value = false
   }
 }
@@ -624,11 +676,50 @@ const showMessage = (message, color = 'success') => {
   }
 }
 
+// Charger un brouillon existant
+const loadDraft = async (resourceId) => {
+  try {
+    const result = await resourcesService.getResourceById(resourceId)
+    if (result.success && result.data) {
+      const data = result.data
+      resourceData.value = {
+        id: data.id,
+        title: data.title || '',
+        description: data.description || '',
+        type: data.type || 'guide',
+        sector: data.sectors?.[0] || '',
+        difficulty_level: data.difficulty_level || '',
+        language: data.language || 'Français',
+        tags: data.tags || [],
+        files: null,
+        external_link: data.source || '',
+        cover_image: null,
+        author: '',
+        publication_date: '',
+        is_free: data.is_free !== false,
+        allow_download: data.allow_download !== false,
+        allow_sharing: data.allow_sharing !== false,
+        media_url: data.media_url,
+        cover_image_url: data.cover_image_url
+      }
+      showMessage('Brouillon chargé', 'info')
+    }
+  } catch (error) {
+    console.error('Erreur chargement brouillon:', error)
+    showMessage('Erreur lors du chargement du brouillon', 'error')
+  }
+}
+
 // Initialize
-onMounted(() => {
-  // TODO: Charger les données utilisateur depuis Supabase
+onMounted(async () => {
   if (authStore.user?.profile) {
     resourceData.value.author = `${authStore.user.profile.first_name} ${authStore.user.profile.last_name}`
+  }
+  
+  // Charger le brouillon si on est en mode édition
+  const resourceId = route.params.id
+  if (resourceId) {
+    await loadDraft(resourceId)
   }
 })
 </script>

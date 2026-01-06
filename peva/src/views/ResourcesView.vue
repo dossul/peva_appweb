@@ -176,12 +176,18 @@
             cols="12"
             md="4"
           >
-            <v-card class="resource-card h-100" elevation="2" hover>
+            <v-card 
+              class="resource-card h-100 cursor-pointer" 
+              elevation="2" 
+              hover
+              @click="router.push(`/resources/${resource.id}`)"
+            >
               <div class="position-relative">
                 <v-img
-                  :src="resource.thumbnail || '/api/placeholder/400/200'"
+                  :src="resource.cover_image_url || getDefaultCover(resource.type)"
                   height="160"
                   cover
+                  :class="{ 'bg-grey-lighten-3': !resource.cover_image_url }"
                 >
                   <div class="resource-overlay">
                     <v-chip
@@ -193,7 +199,6 @@
                     </v-chip>
                     <div class="rating-badge">
                       <v-icon size="16" color="yellow">mdi-star</v-icon>
-                      <span class="text-caption ml-1">{{ resource.rating }}</span>
                     </div>
                   </div>
                 </v-img>
@@ -201,49 +206,54 @@
               
               <v-card-text class="pa-4">
                 <div class="d-flex align-center justify-space-between mb-2">
-                  <v-chip size="small" :color="resource.categoryColor">
-                    {{ resource.category }}
+                  <v-chip size="small" :color="getTypeColor(resource.type)">
+                    {{ resource.sectors?.[0] || resource.type }}
                   </v-chip>
                   <div class="d-flex align-center">
                     <v-icon size="16" class="mr-1">mdi-eye</v-icon>
-                    <span class="text-caption">{{ resource.views }} vues</span>
+                    <span class="text-caption">{{ resource.views_count || 0 }} vues</span>
                   </div>
                 </div>
                 
                 <h3 class="text-h6 font-weight-bold mb-2">{{ resource.title }}</h3>
-                <p class="text-body-2 text-grey-darken-1 mb-3">{{ resource.description }}</p>
+                <p class="text-body-2 text-grey-darken-1 mb-3">{{ truncateText(resource.description, 100) }}</p>
                 
                 <div class="d-flex align-center justify-space-between mb-3">
                   <div class="d-flex align-center">
                     <v-icon size="16" class="mr-1">mdi-download</v-icon>
-                    <span class="text-caption">{{ resource.downloads }} téléch.</span>
+                    <span class="text-caption">{{ resource.downloads_count || 0 }} téléch.</span>
                   </div>
                   <div class="d-flex align-center">
                     <v-icon size="16" class="mr-1">mdi-account</v-icon>
-                    <span class="text-caption">{{ resource.author }}</span>
+                    <span class="text-caption">{{ getAuthorName(resource) }}</span>
                   </div>
                 </div>
               </v-card-text>
               
-              <v-card-actions class="pa-4 pt-0">
+              <v-card-actions class="pa-4 pt-0" @click.stop>
                 <v-btn
                   color="green-darken-2"
                   variant="flat"
                   size="small"
                   prepend-icon="mdi-eye"
-                  @click="viewResource(resource)"
+                  @click="router.push(`/resources/${resource.id}`)"
                 >
                   Consulter
                 </v-btn>
                 <v-spacer />
                 <v-btn
+                  v-if="resource.media_url"
                   variant="outlined"
                   size="small"
                   prepend-icon="mdi-download"
-                  @click="downloadResource(resource)"
+                  @click.stop="handleDownload(resource)"
                 >
-                  {{ resource.price ? resource.price : 'Gratuit' }}
+                  {{ resource.is_free ? 'Gratuit' : 'Télécharger' }}
                 </v-btn>
+                <v-chip v-else size="small" color="success" variant="outlined">
+                  <v-icon start size="small">mdi-download</v-icon>
+                  Gratuit
+                </v-chip>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -336,6 +346,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { viewsService } from '@/services/viewsService'
+import { resourcesService } from '@/services/resourcesService'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -422,21 +433,70 @@ const resetFilters = () => {
 }
 
 const viewResource = (resource) => {
-  showMessage(`Ouverture de "${resource.title}"`, 'info')
+  router.push(`/resources/${resource.id}`)
 }
 
 const downloadResource = (resource) => {
   showMessage(`Téléchargement de "${resource.title}" démarré`, 'success')
 }
 
+const handleDownload = async (resource) => {
+  // Incrémenter le compteur
+  const result = await resourcesService.incrementDownloads(resource.id)
+  if (result.success) {
+    resource.downloads_count = (resource.downloads_count || 0) + 1
+  }
+  // Ouvrir le fichier
+  if (resource.media_url) {
+    window.open(resource.media_url, '_blank')
+  }
+}
+
 const getTypeColor = (type) => {
   const colors = {
-    'Guide': 'blue',
-    'Rapport': 'purple',
-    'Outil': 'orange',
-    'Formation': 'red'
+    'guide': 'blue',
+    'rapport': 'purple',
+    'tool': 'orange',
+    'formation': 'red',
+    'template': 'teal',
+    'video': 'pink'
   }
-  return colors[type] || 'grey'
+  return colors[type?.toLowerCase()] || 'grey'
+}
+
+const getDefaultCover = (type) => {
+  const colors = {
+    'guide': '#1976D2',
+    'rapport': '#7B1FA2',
+    'tool': '#F57C00',
+    'formation': '#D32F2F',
+    'template': '#00897B',
+    'video': '#C2185B'
+  }
+  const labels = {
+    'guide': 'Guide',
+    'rapport': 'Rapport',
+    'tool': 'Outil',
+    'formation': 'Formation',
+    'template': 'Template',
+    'video': 'Vidéo'
+  }
+  const color = colors[type?.toLowerCase()] || '#757575'
+  const label = labels[type?.toLowerCase()] || 'Ressource'
+  return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect fill="${color}" width="400" height="200"/><text fill="white" font-family="Arial" font-size="24" x="200" y="110" text-anchor="middle">${label}</text></svg>`)}`
+}
+
+const truncateText = (text, maxLength) => {
+  if (!text) return ''
+  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
+}
+
+const getAuthorName = (resource) => {
+  const profile = resource.pev_profiles || resource.profiles || resource.profile
+  if (profile) {
+    return profile.display_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Auteur'
+  }
+  return 'Auteur'
 }
 
 const showMessage = (message, color = 'success') => {
@@ -531,5 +591,9 @@ onMounted(() => {
 
 .v-btn {
   border-radius: 8px !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>

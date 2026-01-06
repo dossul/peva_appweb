@@ -85,7 +85,7 @@ export const resourcesService = {
       // Incrémenter le compteur de vues
       await supabase
         .from('pev_resources')
-        .update({ views: (data.views || 0) + 1 })
+        .update({ views_count: (data.views_count || 0) + 1 })
         .eq('id', id)
 
       return {
@@ -98,6 +98,42 @@ export const resourcesService = {
         success: false,
         error: error.message
       }
+    }
+  },
+
+  /**
+   * Incrémenter le compteur de téléchargements
+   */
+  async incrementDownloads(id) {
+    try {
+      // Récupérer la valeur actuelle
+      const { data, error: selectError } = await supabase
+        .from('pev_resources')
+        .select('downloads_count')
+        .eq('id', id)
+        .single()
+
+      if (selectError) {
+        console.warn('Colonne downloads_count peut ne pas exister:', selectError.message)
+        return { success: false }
+      }
+
+      // Incrémenter
+      const newCount = (data?.downloads_count || 0) + 1
+      const { error: updateError } = await supabase
+        .from('pev_resources')
+        .update({ downloads_count: newCount })
+        .eq('id', id)
+
+      if (updateError) {
+        console.error('Erreur update downloads_count:', updateError.message)
+        return { success: false }
+      }
+
+      return { success: true, newCount }
+    } catch (error) {
+      console.error('Erreur incrémentation téléchargements:', error)
+      return { success: false }
     }
   },
 
@@ -159,6 +195,7 @@ export const resourcesService = {
         language: resourceData.language || 'fr',
         tags: resourceData.tags?.length > 0 ? resourceData.tags : null,
         media_url: fileUrl,
+        cover_image_url: coverImageUrl,
         source: resourceData.external_link || null,
         is_free: resourceData.is_free !== false,
         allow_download: resourceData.allow_download !== false,
@@ -193,75 +230,98 @@ export const resourcesService = {
    */
   async saveDraft(resourceData, mainFile = null, coverImage = null) {
     try {
-      let fileUrl = resourceData.file_url || null
-      let coverImageUrl = resourceData.cover_image_url || null
+      console.log('saveDraft SERVICE: mainFile =', mainFile ? mainFile.name : 'null')
+      console.log('saveDraft SERVICE: coverImage =', coverImage ? coverImage.name : 'null')
+      console.log('saveDraft SERVICE: coverImage instanceof File =', coverImage instanceof File)
+      
+      let fileUrl = resourceData.media_url || null
+      let coverUrl = resourceData.cover_image_url || null
 
       // Upload du fichier principal si nouveau
       if (mainFile && mainFile instanceof File) {
-        const fileExt = mainFile.name.split('.').pop()
-        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
-        const filePath = `resources/drafts/${fileName}`
+        try {
+          const fileExt = mainFile.name.split('.').pop()
+          const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+          const filePath = `resources/drafts/${fileName}`
 
-        const { error: uploadError } = await supabase.storage
-          .from('documents')
-          .upload(filePath, mainFile)
-
-        if (!uploadError) {
-          const { data: { publicUrl } } = supabase.storage
+          const { error: uploadError } = await supabase.storage
             .from('documents')
-            .getPublicUrl(filePath)
-          fileUrl = publicUrl
+            .upload(filePath, mainFile)
+
+          if (uploadError) {
+            console.warn('Upload fichier échoué:', uploadError.message)
+          } else {
+            const { data: { publicUrl } } = supabase.storage
+              .from('documents')
+              .getPublicUrl(filePath)
+            fileUrl = publicUrl
+          }
+        } catch (uploadErr) {
+          console.warn('Erreur upload fichier:', uploadErr.message)
         }
       }
 
       // Upload de l'image de couverture si nouvelle
       if (coverImage && coverImage instanceof File) {
-        const imgExt = coverImage.name.split('.').pop()
-        const imgName = `${Date.now()}_cover_${Math.random().toString(36).substring(7)}.${imgExt}`
-        const imgPath = `resources/covers/${imgName}`
+        try {
+          const imgExt = coverImage.name.split('.').pop()
+          const imgName = `${Date.now()}_cover_${Math.random().toString(36).substring(7)}.${imgExt}`
+          const imgPath = `resources/covers/${imgName}`
 
-        const { error: imgError } = await supabase.storage
-          .from('images')
-          .upload(imgPath, coverImage)
-
-        if (!imgError) {
-          const { data: { publicUrl } } = supabase.storage
+          const { error: imgError } = await supabase.storage
             .from('images')
-            .getPublicUrl(imgPath)
-          coverImageUrl = publicUrl
+            .upload(imgPath, coverImage)
+
+          if (imgError) {
+            console.warn('Upload cover échoué:', imgError.message)
+          } else {
+            const { data: { publicUrl } } = supabase.storage
+              .from('images')
+              .getPublicUrl(imgPath)
+            coverUrl = publicUrl
+          }
+        } catch (uploadErr) {
+          console.warn('Erreur upload cover:', uploadErr.message)
         }
       }
 
+      // Conserver URLs existantes si pas de nouveaux fichiers
+      const finalMediaUrl = fileUrl || resourceData.media_url || null
+      const finalCoverUrl = coverUrl || resourceData.cover_image_url || null
+
       const adaptedData = {
         title: resourceData.title || 'Brouillon sans titre',
-        description: resourceData.description,
+        description: resourceData.description || null,
         type: resourceData.type || 'guide',
         sectors: resourceData.sector ? [resourceData.sector] : null,
         difficulty_level: resourceData.difficulty_level || null,
         language: resourceData.language || 'fr',
         tags: resourceData.tags?.length > 0 ? resourceData.tags : null,
-        media_url: fileUrl,
+        media_url: finalMediaUrl,
+        cover_image_url: finalCoverUrl,
         source: resourceData.external_link || null,
         is_free: resourceData.is_free !== false,
         allow_download: resourceData.allow_download !== false,
         allow_sharing: resourceData.allow_sharing !== false,
         status: 'draft',
-        created_by: resourceData.created_by
+        updated_at: new Date().toISOString()
       }
 
       // Update si existe, sinon insert
       if (resourceData.id) {
+        // Pour update, ne pas inclure created_by
         const { data, error } = await supabase
           .from('pev_resources')
           .update(adaptedData)
           .eq('id', resourceData.id)
-          .eq('created_by', resourceData.created_by)
           .select()
           .single()
 
         if (error) throw error
         return { success: true, data }
       } else {
+        // Pour insert, ajouter created_by
+        adaptedData.created_by = resourceData.created_by
         const { data, error } = await supabase
           .from('pev_resources')
           .insert([adaptedData])
@@ -360,19 +420,20 @@ export const resourcesService = {
   },
 
   /**
-   * Incrémenter le compteur de téléchargements
+   * Incrémenter le compteur de téléchargements (DOUBLON - voir ligne 107)
+   * Cette version est conservée pour compatibilité mais redirige vers la bonne colonne
    */
-  async incrementDownloads(resourceId) {
+  async incrementDownloadsLegacy(resourceId) {
     try {
       const { data: resource } = await supabase
         .from('pev_resources')
-        .select('downloads')
+        .select('downloads_count')
         .eq('id', resourceId)
         .single()
 
       await supabase
         .from('pev_resources')
-        .update({ downloads: (resource?.downloads || 0) + 1 })
+        .update({ downloads_count: (resource?.downloads_count || 0) + 1 })
         .eq('id', resourceId)
 
       return { success: true }

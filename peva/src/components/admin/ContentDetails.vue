@@ -170,35 +170,73 @@
         </div>
 
         <div v-else-if="contentType === 'resources'" class="mb-6">
+          <!-- Image de couverture si disponible -->
+          <v-img 
+            v-if="content.cover_image_url" 
+            :src="content.cover_image_url" 
+            height="200" 
+            cover 
+            class="rounded mb-4"
+          />
+          
           <h3 class="text-h6 font-weight-bold mb-3">Détails de la ressource</h3>
           <v-row>
             <v-col cols="6">
               <div class="detail-item">
-                <strong>Type:</strong> {{ content.type }}
+                <strong>Type:</strong> {{ content.type || 'Non spécifié' }}
               </div>
-              <div class="detail-item" v-if="content.language">
-                <strong>Langue:</strong> {{ content.language }}
+              <div class="detail-item">
+                <strong>Langue:</strong> {{ content.language || 'Non spécifié' }}
+              </div>
+              <div class="detail-item" v-if="content.difficulty_level">
+                <strong>Niveau:</strong> {{ content.difficulty_level }}
               </div>
               <div class="detail-item" v-if="content.source">
-                <strong>Source:</strong> {{ content.source }}
+                <strong>Lien externe:</strong> 
+                <a :href="content.source" target="_blank">{{ content.source }}</a>
               </div>
             </v-col>
             <v-col cols="6">
+              <div class="detail-item">
+                <strong>Gratuit:</strong> 
+                <v-chip :color="content.is_free ? 'success' : 'warning'" size="x-small">
+                  {{ content.is_free ? 'Oui' : 'Non' }}
+                </v-chip>
+              </div>
+              <div class="detail-item">
+                <strong>Téléchargement:</strong> 
+                <v-chip :color="content.allow_download ? 'success' : 'error'" size="x-small">
+                  {{ content.allow_download ? 'Autorisé' : 'Non autorisé' }}
+                </v-chip>
+              </div>
+              <div class="detail-item">
+                <strong>Partage:</strong> 
+                <v-chip :color="content.allow_sharing ? 'success' : 'error'" size="x-small">
+                  {{ content.allow_sharing ? 'Autorisé' : 'Non autorisé' }}
+                </v-chip>
+              </div>
               <div class="detail-item" v-if="content.media_url">
-                <strong>URL média:</strong> 
-                <a :href="content.media_url" target="_blank">Voir la ressource</a>
+                <strong>Fichier:</strong> 
+                <v-btn size="small" variant="tonal" color="primary" :href="content.media_url" target="_blank" prepend-icon="mdi-download">
+                  Télécharger
+                </v-btn>
               </div>
             </v-col>
           </v-row>
           
+          <div v-if="content.sectors && content.sectors.length" class="mt-4">
+            <h4 class="text-subtitle-1 font-weight-bold mb-2">Secteurs</h4>
+            <v-chip-group>
+              <v-chip v-for="sector in content.sectors" :key="sector" size="small" color="teal">
+                {{ sector }}
+              </v-chip>
+            </v-chip-group>
+          </div>
+          
           <div v-if="content.tags && content.tags.length" class="mt-4">
             <h4 class="text-subtitle-1 font-weight-bold mb-2">Tags</h4>
             <v-chip-group>
-              <v-chip 
-                v-for="tag in content.tags" 
-                :key="tag"
-                size="small"
-              >
+              <v-chip v-for="tag in content.tags" :key="tag" size="small">
                 {{ tag }}
               </v-chip>
             </v-chip-group>
@@ -401,26 +439,26 @@ const getStatusColor = () => {
 }
 
 const getAuthorName = () => {
-  const profile = props.content.profiles || props.content.profile
+  const profile = props.content.pev_profiles || props.content.profiles || props.content.profile
   if (profile) {
-    return profile.display_name || `${profile.first_name} ${profile.last_name}`
+    return profile.display_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.email
   }
   return 'Utilisateur inconnu'
 }
 
 const getAuthorEmail = () => {
-  const profile = props.content.profiles || props.content.profile
+  const profile = props.content.pev_profiles || props.content.profiles || props.content.profile
   return profile?.email || ''
 }
 
 const getAuthorAvatar = () => {
-  const profile = props.content.profiles || props.content.profile
+  const profile = props.content.pev_profiles || props.content.profiles || props.content.profile
   return profile?.avatar_url || null
 }
 
 const getAuthorOrganization = () => {
-  const profile = props.content.profiles || props.content.profile
-  return profile?.organization || ''
+  const profile = props.content.pev_profiles || props.content.profiles || props.content.profile
+  return profile?.company || profile?.organization || ''
 }
 
 const hasModerationInfo = () => {

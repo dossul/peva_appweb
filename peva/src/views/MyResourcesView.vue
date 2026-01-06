@@ -60,6 +60,14 @@
         lg="4"
       >
         <v-card class="h-100" :class="{ 'border-warning': resource.status === 'draft' }">
+          <!-- Image de couverture si disponible -->
+          <v-img 
+            v-if="resource.cover_image_url" 
+            :src="resource.cover_image_url" 
+            height="120" 
+            cover
+          />
+          
           <!-- Status badge -->
           <div class="pa-3 pb-0">
             <v-chip
