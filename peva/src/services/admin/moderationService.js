@@ -649,5 +649,167 @@ export const moderationService = {
     } catch (error) {
       console.warn('Erreur email modération (ignorée):', error.message)
     }
+  },
+
+  /**
+   * Supprimer un contenu (avec notification si applicable)
+   * @param {string} contentType - Type de contenu
+   * @param {string|number} contentId - ID du contenu
+   * @param {string} reason - Raison de suppression
+   */
+  async deleteContent(contentType, contentId, reason = 'Supprimé par l\'administrateur') {
+    console.log('deleteContent:', { contentType, contentId, reason })
+    
+    try {
+      let notifiedCount = 0
+      
+      switch (contentType) {
+        case 'events':
+          // Notifier les participants avant suppression
+          const eventResult = await this.deleteEventWithNotification(contentId, reason)
+          notifiedCount = eventResult.notifiedCount || 0
+          break
+          
+        case 'opportunities':
+          // Notifier les candidats avant suppression
+          const oppResult = await this.deleteOpportunityWithNotification(contentId, reason)
+          notifiedCount = oppResult.notifiedCount || 0
+          break
+          
+        case 'resources':
+          const { error: resError } = await supabase
+            .from('pev_resources')
+            .delete()
+            .eq('id', contentId)
+          if (resError) throw resError
+          break
+          
+        case 'companies':
+          const { error: compError } = await supabase
+            .from('pev_companies')
+            .delete()
+            .eq('id', contentId)
+          if (compError) throw compError
+          break
+          
+        case 'forum_topics':
+          await supabase.from('pev_forum_posts').delete().eq('topic_id', contentId)
+          const { error: topicError } = await supabase
+            .from('pev_forum_topics')
+            .delete()
+            .eq('id', contentId)
+          if (topicError) throw topicError
+          break
+          
+        default:
+          throw new Error(`Type non supporté: ${contentType}`)
+      }
+      
+      // Logger l'action
+      this.logModerationAction(null, 'delete', contentType, contentId, { reason }).catch(() => {})
+      
+      return { success: true, notifiedCount }
+    } catch (error) {
+      console.error('Erreur deleteContent:', error)
+      return { success: false, error: error.message }
+    }
+  },
+
+  /**
+   * Supprimer événement avec notification participants
+   */
+  async deleteEventWithNotification(eventId, reason) {
+    const { data: event } = await supabase
+      .from('pev_events')
+      .select('title, start_date')
+      .eq('id', eventId)
+      .single()
+
+    // Récupérer les participants
+    const { data: participants } = await supabase
+      .from('pev_event_participants')
+      .select('user_id')
+      .eq('event_id', eventId)
+
+    // Récupérer les profils et envoyer emails
+    let notifiedCount = 0
+    if (participants && participants.length > 0) {
+      const userIds = participants.map(p => p.user_id)
+      const { data: profiles } = await supabase
+        .from('pev_profiles')
+        .select('id, email, first_name, last_name')
+        .in('id', userIds)
+
+      if (profiles && profiles.length > 0) {
+        notifiedCount = profiles.length
+        for (const profile of profiles) {
+          if (profile.email) {
+            emailService.sendTemplateEmail('event_cancelled', profile.email, {
+              recipient_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Participant',
+              event_title: event?.title || 'Événement',
+              event_date: event?.start_date ? new Date(event.start_date).toLocaleDateString('fr-FR') : 'Non définie',
+              cancellation_reason: reason
+            }).catch(e => console.warn('Email erreur:', e))
+          }
+        }
+      }
+    }
+
+    await supabase.from('pev_event_participants').delete().eq('event_id', eventId)
+    await supabase.from('pev_event_comments').delete().eq('event_id', eventId)
+
+    const { error } = await supabase.from('pev_events').delete().eq('id', eventId)
+    if (error) throw error
+
+    return { success: true, notifiedCount }
+  },
+
+  /**
+   * Supprimer opportunité avec notification candidats
+   */
+  async deleteOpportunityWithNotification(opportunityId, reason) {
+    const { data: opportunity } = await supabase
+      .from('pev_opportunities')
+      .select('title, type')
+      .eq('id', opportunityId)
+      .single()
+
+    // Récupérer les candidats
+    const { data: applicants } = await supabase
+      .from('pev_opportunity_applications')
+      .select('user_id')
+      .eq('opportunity_id', opportunityId)
+
+    // Récupérer les profils et envoyer emails
+    let notifiedCount = 0
+    if (applicants && applicants.length > 0) {
+      const userIds = applicants.map(a => a.user_id)
+      const { data: profiles } = await supabase
+        .from('pev_profiles')
+        .select('id, email, first_name, last_name')
+        .in('id', userIds)
+
+      if (profiles && profiles.length > 0) {
+        notifiedCount = profiles.length
+        const platformUrl = typeof window !== 'undefined' ? window.location.origin : 'https://2iegreenhub.org'
+        for (const profile of profiles) {
+          if (profile.email) {
+            emailService.sendTemplateEmail('opportunity_cancelled', profile.email, {
+              recipient_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Candidat',
+              opportunity_title: opportunity?.title || 'Opportunité',
+              cancellation_reason: reason,
+              platform_url: platformUrl
+            }).catch(e => console.warn('Email erreur:', e))
+          }
+        }
+      }
+    }
+
+    await supabase.from('pev_opportunity_applications').delete().eq('opportunity_id', opportunityId)
+
+    const { error } = await supabase.from('pev_opportunities').delete().eq('id', opportunityId)
+    if (error) throw error
+
+    return { success: true, notifiedCount }
   }
 }

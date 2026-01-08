@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { emailService } from '@/services/emailService'
 
 /**
  * Service Events (Frontend) - 2iEGreenHub
@@ -671,10 +672,65 @@ export const eventsService = {
   },
 
   /**
-   * Supprimer un événement (brouillon ou rejeté uniquement)
+   * Supprimer un événement (tous statuts - avec notification participants)
+   * @param {number} eventId - ID de l'événement
+   * @param {string} userId - ID de l'utilisateur qui supprime
+   * @param {string} reason - Raison de la suppression
    */
-  async deleteEvent(eventId) {
+  async deleteEvent(eventId, userId = null, reason = 'Événement annulé') {
     try {
+      // 1. Récupérer l'événement et vérifier propriétaire
+      const { data: event, error: eventError } = await supabase
+        .from('pev_events')
+        .select('id, title, start_date, created_by')
+        .eq('id', eventId)
+        .single()
+
+      if (eventError || !event) {
+        throw new Error('Événement non trouvé')
+      }
+
+      // Vérifier propriétaire si userId fourni
+      if (userId && event.created_by !== userId) {
+        throw new Error('Non autorisé à supprimer cet événement')
+      }
+
+      // 2. Récupérer les participants pour notification
+      const { data: participants } = await supabase
+        .from('pev_event_participants')
+        .select('user_id')
+        .eq('event_id', eventId)
+
+      // 3. Récupérer les profils des participants et envoyer emails
+      let notifiedCount = 0
+      if (participants && participants.length > 0) {
+        const userIds = participants.map(p => p.user_id)
+        
+        const { data: profiles } = await supabase
+          .from('pev_profiles')
+          .select('id, email, first_name, last_name')
+          .in('id', userIds)
+        
+        if (profiles && profiles.length > 0) {
+          notifiedCount = profiles.length
+          for (const profile of profiles) {
+            if (profile.email) {
+              emailService.sendTemplateEmail('event_cancelled', profile.email, {
+                recipient_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Participant',
+                event_title: event.title,
+                event_date: event.start_date ? new Date(event.start_date).toLocaleDateString('fr-FR') : 'Non définie',
+                cancellation_reason: reason
+              }).catch(e => console.warn('Email erreur:', e))
+            }
+          }
+        }
+      }
+
+      // 4. Supprimer participants et commentaires
+      await supabase.from('pev_event_participants').delete().eq('event_id', eventId)
+      await supabase.from('pev_event_comments').delete().eq('event_id', eventId)
+
+      // 5. Supprimer l'événement
       const { error } = await supabase
         .from('pev_events')
         .delete()
@@ -682,7 +738,7 @@ export const eventsService = {
 
       if (error) throw error
 
-      return { success: true }
+      return { success: true, notifiedCount }
     } catch (error) {
       console.error('Erreur suppression événement:', error)
       return { success: false, error: error.message }

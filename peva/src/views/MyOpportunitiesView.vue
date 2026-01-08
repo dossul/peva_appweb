@@ -144,7 +144,7 @@
               </v-btn>
             </template>
 
-            <!-- En attente de modération: Voir -->
+            <!-- En attente de modération: Voir + Supprimer -->
             <template v-else-if="opportunity.status === 'in_review'">
               <v-btn
                 color="primary"
@@ -155,12 +155,16 @@
                 Voir
               </v-btn>
               <v-spacer />
-              <v-chip size="small" color="orange" variant="tonal">
-                En modération
-              </v-chip>
+              <v-btn
+                color="error"
+                variant="text"
+                @click="confirmDelete(opportunity)"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
             </template>
 
-            <!-- Publiée: Voir / Stats -->
+            <!-- Publiée: Voir / Candidatures / Stats + Supprimer -->
             <template v-else>
               <v-btn
                 color="primary"
@@ -170,13 +174,28 @@
                 <v-icon start>mdi-eye</v-icon>
                 Voir
               </v-btn>
+              <v-btn
+                color="secondary"
+                variant="tonal"
+                size="small"
+                :to="`/opportunities/${opportunity.id}/applications`"
+              >
+                <v-icon start size="small">mdi-account-group</v-icon>
+                {{ opportunity.applications_count || 0 }} candidature{{ (opportunity.applications_count || 0) > 1 ? 's' : '' }}
+              </v-btn>
               <v-spacer />
-              <span class="text-caption text-grey">
+              <span class="text-caption text-grey mr-2">
                 <v-icon size="small">mdi-eye</v-icon>
                 {{ opportunity.views_count || 0 }}
-                <v-icon size="small" class="ml-2">mdi-account-multiple</v-icon>
-                {{ opportunity.applications_count || 0 }}
               </span>
+              <v-btn
+                color="error"
+                variant="text"
+                size="small"
+                @click="confirmDelete(opportunity)"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
             </template>
           </v-card-actions>
         </v-card>
@@ -184,19 +203,38 @@
     </v-row>
 
     <!-- Dialog de confirmation de suppression -->
-    <v-dialog v-model="deleteDialog" max-width="400">
+    <v-dialog v-model="deleteDialog" max-width="500">
       <v-card>
         <v-card-title class="text-h6">
           <v-icon color="error" class="mr-2">mdi-alert</v-icon>
-          Supprimer ce brouillon ?
+          Confirmer la suppression
         </v-card-title>
         <v-card-text>
-          Cette action est irréversible. Le brouillon "{{ opportunityToDelete?.title }}" sera définitivement supprimé.
+          <p class="mb-3">
+            Êtes-vous sûr de vouloir supprimer <strong>"{{ opportunityToDelete?.title }}"</strong> ?
+          </p>
+          <v-alert 
+            v-if="opportunityToDelete?.status === 'published'" 
+            type="warning" 
+            density="compact" 
+            class="mb-3"
+          >
+            Cette opportunité est publiée. Les candidats seront notifiés par email.
+          </v-alert>
+          <v-textarea
+            v-model="deleteReason"
+            label="Raison de la suppression (optionnel)"
+            variant="outlined"
+            rows="2"
+            density="compact"
+            placeholder="Ex: Poste pourvu, Offre expirée..."
+          />
+          <p class="text-caption text-grey">Cette action est irréversible.</p>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="deleteDialog = false">Annuler</v-btn>
-          <v-btn color="error" variant="flat" @click="deleteDraft" :loading="deleting">
+          <v-btn color="error" variant="flat" @click="deleteOpportunity" :loading="deleting">
             Supprimer
           </v-btn>
         </v-card-actions>
@@ -400,6 +438,7 @@ const detailsDialog = ref(false)
 const opportunityToDelete = ref(null)
 const selectedOpportunity = ref(null)
 const deleting = ref(false)
+const deleteReason = ref('')
 const snackbar = ref({ show: false, message: '', color: 'success' })
 
 // Computed
@@ -437,19 +476,24 @@ const confirmDelete = (opportunity) => {
   deleteDialog.value = true
 }
 
-const deleteDraft = async () => {
+const deleteOpportunity = async () => {
   if (!opportunityToDelete.value) return
   
   deleting.value = true
   try {
-    const result = await opportunitiesService.deleteDraft(
+    // Utiliser deleteOpportunity pour tous statuts (avec notification candidats)
+    const result = await opportunitiesService.deleteOpportunity(
       opportunityToDelete.value.id,
-      authStore.user?.id
+      authStore.user?.id,
+      deleteReason.value || 'Opportunité retirée par le créateur'
     )
     
     if (result.success) {
       opportunities.value = opportunities.value.filter(o => o.id !== opportunityToDelete.value.id)
-      showMessage('Brouillon supprimé', 'success')
+      const msg = result.notifiedCount > 0 
+        ? `Opportunité supprimée. ${result.notifiedCount} candidat(s) notifié(s).`
+        : 'Opportunité supprimée'
+      showMessage(msg, 'success')
     } else {
       showMessage('Erreur: ' + result.error, 'error')
     }
@@ -459,6 +503,7 @@ const deleteDraft = async () => {
     deleting.value = false
     deleteDialog.value = false
     opportunityToDelete.value = null
+    deleteReason.value = ''
   }
 }
 

@@ -486,6 +486,44 @@ export const resourcesService = {
       console.error('Erreur lors de la suppression des favoris:', error)
       return { success: false, error: error.message }
     }
+  },
+
+  /**
+   * Supprimer une ressource (tous statuts)
+   * @param {string} resourceId - ID de la ressource
+   * @param {string} userId - ID de l'utilisateur qui supprime
+   */
+  async deleteResource(resourceId, userId = null) {
+    try {
+      // 1. Récupérer la ressource et vérifier propriétaire
+      const { data: resource, error: resError } = await supabase
+        .from('pev_resources')
+        .select('id, title, created_by')
+        .eq('id', resourceId)
+        .single()
+
+      if (resError || !resource) {
+        throw new Error('Ressource non trouvée')
+      }
+
+      // Vérifier propriétaire si userId fourni
+      if (userId && resource.created_by !== userId) {
+        throw new Error('Non autorisé à supprimer cette ressource')
+      }
+
+      // 2. Supprimer la ressource
+      const { error } = await supabase
+        .from('pev_resources')
+        .delete()
+        .eq('id', resourceId)
+
+      if (error) throw error
+
+      return { success: true }
+    } catch (error) {
+      console.error('Erreur suppression ressource:', error)
+      return { success: false, error: error.message }
+    }
   }
 }
 

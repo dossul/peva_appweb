@@ -10,6 +10,8 @@ export { forumService } from './forumService'
 export { groupService } from './groupService'
 export { eventsService } from './eventsService'
 export { emailTemplatesService } from './emailTemplatesService'
+export { reportsService } from './reportsService'
+export { contentManagementService } from './contentManagementService'
 
 // Service admin principal (existant)
 export { adminService } from '../adminService'

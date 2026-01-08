@@ -406,6 +406,16 @@
         </v-card-text>
 
         <v-card-actions class="pa-4">
+          <v-btn
+            v-if="authStore.isAuthenticated && selectedOpportunity?.created_by !== authStore.user?.id"
+            variant="text"
+            color="error"
+            size="small"
+            @click="openReportDialog(selectedOpportunity)"
+          >
+            <v-icon start size="small">mdi-flag</v-icon>
+            Signaler
+          </v-btn>
           <v-spacer />
           <v-btn variant="outlined" @click="showDetailsDialog = false">
             Fermer
@@ -417,6 +427,81 @@
             @click="applyToOpportunity(selectedOpportunity)"
           >
             {{ selectedOpportunity?.created_by === authStore.user?.id ? 'Votre opportunité' : 'Postuler' }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog de signalement -->
+    <ReportContentDialog
+      v-model="reportDialog"
+      target-type="opportunity"
+      :target-id="opportunityToReport?.id || ''"
+      :content-title="opportunityToReport?.title || ''"
+      @reported="handleReported"
+    />
+
+    <!-- Dialog de candidature -->
+    <v-dialog v-model="applyDialog" max-width="600" persistent>
+      <v-card>
+        <v-card-title class="d-flex align-center">
+          <v-icon color="secondary" class="mr-2">mdi-file-document-edit</v-icon>
+          Postuler à cette opportunité
+        </v-card-title>
+        <v-card-text>
+          <p class="text-body-2 text-grey mb-4">
+            <strong>{{ opportunityToApply?.title }}</strong>
+          </p>
+          
+          <v-textarea
+            v-model="applicationForm.cover_letter"
+            label="Lettre de motivation"
+            variant="outlined"
+            rows="4"
+            placeholder="Présentez-vous et expliquez pourquoi vous êtes intéressé(e)..."
+            class="mb-3"
+          />
+          
+          <v-file-input
+            v-model="applicationForm.resumeFile"
+            label="CV (PDF, DOC, DOCX)"
+            variant="outlined"
+            prepend-icon="mdi-file-document"
+            accept=".pdf,.doc,.docx"
+            hint="Max 5 MB"
+            class="mb-3"
+          />
+          
+          <v-file-input
+            v-model="applicationForm.portfolioFile"
+            label="Portfolio ou document complémentaire (optionnel)"
+            variant="outlined"
+            prepend-icon="mdi-folder-open"
+            accept=".pdf,.doc,.docx,.zip"
+            hint="Max 10 MB"
+            class="mb-3"
+          />
+          
+          <v-textarea
+            v-model="applicationForm.applicant_notes"
+            label="Notes additionnelles (optionnel)"
+            variant="outlined"
+            rows="2"
+            placeholder="Informations supplémentaires..."
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="applyDialog = false" :disabled="submitting">
+            Annuler
+          </v-btn>
+          <v-btn 
+            color="secondary" 
+            variant="flat" 
+            @click="submitApplication"
+            :loading="submitting"
+          >
+            Envoyer ma candidature
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -455,6 +540,7 @@ import { useAuthStore } from '@/stores/auth'
 import { opportunitiesService } from '@/services/opportunitiesService'
 import { emailService } from '@/services/emailService'
 import { supabase } from '@/lib/supabase'
+import ReportContentDialog from '@/components/ReportContentDialog.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -465,6 +551,21 @@ const loading = ref(false)
 const stats = ref({})
 const selectedOpportunity = ref(null)
 const showDetailsDialog = ref(false)
+
+// Candidature
+const applyDialog = ref(false)
+const opportunityToApply = ref(null)
+const submitting = ref(false)
+
+// Signalement
+const reportDialog = ref(false)
+const opportunityToReport = ref(null)
+const applicationForm = ref({
+  cover_letter: '',
+  resumeFile: null,
+  portfolioFile: null,
+  applicant_notes: ''
+})
 
 // Reactive data
 const searchQuery = ref('')
@@ -718,16 +819,50 @@ const applyToOpportunity = async (opportunity) => {
       return
     }
 
-    // Créer la candidature
-    const { error } = await supabase
-      .from('pev_opportunity_applications')
-      .insert({
-        opportunity_id: opportunity.id,
-        user_id: userId,
-        status: 'pending'
-      })
+    // Ouvrir le dialog de candidature
+    opportunityToApply.value = opportunity
+    applicationForm.value = {
+      cover_letter: '',
+      resumeFile: null,
+      portfolioFile: null,
+      applicant_notes: ''
+    }
+    applyDialog.value = true
+  } catch (error) {
+    // Erreur vérification = pas de candidature existante, ouvrir le dialog
+    opportunityToApply.value = opportunity
+    applicationForm.value = {
+      cover_letter: '',
+      resumeFile: null,
+      portfolioFile: null,
+      applicant_notes: ''
+    }
+    applyDialog.value = true
+  }
+}
 
-    if (error) throw error
+const submitApplication = async () => {
+  if (!opportunityToApply.value) return
+  
+  submitting.value = true
+  try {
+    const userId = authStore.user?.id
+    const opportunity = opportunityToApply.value
+    
+    // Utiliser le service avec upload
+    const result = await opportunitiesService.applyToOpportunity(
+      opportunity.id,
+      {
+        user_id: userId,
+        cover_letter: applicationForm.value.cover_letter,
+        applicant_notes: applicationForm.value.applicant_notes,
+        status: 'pending'
+      },
+      applicationForm.value.resumeFile?.[0] || null,
+      applicationForm.value.portfolioFile?.[0] || null
+    )
+
+    if (!result.success) throw new Error(result.error)
 
     // Envoyer email de confirmation au candidat
     try {
@@ -766,10 +901,14 @@ const applyToOpportunity = async (opportunity) => {
       console.warn('Erreur envoi email créateur:', emailError)
     }
 
-    showMessage('Candidature envoyée ! Un email de confirmation vous a été envoyé.', 'success')
+    applyDialog.value = false
+    showDetailsDialog.value = false
+    showMessage('Candidature envoyée avec succès !', 'success')
   } catch (error) {
     console.error('Erreur candidature:', error)
-    showMessage('Erreur lors de l\'envoi de la candidature', 'error')
+    showMessage('Erreur lors de l\'envoi de la candidature: ' + error.message, 'error')
+  } finally {
+    submitting.value = false
   }
 }
 
@@ -805,6 +944,16 @@ const toggleFavorite = async (opportunity) => {
     console.error('Erreur favori:', error)
     showMessage('Erreur lors de la gestion des favoris', 'error')
   }
+}
+
+const openReportDialog = (opportunity) => {
+  opportunityToReport.value = opportunity
+  reportDialog.value = true
+}
+
+const handleReported = () => {
+  showMessage('Signalement envoyé. Notre équipe l\'examinera rapidement.', 'success')
+  showDetailsDialog.value = false
 }
 
 const scrollToTop = () => {

@@ -162,7 +162,7 @@
               </v-btn>
             </template>
 
-            <!-- En attente de modération: Voir -->
+            <!-- En attente de modération: Voir + Supprimer -->
             <template v-else-if="resource.status === 'in_review'">
               <v-btn
                 color="teal-darken-2"
@@ -173,12 +173,16 @@
                 Voir
               </v-btn>
               <v-spacer />
-              <v-chip size="small" color="orange" variant="tonal">
-                En modération
-              </v-chip>
+              <v-btn
+                color="error"
+                variant="text"
+                @click="confirmDelete(resource)"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
             </template>
 
-            <!-- Publiée: Voir / Stats -->
+            <!-- Publiée: Voir / Stats + Supprimer -->
             <template v-else>
               <v-btn
                 color="teal-darken-2"
@@ -189,12 +193,20 @@
                 Voir
               </v-btn>
               <v-spacer />
-              <span class="text-caption text-grey">
+              <span class="text-caption text-grey mr-2">
                 <v-icon size="small">mdi-eye</v-icon>
                 {{ resource.views_count || 0 }}
                 <v-icon size="small" class="ml-2">mdi-download</v-icon>
                 {{ resource.downloads_count || 0 }}
               </span>
+              <v-btn
+                color="error"
+                variant="text"
+                size="small"
+                @click="confirmDelete(resource)"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
             </template>
           </v-card-actions>
         </v-card>
@@ -202,19 +214,22 @@
     </v-row>
 
     <!-- Dialog de confirmation de suppression -->
-    <v-dialog v-model="deleteDialog" max-width="400">
+    <v-dialog v-model="deleteDialog" max-width="450">
       <v-card>
         <v-card-title class="text-h6">
           <v-icon color="error" class="mr-2">mdi-alert</v-icon>
-          Supprimer ce brouillon ?
+          Confirmer la suppression
         </v-card-title>
         <v-card-text>
-          Cette action est irréversible. Le brouillon "{{ resourceToDelete?.title }}" sera définitivement supprimé.
+          <p class="mb-3">
+            Êtes-vous sûr de vouloir supprimer <strong>"{{ resourceToDelete?.title }}"</strong> ?
+          </p>
+          <p class="text-caption text-grey">Cette action est irréversible.</p>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="deleteDialog = false">Annuler</v-btn>
-          <v-btn color="error" variant="flat" @click="deleteDraft" :loading="deleting">
+          <v-btn color="error" variant="flat" @click="deleteResource" :loading="deleting">
             Supprimer
           </v-btn>
         </v-card-actions>
@@ -385,19 +400,20 @@ const confirmDelete = (resource) => {
   deleteDialog.value = true
 }
 
-const deleteDraft = async () => {
+const deleteResource = async () => {
   if (!resourceToDelete.value) return
   
   deleting.value = true
   try {
-    const result = await resourcesService.deleteDraft(
+    // Utiliser deleteResource pour tous statuts
+    const result = await resourcesService.deleteResource(
       resourceToDelete.value.id,
       authStore.user?.id
     )
     
     if (result.success) {
       resources.value = resources.value.filter(r => r.id !== resourceToDelete.value.id)
-      showMessage('Brouillon supprimé', 'success')
+      showMessage('Ressource supprimée', 'success')
     } else {
       showMessage('Erreur: ' + result.error, 'error')
     }

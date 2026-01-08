@@ -216,6 +216,15 @@
         </v-card-text>
         
         <v-card-actions>
+          <v-btn 
+            color="error" 
+            variant="outlined"
+            @click="showDeleteDialog"
+            :disabled="!selectedContent?.id"
+          >
+            <v-icon class="mr-2">mdi-delete</v-icon>
+            Supprimer
+          </v-btn>
           <v-spacer />
           <v-btn 
             color="error" 
@@ -270,6 +279,42 @@
       </v-card>
     </v-dialog>
 
+    <!-- Dialog de suppression -->
+    <v-dialog v-model="deleteDialog" max-width="500">
+      <v-card>
+        <v-card-title class="text-error">
+          <v-icon class="mr-2">mdi-alert</v-icon>
+          Confirmer la suppression
+        </v-card-title>
+        <v-card-text>
+          <p class="mb-4">
+            Êtes-vous sûr de vouloir supprimer définitivement ce contenu ?
+            <strong>{{ selectedContent?.title || selectedContent?.name }}</strong>
+          </p>
+          <v-alert v-if="selectedContentType === 'events'" type="warning" density="compact" class="mb-3">
+            Les participants inscrits seront notifiés par email.
+          </v-alert>
+          <v-alert v-if="selectedContentType === 'opportunities'" type="warning" density="compact" class="mb-3">
+            Les candidats seront notifiés par email.
+          </v-alert>
+          <v-textarea
+            v-model="deleteReason"
+            label="Raison de la suppression"
+            variant="outlined"
+            rows="2"
+            placeholder="Ex: Contenu inapproprié, Demande du créateur..."
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="deleteDialog = false">Annuler</v-btn>
+          <v-btn color="error" variant="flat" @click="executeDeleteContent" :loading="deleting">
+            Supprimer définitivement
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Snackbar pour les notifications -->
     <v-snackbar
       v-model="snackbar.show"
@@ -313,10 +358,13 @@ const stats = ref({
 // Dialogs
 const detailsDialog = ref(false)
 const rejectDialog = ref(false)
+const deleteDialog = ref(false)
 const selectedContent = ref(null)
 const selectedContentType = ref('')
 const moderationHistory = ref([])
 const rejectReason = ref('')
+const deleteReason = ref('')
+const deleting = ref(false)
 
 // Snackbar
 const snackbar = ref({
@@ -415,6 +463,40 @@ const viewDetails = async (contentType, content) => {
 const showRejectDialog = () => {
   rejectDialog.value = true
   rejectReason.value = ''
+}
+
+const showDeleteDialog = () => {
+  deleteReason.value = ''
+  deleteDialog.value = true
+}
+
+const executeDeleteContent = async () => {
+  if (!selectedContent.value?.id) return
+  
+  deleting.value = true
+  try {
+    const result = await moderationService.deleteContent(
+      selectedContentType.value,
+      selectedContent.value.id,
+      deleteReason.value || 'Supprimé par l\'administrateur'
+    )
+    
+    if (result.success) {
+      const msg = result.notifiedCount > 0 
+        ? `Contenu supprimé. ${result.notifiedCount} personne(s) notifiée(s).`
+        : 'Contenu supprimé'
+      showMessage(msg, 'success')
+      deleteDialog.value = false
+      detailsDialog.value = false
+      await loadAllStats()
+    } else {
+      showMessage('Erreur: ' + result.error, 'error')
+    }
+  } catch (error) {
+    showMessage('Erreur: ' + error.message, 'error')
+  } finally {
+    deleting.value = false
+  }
 }
 
 const confirmReject = () => {

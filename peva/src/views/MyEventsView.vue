@@ -152,7 +152,6 @@
             </v-btn>
             <v-spacer />
             <v-btn
-              v-if="event.status === 'draft' || event.status === 'rejected'"
               color="error"
               variant="text"
               size="small"
@@ -166,12 +165,33 @@
     </v-row>
 
     <!-- Dialog de confirmation de suppression -->
-    <v-dialog v-model="deleteDialog" max-width="400">
+    <v-dialog v-model="deleteDialog" max-width="500">
       <v-card>
-        <v-card-title class="text-h6">Confirmer la suppression</v-card-title>
+        <v-card-title class="text-h6">
+          <v-icon color="error" class="mr-2">mdi-alert</v-icon>
+          Confirmer la suppression
+        </v-card-title>
         <v-card-text>
-          Êtes-vous sûr de vouloir supprimer "{{ eventToDelete?.title }}" ?
-          Cette action est irréversible.
+          <p class="mb-3">
+            Êtes-vous sûr de vouloir supprimer <strong>"{{ eventToDelete?.title }}"</strong> ?
+          </p>
+          <v-alert 
+            v-if="eventToDelete?.status === 'published'" 
+            type="warning" 
+            density="compact" 
+            class="mb-3"
+          >
+            Cet événement est publié. Les participants inscrits seront notifiés par email.
+          </v-alert>
+          <v-textarea
+            v-model="deleteReason"
+            label="Raison de la suppression (optionnel)"
+            variant="outlined"
+            rows="2"
+            density="compact"
+            placeholder="Ex: Événement reporté, Annulation..."
+          />
+          <p class="text-caption text-grey">Cette action est irréversible.</p>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
@@ -203,6 +223,7 @@ const events = ref([])
 const deleteDialog = ref(false)
 const eventToDelete = ref(null)
 const deleting = ref(false)
+const deleteReason = ref('')
 const snackbar = ref({ show: false, message: '', color: 'success' })
 
 // Filtres
@@ -274,10 +295,17 @@ const deleteEvent = async () => {
   if (!eventToDelete.value) return
   deleting.value = true
   try {
-    const result = await eventsService.deleteEvent(eventToDelete.value.id)
+    const result = await eventsService.deleteEvent(
+      eventToDelete.value.id,
+      authStore.user?.id,
+      deleteReason.value || 'Événement annulé par l\'organisateur'
+    )
     if (result.success) {
       events.value = events.value.filter(e => e.id !== eventToDelete.value.id)
-      snackbar.value = { show: true, message: 'Événement supprimé', color: 'success' }
+      const msg = result.notifiedCount > 0 
+        ? `Événement supprimé. ${result.notifiedCount} participant(s) notifié(s).`
+        : 'Événement supprimé'
+      snackbar.value = { show: true, message: msg, color: 'success' }
     } else {
       snackbar.value = { show: true, message: result.error || 'Erreur suppression', color: 'error' }
     }
@@ -287,6 +315,7 @@ const deleteEvent = async () => {
     deleting.value = false
     deleteDialog.value = false
     eventToDelete.value = null
+    deleteReason.value = ''
   }
 }
 

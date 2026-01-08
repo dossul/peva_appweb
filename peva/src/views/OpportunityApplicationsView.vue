@@ -121,6 +121,43 @@
                   <div class="mt-1 text-grey-darken-1">
                     Candidature reçue le {{ formatDate(application.created_at) }}
                   </div>
+                  <!-- Documents joints -->
+                  <div v-if="application.resume_url || application.portfolio_url" class="d-flex align-center ga-2 mt-2">
+                    <v-btn
+                      v-if="application.resume_url"
+                      size="x-small"
+                      variant="tonal"
+                      color="primary"
+                      :href="application.resume_url"
+                      target="_blank"
+                    >
+                      <v-icon start size="14">mdi-file-document</v-icon>
+                      CV
+                    </v-btn>
+                    <v-btn
+                      v-if="application.portfolio_url"
+                      size="x-small"
+                      variant="tonal"
+                      color="secondary"
+                      :href="application.portfolio_url"
+                      target="_blank"
+                    >
+                      <v-icon start size="14">mdi-folder-open</v-icon>
+                      Portfolio
+                    </v-btn>
+                  </div>
+                  <!-- Lettre de motivation -->
+                  <div v-if="application.cover_letter" class="mt-2">
+                    <v-btn
+                      size="x-small"
+                      variant="text"
+                      color="info"
+                      @click="viewCoverLetter(application)"
+                    >
+                      <v-icon start size="14">mdi-text-box</v-icon>
+                      Voir la lettre de motivation
+                    </v-btn>
+                  </div>
                 </v-list-item-subtitle>
 
                 <template #append>
@@ -206,6 +243,28 @@
       </v-card>
     </v-dialog>
 
+    <!-- Dialog lettre de motivation -->
+    <v-dialog v-model="coverLetterDialog" max-width="600">
+      <v-card>
+        <v-card-title class="d-flex align-center">
+          <v-icon color="info" class="mr-2">mdi-text-box</v-icon>
+          Lettre de motivation
+        </v-card-title>
+        <v-card-subtitle v-if="selectedApplication">
+          {{ selectedApplication.user?.first_name }} {{ selectedApplication.user?.last_name }}
+        </v-card-subtitle>
+        <v-card-text>
+          <div class="pa-3 bg-grey-lighten-4 rounded" style="white-space: pre-wrap;">
+            {{ selectedApplication?.cover_letter || 'Aucune lettre de motivation fournie.' }}
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="coverLetterDialog = false">Fermer</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Snackbar -->
     <v-snackbar v-model="showSnackbar" :color="snackbarColor" timeout="4000">
       {{ snackbarMessage }}
@@ -231,17 +290,20 @@ const accessDenied = ref(false)
 const opportunity = ref(null)
 const applications = ref([])
 const processingId = ref(null)
-
 const statusFilter = ref('all')
 const searchQuery = ref('')
-
 const rejectDialog = ref(false)
 const selectedApplication = ref(null)
 const rejectReason = ref('')
-
+const coverLetterDialog = ref(false)
 const showSnackbar = ref(false)
 const snackbarMessage = ref('')
 const snackbarColor = ref('success')
+
+const viewCoverLetter = (application) => {
+  selectedApplication.value = application
+  coverLetterDialog.value = true
+}
 
 const stats = computed(() => ({
   total: applications.value.length,
@@ -300,7 +362,7 @@ const loadData = async () => {
       .from('pev_opportunity_applications')
       .select(`
         *,
-        user:user_id(id, first_name, last_name, email, avatar_url, organization)
+        user:user_id(id, first_name, last_name, email, avatar_url)
       `)
       .eq('opportunity_id', opportunityId.value)
       .order('created_at', { ascending: false })

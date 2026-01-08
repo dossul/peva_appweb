@@ -158,6 +158,13 @@
                     color="error"
                     @click="showRejectDialog(item)"
                   />
+                  <v-btn
+                    icon="mdi-delete"
+                    size="small"
+                    variant="text"
+                    color="error"
+                    @click="showDeleteDialog(item)"
+                  />
                 </div>
               </div>
             </div>
@@ -225,6 +232,41 @@
       </v-card>
     </v-dialog>
 
+    <!-- Dialog de suppression individuel -->
+    <v-dialog v-model="deleteDialog" max-width="500">
+      <v-card v-if="itemToDelete">
+        <v-card-title class="text-error">
+          <v-icon class="mr-2">mdi-alert</v-icon>
+          Supprimer définitivement
+        </v-card-title>
+        <v-card-text>
+          <p class="mb-3">
+            <strong>{{ getItemTitle(itemToDelete) }}</strong>
+          </p>
+          <v-alert v-if="contentType === 'events'" type="warning" density="compact" class="mb-3">
+            Les participants seront notifiés par email.
+          </v-alert>
+          <v-alert v-if="contentType === 'opportunities'" type="warning" density="compact" class="mb-3">
+            Les candidats seront notifiés par email.
+          </v-alert>
+          <v-textarea
+            v-model="deleteReason"
+            label="Raison de la suppression"
+            variant="outlined"
+            rows="2"
+            placeholder="Ex: Contenu inapproprié..."
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="deleteDialog = false">Annuler</v-btn>
+          <v-btn color="error" variant="flat" @click="confirmDelete" :loading="deleting">
+            Supprimer
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Dialog de rejet en masse -->
     <v-dialog v-model="bulkRejectDialog" max-width="500">
       <v-card>
@@ -274,7 +316,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['approve', 'reject', 'view-details', 'bulk-action'])
+const emit = defineEmits(['approve', 'reject', 'delete', 'view-details', 'bulk-action'])
 
 // État réactif
 const items = ref([])
@@ -292,9 +334,13 @@ const pagination = ref({
 // Dialogs
 const rejectDialog = ref(false)
 const bulkRejectDialog = ref(false)
+const deleteDialog = ref(false)
 const itemToReject = ref(null)
+const itemToDelete = ref(null)
 const rejectReason = ref('')
 const bulkRejectReason = ref('')
+const deleteReason = ref('')
+const deleting = ref(false)
 
 // Méthodes
 const loadContent = async () => {
@@ -361,6 +407,36 @@ const confirmReject = () => {
   if (itemToReject.value && rejectReason.value.trim()) {
     emit('reject', props.contentType, itemToReject.value.id, rejectReason.value)
     rejectDialog.value = false
+  }
+}
+
+const showDeleteDialog = (item) => {
+  itemToDelete.value = item
+  deleteReason.value = ''
+  deleteDialog.value = true
+}
+
+const confirmDelete = async () => {
+  if (!itemToDelete.value) return
+  
+  deleting.value = true
+  try {
+    const result = await moderationService.deleteContent(
+      props.contentType,
+      itemToDelete.value.id,
+      deleteReason.value || 'Supprimé par l\'administrateur'
+    )
+    
+    if (result.success) {
+      items.value = items.value.filter(i => i.id !== itemToDelete.value.id)
+      emit('delete', props.contentType, itemToDelete.value.id, result.notifiedCount)
+    }
+  } catch (error) {
+    console.error('Erreur suppression:', error)
+  } finally {
+    deleting.value = false
+    deleteDialog.value = false
+    itemToDelete.value = null
   }
 }
 

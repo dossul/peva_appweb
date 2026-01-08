@@ -166,3 +166,55 @@ Toute modification de schéma DOIT :
 - **Où sont les routes ?** → `peva/src/router/index.js`
 - **Où est la config Supabase ?** → `peva/src/lib/supabase.js`
 - **Où sont les styles globaux ?** → `peva/src/assets/main.css` (ou Tailwind)
+
+---
+
+## ⚠️ Erreurs Courantes à Éviter
+
+### 1. Erreur 400 - Colonne inexistante dans jointure Supabase
+**Symptôme** : `column pev_profiles_1.XXXX does not exist`
+
+**Cause** : Tentative de sélectionner une colonne qui n'existe pas dans la table jointe.
+
+**Exemple d'erreur** :
+```javascript
+// ❌ MAUVAIS - 'organization' n'existe pas dans pev_profiles
+user:user_id(id, first_name, last_name, email, avatar_url, organization)
+```
+
+**Solution** :
+```javascript
+// ✅ BON - Seulement les colonnes qui existent
+user:user_id(id, first_name, last_name, email, avatar_url)
+```
+
+**Prévention** :
+1. Faire un `grep_search` pour `from('pev_TABLE').select` avant d'écrire une jointure
+2. Vérifier les colonnes utilisées dans les autres services
+3. Ne JAMAIS supposer qu'une colonne existe
+
+### 2. Variables réactives non définies
+**Symptôme** : `ReferenceError: variableName is not defined`
+
+**Cause** : Utilisation d'une variable dans une fonction sans l'avoir déclarée avec `ref()`.
+
+**Solution** : Toujours déclarer les refs au début du `<script setup>` :
+```javascript
+const showSnackbar = ref(false)
+const snackbarMessage = ref('')
+const snackbarColor = ref('success')
+```
+
+### 3. Colonnes connues de pev_profiles
+| Colonne | Type |
+|---------|------|
+| `id` | UUID |
+| `first_name`, `last_name` | text |
+| `email` | text |
+| `avatar_url` | text |
+| `phone` | text |
+| `role` | user_role_global |
+| `onboarding_completed` | boolean |
+| `country` | text |
+
+> ⚠️ **PAS de colonne `organization`** - Cette info est dans `pev_companies`

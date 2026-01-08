@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { emailService } from '@/services/emailService'
 
 export const opportunitiesService = {
   // Récupérer toutes les opportunités avec filtres
@@ -201,14 +202,56 @@ export const opportunitiesService = {
     }
   },
 
-  // Postuler à une opportunité
-  async applyToOpportunity(opportunityId, applicationData) {
+  /**
+   * Postuler à une opportunité avec upload de documents
+   * @param {string} opportunityId - ID de l'opportunité
+   * @param {Object} applicationData - Données de candidature (user_id, cover_letter, etc.)
+   * @param {File} resumeFile - Fichier CV (optionnel)
+   * @param {File} portfolioFile - Fichier portfolio (optionnel)
+   */
+  async applyToOpportunity(opportunityId, applicationData, resumeFile = null, portfolioFile = null) {
     try {
+      let resume_url = applicationData.resume_url || null
+      let portfolio_url = applicationData.portfolio_url || null
+
+      // Upload CV si fourni
+      if (resumeFile) {
+        const fileName = `applications/${opportunityId}/${applicationData.user_id}/cv_${Date.now()}_${resumeFile.name}`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(fileName, resumeFile, { upsert: true })
+
+        if (uploadError) {
+          console.warn('Erreur upload CV:', uploadError)
+        } else {
+          const { data: urlData } = supabase.storage.from('documents').getPublicUrl(fileName)
+          resume_url = urlData?.publicUrl
+        }
+      }
+
+      // Upload portfolio si fourni
+      if (portfolioFile) {
+        const fileName = `applications/${opportunityId}/${applicationData.user_id}/portfolio_${Date.now()}_${portfolioFile.name}`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(fileName, portfolioFile, { upsert: true })
+
+        if (uploadError) {
+          console.warn('Erreur upload portfolio:', uploadError)
+        } else {
+          const { data: urlData } = supabase.storage.from('documents').getPublicUrl(fileName)
+          portfolio_url = urlData?.publicUrl
+        }
+      }
+
+      // Insérer la candidature
       const { data, error } = await supabase
         .from('pev_opportunity_applications')
         .insert([{
           opportunity_id: opportunityId,
-          ...applicationData
+          ...applicationData,
+          resume_url,
+          portfolio_url
         }])
         .select()
         .single()
@@ -463,6 +506,80 @@ export const opportunitiesService = {
         success: false,
         error: error.message
       }
+    }
+  },
+
+  /**
+   * Supprimer une opportunité (tous statuts - avec notification candidats)
+   * @param {string} opportunityId - ID de l'opportunité
+   * @param {string} userId - ID de l'utilisateur qui supprime
+   * @param {string} reason - Raison de la suppression
+   */
+  async deleteOpportunity(opportunityId, userId = null, reason = 'Opportunité retirée') {
+    try {
+      // 1. Récupérer l'opportunité et vérifier propriétaire
+      const { data: opportunity, error: oppError } = await supabase
+        .from('pev_opportunities')
+        .select('id, title, type, created_by')
+        .eq('id', opportunityId)
+        .single()
+
+      if (oppError || !opportunity) {
+        throw new Error('Opportunité non trouvée')
+      }
+
+      // Vérifier propriétaire si userId fourni
+      if (userId && opportunity.created_by !== userId) {
+        throw new Error('Non autorisé à supprimer cette opportunité')
+      }
+
+      // 2. Récupérer les candidats pour notification
+      const { data: applicants } = await supabase
+        .from('pev_opportunity_applications')
+        .select('user_id')
+        .eq('opportunity_id', opportunityId)
+
+      // 3. Récupérer les profils et envoyer emails
+      let notifiedCount = 0
+      if (applicants && applicants.length > 0) {
+        const userIds = applicants.map(a => a.user_id)
+        
+        const { data: profiles } = await supabase
+          .from('pev_profiles')
+          .select('id, email, first_name, last_name')
+          .in('id', userIds)
+        
+        if (profiles && profiles.length > 0) {
+          notifiedCount = profiles.length
+          const platformUrl = typeof window !== 'undefined' ? window.location.origin : 'https://2iegreenhub.org'
+          for (const profile of profiles) {
+            if (profile.email) {
+              emailService.sendTemplateEmail('opportunity_cancelled', profile.email, {
+                recipient_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Candidat',
+                opportunity_title: opportunity.title,
+                cancellation_reason: reason,
+                platform_url: platformUrl
+              }).catch(e => console.warn('Email erreur:', e))
+            }
+          }
+        }
+      }
+
+      // 4. Supprimer candidatures
+      await supabase.from('pev_opportunity_applications').delete().eq('opportunity_id', opportunityId)
+
+      // 5. Supprimer l'opportunité
+      const { error } = await supabase
+        .from('pev_opportunities')
+        .delete()
+        .eq('id', opportunityId)
+
+      if (error) throw error
+
+      return { success: true, notifiedCount }
+    } catch (error) {
+      console.error('Erreur suppression opportunité:', error)
+      return { success: false, error: error.message }
     }
   }
 }

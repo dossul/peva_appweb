@@ -240,6 +240,17 @@
                 >
                   Consulter
                 </v-btn>
+                <v-btn
+                  v-if="authStore.isAuthenticated && resource.created_by !== authStore.user?.id"
+                  icon
+                  size="x-small"
+                  variant="text"
+                  color="grey"
+                  @click.stop="openReportDialog(resource)"
+                >
+                  <v-icon size="16">mdi-flag-outline</v-icon>
+                  <v-tooltip activator="parent" location="top">Signaler</v-tooltip>
+                </v-btn>
                 <v-spacer />
                 <v-btn
                   v-if="resource.media_url"
@@ -326,6 +337,15 @@
     </v-container>
 
     <!-- Success Snackbar -->
+    <!-- Dialog de signalement -->
+    <ReportContentDialog
+      v-model="reportDialog"
+      target-type="resource"
+      :target-id="resourceToReport?.id || ''"
+      :content-title="resourceToReport?.title || ''"
+      @reported="handleReported"
+    />
+
     <v-snackbar
       v-model="snackbar.show"
       :color="snackbar.color"
@@ -347,6 +367,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { viewsService } from '@/services/viewsService'
 import { resourcesService } from '@/services/resourcesService'
+import ReportContentDialog from '@/components/ReportContentDialog.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -357,6 +378,10 @@ const selectedType = ref(null)
 const selectedSector = ref(null)
 const selectedLevel = ref(null)
 const loading = ref(false)
+
+// Signalement
+const reportDialog = ref(false)
+const resourceToReport = ref(null)
 const resources = ref([])
 
 const filters = ref({
@@ -505,6 +530,15 @@ const showMessage = (message, color = 'success') => {
     message,
     color
   }
+}
+
+const openReportDialog = (resource) => {
+  resourceToReport.value = resource
+  reportDialog.value = true
+}
+
+const handleReported = () => {
+  snackbar.value = { show: true, message: 'Signalement envoyé. Notre équipe l\'examinera rapidement.', color: 'success' }
 }
 
 // Charger les ressources depuis la BDD

@@ -552,7 +552,7 @@ const showPendingActions = () => {
 }
 
 const showReports = () => {
-  showMessage('Redirection vers les signalements', 'info')
+  router.push('/admin/reports')
 }
 
 const seeAllActivity = () => {
@@ -560,11 +560,11 @@ const seeAllActivity = () => {
 }
 
 const seeAllReports = () => {
-  showMessage('Redirection vers tous les signalements', 'info')
+  router.push('/admin/reports')
 }
 
 const handleReport = (report) => {
-  showMessage(`Traitement du signalement: ${report.content}`, 'success')
+  router.push(`/admin/reports?id=${report.id}`)
 }
 
 // Fonctions admin pour les opportunités
@@ -733,21 +733,35 @@ const loadRecentActivities = async () => {
 // Charger les signalements (si table existe)
 const loadPriorityReports = async () => {
   try {
-    // Vérifier si une table de signalements existe
-    const { data, error } = await supabase
+    // Récupérer les signalements en attente
+    const { data: reports, error } = await supabase
       .from('pev_reports')
-      .select('id, content, reporter_id, priority, created_at, pev_profiles:reporter_id(first_name, last_name)')
+      .select('id, content, reporter_id, priority, status, created_at')
+      .eq('status', 'pending')
       .order('created_at', { ascending: false })
       .limit(5)
 
-    if (!error && data) {
-      priorityReports.value = data.map(report => ({
-        id: report.id,
-        content: report.content || 'Signalement',
-        reporter: report.pev_profiles ? `Signalé par ${report.pev_profiles.first_name} ${report.pev_profiles.last_name}` : 'Anonyme',
-        priority: report.priority || 'Normal',
-        time: formatTimeAgo(report.created_at)
-      }))
+    if (!error && reports && reports.length > 0) {
+      // Récupérer les profils des reporters
+      const reporterIds = reports.map(r => r.reporter_id)
+      const { data: profiles } = await supabase
+        .from('pev_profiles')
+        .select('id, first_name, last_name')
+        .in('id', reporterIds)
+
+      const profilesMap = {}
+      profiles?.forEach(p => { profilesMap[p.id] = p })
+
+      priorityReports.value = reports.map(report => {
+        const reporter = profilesMap[report.reporter_id]
+        return {
+          id: report.id,
+          content: report.content || 'Signalement',
+          reporter: reporter ? `${reporter.first_name} ${reporter.last_name}` : 'Anonyme',
+          priority: report.priority === 'critical' ? 'Urgent' : report.priority === 'high' ? 'Moyen' : 'Normal',
+          time: formatTimeAgo(report.created_at)
+        }
+      })
     }
   } catch (error) {
     // Table peut ne pas exister, ce n'est pas critique

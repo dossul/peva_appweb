@@ -197,14 +197,27 @@
                           <v-icon size="16" class="mr-1">mdi-map-marker</v-icon>
                           <span class="text-body-2">{{ event.location }}</span>
                         </div>
-                        <v-btn
-                          :color="getEventTypeColor(event.type)"
-                          size="small"
-                          variant="flat"
-                          @click="registerForEvent(event)"
-                        >
-                          S'inscrire
-                        </v-btn>
+                        <div class="d-flex align-center ga-2">
+                          <v-btn
+                            :color="getEventTypeColor(event.type)"
+                            size="small"
+                            variant="flat"
+                            @click.stop="registerForEvent(event)"
+                          >
+                            S'inscrire
+                          </v-btn>
+                          <v-btn
+                            v-if="authStore.isAuthenticated && event.created_by !== authStore.user?.id"
+                            icon
+                            size="x-small"
+                            variant="text"
+                            color="grey"
+                            @click.stop="openReportDialog(event)"
+                          >
+                            <v-icon size="16">mdi-flag-outline</v-icon>
+                            <v-tooltip activator="parent" location="top">Signaler</v-tooltip>
+                          </v-btn>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -480,6 +493,15 @@
       </v-card>
     </v-dialog>
 
+    <!-- Dialog de signalement -->
+    <ReportContentDialog
+      v-model="reportDialog"
+      target-type="event"
+      :target-id="eventToReport?.id || ''"
+      :content-title="eventToReport?.title || ''"
+      @reported="handleReported"
+    />
+
     <!-- Snackbar notifications -->
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="4000">
       {{ snackbar.message }}
@@ -495,6 +517,7 @@ import { supabase } from '@/lib/supabase'
 import { emailService } from '@/services/emailService'
 import { eventsService } from '@/services/eventsService'
 import dataService from '@/services/dataService'
+import ReportContentDialog from '@/components/ReportContentDialog.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -504,6 +527,10 @@ const activeTab = ref('calendar')
 const createEventDialog = ref(false)
 const currentDate = ref(new Date())
 const loading = ref(false)
+
+// Signalement
+const reportDialog = ref(false)
+const eventToReport = ref(null)
 
 const newEvent = ref({
   // Étape 1: Événement
@@ -782,6 +809,15 @@ const previousMonth = () => {
 
 const nextMonth = () => {
   currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
+}
+
+const openReportDialog = (event) => {
+  eventToReport.value = event
+  reportDialog.value = true
+}
+
+const handleReported = () => {
+  snackbar.value = { show: true, message: 'Signalement envoyé. Notre équipe l\'examinera rapidement.', color: 'success' }
 }
 
 const registerForEvent = async (event) => {

@@ -42,6 +42,8 @@ const AdminGroupsView = () => import('@/views/admin/AdminGroupsView.vue')
 const AdminEventsView = () => import('@/views/admin/AdminEventsView.vue')
 const AdminEmailTemplatesView = () => import('@/views/admin/AdminEmailTemplatesView.vue')
 const AdminSocialView = () => import('@/views/admin/AdminSocialView.vue')
+const AdminReportsView = () => import('@/views/admin/AdminReportsView.vue')
+const AdminContentManagementView = () => import('@/views/admin/AdminContentManagementView.vue')
 
 const OnboardingView = () => import('@/views/OnboardingView.vue')
 const ProfileView = () => import('@/views/ProfileView.vue')
@@ -545,6 +547,26 @@ const router = createRouter({
         requiresAuth: true,
         requiresAdmin: true,
         title: 'Gestion Réseaux Sociaux - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/admin/reports',
+      name: 'AdminReports',
+      component: AdminReportsView,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: 'Signalements - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/admin/content',
+      name: 'AdminContent',
+      component: AdminContentManagementView,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: 'Gestion de Contenu - 2iE GreenHub'
       }
     },
     {
