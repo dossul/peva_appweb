@@ -218,3 +218,77 @@ const snackbarColor = ref('success')
 | `country` | text |
 
 > ⚠️ **PAS de colonne `organization`** - Cette info est dans `pev_companies`
+
+---
+
+## 📝 Journal des Modifications
+
+### 08/01/2026 - 22:58 UTC - Refonte EventsView.vue
+
+**Fichier modifié** : `src/views/EventsView.vue`
+
+#### ✅ Modifications effectuées :
+
+| Action | Détail |
+|--------|--------|
+| **Onglet CARTE supprimé** | Décision : pas pertinent sans colonnes `latitude`/`longitude` |
+| **Onglet HISTORIQUE supprimé** | Décision : fonctionnalité non prioritaire |
+| **Onglet LISTE implémenté** | Vue liste avec filtres et grille de cartes |
+| **Onglet MES ÉVÉNEMENTS** | Redirection vers `/my-events` avec vérification auth |
+
+#### 📋 Détails de l'onglet LISTE :
+
+**Filtres ajoutés** (lignes 753-760) :
+```javascript
+const listFilters = ref({
+  category: null,
+  type: null,
+  isFree: null,
+  search: ''
+})
+const listSort = ref('date_asc')
+```
+
+**Fonctionnalités** :
+- Filtre par catégorie (dropdown)
+- Filtre par type d'événement (Conférence, Formation, etc.)
+- Filtre Gratuit/Payant
+- Recherche textuelle (titre, description, lieu)
+- Tri par date ascendant/descendant
+- Grille responsive avec cartes événements
+- Bouton "S'inscrire" sur chaque carte
+
+**Computed `filteredListEvents`** (lignes 762-802) :
+- Filtre uniquement les événements à venir
+- Applique les filtres utilisateur
+- Trie selon la préférence
+
+#### 📋 Détails de MES ÉVÉNEMENTS :
+
+**Fonction `goToMyEvents`** (lignes 804-812) :
+```javascript
+const goToMyEvents = () => {
+  if (!authStore.isAuthenticated) {
+    snackbar.value = { show: true, message: 'Connectez-vous...', color: 'warning' }
+    activeTab.value = 'calendar'
+    return
+  }
+  router.push('/my-events')
+}
+```
+
+#### 🗑️ Lignes supprimées :
+- Onglets CARTE et HISTORIQUE dans le template (anciennes lignes 72-83)
+
+---
+
+### 08/01/2026 - 22:00 UTC - Fix OpportunityApplicationsView.vue
+
+**Fichier modifié** : `src/views/OpportunityApplicationsView.vue`
+
+| Erreur | Solution |
+|--------|----------|
+| `column pev_profiles_1.organization does not exist` | Retiré `organization` de la jointure Supabase |
+| `ReferenceError: snackbarMessage is not defined` | Ajouté déclarations `ref()` manquantes |
+
+**Lignes modifiées** : 298-301, 365

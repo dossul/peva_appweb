@@ -69,17 +69,9 @@
             <v-icon class="mr-2">mdi-format-list-bulleted</v-icon>
             Liste
           </v-tab>
-          <v-tab value="map">
-            <v-icon class="mr-2">mdi-map</v-icon>
-            Carte
-          </v-tab>
-          <v-tab value="my-events">
+          <v-tab value="my-events" @click="goToMyEvents">
             <v-icon class="mr-2">mdi-bookmark</v-icon>
             Mes Événements
-          </v-tab>
-          <v-tab value="history">
-            <v-icon class="mr-2">mdi-history</v-icon>
-            Historique
           </v-tab>
         </v-tabs>
       </v-card>
@@ -251,6 +243,162 @@
                     </v-btn>
                   </div>
                 </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-window-item>
+
+        <!-- Vue Liste -->
+        <v-window-item value="list">
+          <v-row>
+            <!-- Sidebar Filtres -->
+            <v-col cols="12" md="3">
+              <v-card elevation="2">
+                <v-card-title class="pa-4">
+                  <v-icon class="mr-2">mdi-filter</v-icon>
+                  Filtres
+                </v-card-title>
+                <v-card-text>
+                  <!-- Filtre par catégorie -->
+                  <v-select
+                    v-model="listFilters.category"
+                    :items="eventTypes"
+                    item-title="name"
+                    item-value="name"
+                    label="Catégorie"
+                    variant="outlined"
+                    density="compact"
+                    clearable
+                    class="mb-4"
+                  />
+                  
+                  <!-- Filtre par type -->
+                  <v-select
+                    v-model="listFilters.type"
+                    :items="eventTypesList"
+                    label="Type d'événement"
+                    variant="outlined"
+                    density="compact"
+                    clearable
+                    class="mb-4"
+                  />
+                  
+                  <!-- Filtre gratuit/payant -->
+                  <v-select
+                    v-model="listFilters.isFree"
+                    :items="[{ title: 'Tous', value: null }, { title: 'Gratuit', value: true }, { title: 'Payant', value: false }]"
+                    label="Tarification"
+                    variant="outlined"
+                    density="compact"
+                    class="mb-4"
+                  />
+                  
+                  <!-- Recherche -->
+                  <v-text-field
+                    v-model="listFilters.search"
+                    label="Rechercher"
+                    variant="outlined"
+                    density="compact"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                  />
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <!-- Liste des événements -->
+            <v-col cols="12" md="9">
+              <!-- Tri et compteur -->
+              <div class="d-flex justify-space-between align-center mb-4">
+                <div class="text-body-1">
+                  <strong>{{ filteredListEvents.length }}</strong> événement(s) trouvé(s)
+                </div>
+                <v-btn-toggle v-model="listSort" mandatory color="purple-darken-1" density="compact">
+                  <v-btn value="date_asc" size="small">
+                    <v-icon size="small">mdi-sort-calendar-ascending</v-icon>
+                    Date ↑
+                  </v-btn>
+                  <v-btn value="date_desc" size="small">
+                    <v-icon size="small">mdi-sort-calendar-descending</v-icon>
+                    Date ↓
+                  </v-btn>
+                </v-btn-toggle>
+              </div>
+
+              <!-- Grille d'événements -->
+              <v-row v-if="filteredListEvents.length > 0">
+                <v-col
+                  v-for="event in filteredListEvents"
+                  :key="event.id"
+                  cols="12"
+                  md="6"
+                  lg="4"
+                >
+                  <v-card class="h-100 event-card" elevation="2" @click="goToEvent(event.id)">
+                    <!-- Image -->
+                    <v-img
+                      v-if="event.image_url"
+                      :src="event.image_url"
+                      height="140"
+                      cover
+                    />
+                    <div v-else class="event-placeholder d-flex align-center justify-center" style="height: 140px; background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%);">
+                      <v-icon color="white" size="48">mdi-calendar</v-icon>
+                    </div>
+
+                    <!-- Badges -->
+                    <div class="pa-3 pb-0 d-flex ga-2 flex-wrap">
+                      <v-chip size="small" :color="getTypeColor(event.event_type)" label>
+                        {{ event.event_type || 'Événement' }}
+                      </v-chip>
+                      <v-chip v-if="event.is_free" size="small" color="success" label>
+                        <v-icon start size="small">mdi-gift</v-icon>
+                        Gratuit
+                      </v-chip>
+                      <v-chip v-else size="small" color="orange" label>
+                        {{ event.price }} {{ event.currency || 'XOF' }}
+                      </v-chip>
+                    </div>
+
+                    <v-card-title class="text-body-1 font-weight-bold pb-1">
+                      {{ event.title }}
+                    </v-card-title>
+
+                    <v-card-text class="pb-2">
+                      <div class="d-flex align-center mb-2">
+                        <v-icon size="16" class="mr-2" color="grey-darken-1">mdi-calendar</v-icon>
+                        <span class="text-body-2">{{ formatEventDate(event.start_date) }}</span>
+                      </div>
+                      <div class="d-flex align-center mb-2">
+                        <v-icon size="16" class="mr-2" color="grey-darken-1">mdi-map-marker</v-icon>
+                        <span class="text-body-2">{{ event.location || event.city || 'En ligne' }}</span>
+                      </div>
+                      <div v-if="event.category" class="d-flex align-center">
+                        <v-icon size="16" class="mr-2" color="grey-darken-1">mdi-tag</v-icon>
+                        <span class="text-body-2">{{ event.category }}</span>
+                      </div>
+                    </v-card-text>
+
+                    <v-card-actions class="pa-3 pt-0">
+                      <v-btn
+                        color="purple-darken-1"
+                        variant="flat"
+                        size="small"
+                        block
+                        @click.stop="registerForEvent(event)"
+                      >
+                        S'inscrire
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-col>
+              </v-row>
+
+              <!-- État vide -->
+              <v-card v-else class="pa-8 text-center">
+                <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-calendar-blank</v-icon>
+                <h3 class="text-h6 mb-2">Aucun événement trouvé</h3>
+                <p class="text-grey-darken-1">Modifiez vos filtres ou revenez plus tard.</p>
               </v-card>
             </v-col>
           </v-row>
@@ -601,6 +749,93 @@ const eventTypes = ref([])
 const sectorsList = ref([])
 const upcomingEvents = ref([])
 const allEvents = ref([])
+
+// Filtres pour la vue Liste
+const listFilters = ref({
+  category: null,
+  type: null,
+  isFree: null,
+  search: ''
+})
+const listSort = ref('date_asc')
+
+// Computed pour la liste filtrée
+const filteredListEvents = computed(() => {
+  let filtered = allEvents.value.filter(e => {
+    // Seulement événements à venir
+    return new Date(e.start_date) >= new Date()
+  })
+
+  // Filtre catégorie
+  if (listFilters.value.category) {
+    filtered = filtered.filter(e => e.category === listFilters.value.category)
+  }
+
+  // Filtre type
+  if (listFilters.value.type) {
+    filtered = filtered.filter(e => e.event_type === listFilters.value.type)
+  }
+
+  // Filtre gratuit/payant
+  if (listFilters.value.isFree !== null) {
+    filtered = filtered.filter(e => e.is_free === listFilters.value.isFree)
+  }
+
+  // Recherche
+  if (listFilters.value.search) {
+    const search = listFilters.value.search.toLowerCase()
+    filtered = filtered.filter(e => 
+      e.title?.toLowerCase().includes(search) ||
+      e.description?.toLowerCase().includes(search) ||
+      e.location?.toLowerCase().includes(search)
+    )
+  }
+
+  // Tri
+  if (listSort.value === 'date_asc') {
+    filtered.sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+  } else {
+    filtered.sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
+  }
+
+  return filtered
+})
+
+// Redirection vers Mes Événements
+const goToMyEvents = () => {
+  if (!authStore.isAuthenticated) {
+    snackbar.value = { show: true, message: 'Connectez-vous pour voir vos événements', color: 'warning' }
+    activeTab.value = 'calendar'
+    return
+  }
+  router.push('/my-events')
+}
+
+// Couleur par type d'événement
+const getTypeColor = (type) => {
+  if (!type) return 'grey'
+  const typeLower = type.toLowerCase()
+  if (typeLower.includes('conférence') || typeLower.includes('conference')) return 'purple'
+  if (typeLower.includes('formation')) return 'blue'
+  if (typeLower.includes('webinaire') || typeLower.includes('webinar')) return 'teal'
+  if (typeLower.includes('atelier') || typeLower.includes('workshop')) return 'orange'
+  if (typeLower.includes('networking')) return 'pink'
+  if (typeLower.includes('salon')) return 'green'
+  if (typeLower.includes('séminaire') || typeLower.includes('seminaire')) return 'indigo'
+  return 'grey'
+}
+
+// Formater la date
+const formatEventDate = (dateStr) => {
+  if (!dateStr) return 'Date non définie'
+  return new Date(dateStr).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
 
 // Charger les secteurs (catégories thématiques)
 const loadSectors = async () => {
