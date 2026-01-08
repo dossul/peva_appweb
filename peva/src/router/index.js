@@ -178,6 +178,15 @@ const router = createRouter({
       }
     },
     {
+      path: '/user/:id',
+      name: 'UserProfile',
+      component: () => import('@/views/UserProfileView.vue'),
+      meta: { 
+        requiresAuth: true,
+        title: 'Profil Utilisateur - 2iE GreenHub'
+      }
+    },
+    {
       path: '/companies',
       redirect: '/directory'
     },

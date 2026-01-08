@@ -282,6 +282,33 @@ const goToMyEvents = () => {
 
 ---
 
+### 08/01/2026 - 23:30 UTC - Implémentation Actions Profil Utilisateur
+
+**Fichiers créés/modifiés** :
+
+| Fichier | Action |
+|---------|--------|
+| `src/views/UserProfileView.vue` | ✅ CRÉÉ - Vue profil autre utilisateur |
+| `src/router/index.js` | Ajout route `/user/:id` |
+| `src/services/connectionService.js` | Ajout fonctions favoris utilisateurs |
+| `src/views/ProfileView.vue` | Nettoyage boutons incohérents |
+
+**Fonctionnalités implémentées** :
+- **Ajouter à mon réseau** : Dialog avec message personnalisé, utilise `connectionService.sendRequest()`
+- **Envoyer un message** : Utilise `messagesService.getOrCreateDirectConversation()`, redirige vers `/messages`
+- **Ajouter aux favoris** : Utilise `entity_type: 'user'` dans `pev_favorites`
+
+**Fonctions ajoutées dans connectionService.js** :
+```javascript
+addUserToFavorites(targetUserId)
+removeUserFromFavorites(targetUserId)
+isUserFavorite(targetUserId)
+```
+
+**Route ajoutée** : `/user/:id` → `UserProfileView.vue`
+
+---
+
 ### 08/01/2026 - 22:00 UTC - Fix OpportunityApplicationsView.vue
 
 **Fichier modifié** : `src/views/OpportunityApplicationsView.vue`

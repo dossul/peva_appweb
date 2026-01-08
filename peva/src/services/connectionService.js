@@ -416,6 +416,83 @@ export const connectionService = {
         pendingSent: 0
       }
     }
+  },
+
+  /**
+   * Ajouter un utilisateur aux favoris
+   */
+  async addUserToFavorites(targetUserId) {
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError || !user) {
+        throw new Error('Utilisateur non authentifié')
+      }
+
+      const { data, error } = await supabase
+        .from('pev_favorites')
+        .insert({
+          entity_type: 'user',
+          entity_id: targetUserId,
+          user_id: user.id
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+      return { success: true, data }
+    } catch (error) {
+      console.error('Erreur ajout favori utilisateur:', error)
+      throw error
+    }
+  },
+
+  /**
+   * Retirer un utilisateur des favoris
+   */
+  async removeUserFromFavorites(targetUserId) {
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError || !user) {
+        throw new Error('Utilisateur non authentifié')
+      }
+
+      const { error } = await supabase
+        .from('pev_favorites')
+        .delete()
+        .eq('entity_type', 'user')
+        .eq('entity_id', targetUserId)
+        .eq('user_id', user.id)
+
+      if (error) throw error
+      return { success: true }
+    } catch (error) {
+      console.error('Erreur suppression favori utilisateur:', error)
+      throw error
+    }
+  },
+
+  /**
+   * Vérifier si un utilisateur est dans les favoris
+   */
+  async isUserFavorite(targetUserId) {
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError || !user) return false
+
+      const { data, error } = await supabase
+        .from('pev_favorites')
+        .select('id')
+        .eq('entity_type', 'user')
+        .eq('entity_id', targetUserId)
+        .eq('user_id', user.id)
+        .single()
+
+      if (error && error.code !== 'PGRST116') throw error
+      return !!data
+    } catch (error) {
+      console.error('Erreur vérification favori:', error)
+      return false
+    }
   }
 }
 

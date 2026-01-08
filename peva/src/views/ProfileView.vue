@@ -44,14 +44,22 @@
           
           <!-- Actions -->
           <div class="d-flex flex-column ga-2">
-            <v-btn color="white" variant="flat" prepend-icon="mdi-plus" class="text-green-darken-2">
-              Se connecter
+            <v-btn 
+              color="white" 
+              variant="flat" 
+              prepend-icon="mdi-account-edit" 
+              class="text-green-darken-2"
+              @click="router.push('/settings')"
+            >
+              Modifier mon profil
             </v-btn>
-            <v-btn color="white" variant="outlined" prepend-icon="mdi-email">
-              Envoyer un message
-            </v-btn>
-            <v-btn color="white" variant="outlined" prepend-icon="mdi-heart">
-              Ajouter aux favoris
+            <v-btn 
+              color="white" 
+              variant="outlined" 
+              prepend-icon="mdi-eye"
+              @click="router.push(`/user/${authStore.user?.id}`)"
+            >
+              Voir mon profil public
             </v-btn>
           </div>
         </div>
@@ -180,9 +188,9 @@
         
         <!-- Sidebar droite -->
         <v-col cols="12" md="4">
-          <!-- Contact rapide -->
+          <!-- Mes messages -->
           <v-card class="mb-4" elevation="2">
-            <v-card-title class="pa-4">Contact</v-card-title>
+            <v-card-title class="pa-4">Messagerie</v-card-title>
             <v-card-text class="pa-4">
               <v-btn
                 color="green-darken-2"
@@ -190,18 +198,18 @@
                 block
                 prepend-icon="mdi-email"
                 class="mb-3"
-                @click="sendMessage"
+                @click="router.push('/messages')"
               >
-                Envoyer un message
+                Mes messages
               </v-btn>
               <v-btn
                 color="blue"
                 variant="outlined"
                 block
-                prepend-icon="mdi-linkedin"
-                @click="openLinkedIn"
+                prepend-icon="mdi-account-group"
+                @click="router.push('/connections')"
               >
-                Voir sur LinkedIn
+                Gérer mes connexions
               </v-btn>
             </v-card-text>
           </v-card>
@@ -218,7 +226,7 @@
                 :key="conn.id" 
                 class="d-flex align-center mb-3 cursor-pointer"
                 style="cursor: pointer;"
-                @click="router.push(`/profile/${conn.id}`)"
+                @click="router.push(`/user/${conn.id}`)"
               >
                 <v-avatar size="32" class="mr-3">
                   <v-img v-if="conn.avatar_url" :src="conn.avatar_url" />
