@@ -197,13 +197,6 @@
                 <v-list-item-title>Mes Événements</v-list-item-title>
                 <v-list-item-subtitle>Brouillons et événements publiés</v-list-item-subtitle>
               </v-list-item>
-              <v-list-item @click="navigateTo('/groups/create')" :disabled="!authStore.isAuthenticated">
-                <template v-slot:prepend>
-                  <v-icon>mdi-account-group-outline</v-icon>
-                </template>
-                <v-list-item-title>Créer un Groupe</v-list-item-title>
-                <v-list-item-subtitle>Communauté thématique</v-list-item-subtitle>
-              </v-list-item>
               <v-divider />
               <v-list-item @click="navigateTo('/company/management')" :disabled="!authStore.isAuthenticated">
                 <template v-slot:prepend>
