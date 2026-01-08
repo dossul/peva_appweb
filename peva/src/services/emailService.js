@@ -104,7 +104,8 @@ class EmailService {
         throw new Error(data.error || 'Erreur inconnue')
       }
     } catch (error) {
-      console.error('❌ Erreur envoi email:', error.message)
+      // Erreur silencieuse - les emails sont non-bloquants
+      console.warn('⚠️ Email non envoyé (service indisponible)')
       return { success: false, error: error.message }
     }
   }

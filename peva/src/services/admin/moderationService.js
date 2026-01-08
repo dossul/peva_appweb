@@ -45,7 +45,8 @@ export const moderationService = {
             .from('pev_events')
             .select(`
               *,
-              pev_profiles:created_by(first_name, last_name, email, avatar_url)
+              pev_profiles:created_by(first_name, last_name, email, avatar_url),
+              pev_event_categories:category_id(id, name, icon, color)
             `)
             .eq('status', 'in_review')
           break
@@ -126,50 +127,47 @@ export const moderationService = {
    * @returns {Promise<Object>} Résultat de l'opération
    */
   async approveContent(contentType, contentId, moderatorId, notes = '') {
+    console.log('approveContent START:', { contentType, contentId })
     try {
-      let updateData = {
+      const updateData = {
+        status: 'published',
         updated_at: new Date().toISOString()
       }
-      let query
 
+      let tableName
       switch (contentType) {
         case 'opportunities':
-          updateData.status = 'published'
-          query = supabase.from('pev_opportunities').update(updateData).eq('id', contentId)
+          tableName = 'pev_opportunities'
           break
-
         case 'resources':
-          updateData.status = 'published'
-          query = supabase.from('pev_resources').update(updateData).eq('id', contentId)
+          tableName = 'pev_resources'
           break
-
         case 'events':
-          updateData.status = 'published'
-          query = supabase.from('pev_events').update(updateData).eq('id', contentId)
+          tableName = 'pev_events'
           break
-
         case 'companies':
-          updateData.status = 'published'
+          tableName = 'pev_companies'
           updateData.is_verified = true
-          query = supabase.from('pev_companies').update(updateData).eq('id', contentId)
           break
-
         case 'forum_topics':
-          updateData.status = 'published'
-          query = supabase.from('pev_forum_topics').update(updateData).eq('id', contentId)
+          tableName = 'pev_forum_topics'
           break
-
         case 'forum_posts':
-          // Les posts du forum n'ont pas de statut de modération par défaut
-          // On peut ajouter une colonne si nécessaire
-          query = supabase.from('pev_forum_posts').update(updateData).eq('id', contentId)
+          tableName = 'pev_forum_posts'
           break
-
         default:
           throw new Error(`Type de contenu non supporté: ${contentType}`)
       }
 
-      const { data, error } = await query.select()
+      console.log('approveContent UPDATE:', { tableName, contentId, updateData })
+      
+      const { data, error } = await supabase
+        .from(tableName)
+        .update(updateData)
+        .eq('id', contentId)
+        .select()
+
+      console.log('approveContent RESULT:', { data, error })
 
       if (error) throw error
 
@@ -179,7 +177,7 @@ export const moderationService = {
 
       return {
         success: true,
-        data: data[0]
+        data: data?.[0] || null
       }
     } catch (error) {
       console.error('Erreur lors de l\'approbation:', error)
@@ -199,48 +197,47 @@ export const moderationService = {
    * @returns {Promise<Object>} Résultat de l'opération
    */
   async rejectContent(contentType, contentId, moderatorId, reason) {
+    console.log('rejectContent START:', { contentType, contentId, reason })
     try {
-      let updateData = {
+      const updateData = {
+        status: 'rejected',
         updated_at: new Date().toISOString()
       }
-      let query
 
+      let tableName
       switch (contentType) {
         case 'opportunities':
+          tableName = 'pev_opportunities'
           updateData.status = 'draft'
-          query = supabase.from('pev_opportunities').update(updateData).eq('id', contentId)
           break
-
         case 'resources':
-          updateData.status = 'rejected'
-          query = supabase.from('pev_resources').update(updateData).eq('id', contentId)
+          tableName = 'pev_resources'
           break
-
         case 'events':
-          updateData.status = 'rejected'
-          query = supabase.from('pev_events').update(updateData).eq('id', contentId)
+          tableName = 'pev_events'
           break
-
         case 'companies':
-          updateData.status = 'rejected'
-          query = supabase.from('pev_companies').update(updateData).eq('id', contentId)
+          tableName = 'pev_companies'
           break
-
         case 'forum_topics':
-          updateData.status = 'rejected'
-          query = supabase.from('pev_forum_topics').update(updateData).eq('id', contentId)
+          tableName = 'pev_forum_topics'
           break
-
         case 'forum_posts':
-          // Supprimer le post rejeté
-          query = supabase.from('pev_forum_posts').delete().eq('id', contentId)
+          tableName = 'pev_forum_posts'
           break
-
         default:
           throw new Error(`Type de contenu non supporté: ${contentType}`)
       }
 
-      const { data, error } = await query.select()
+      console.log('rejectContent UPDATE:', { tableName, contentId, updateData })
+      
+      const { data, error } = await supabase
+        .from(tableName)
+        .update(updateData)
+        .eq('id', contentId)
+        .select()
+
+      console.log('rejectContent RESULT:', { data, error })
 
       if (error) throw error
 
@@ -300,7 +297,8 @@ export const moderationService = {
             .from('pev_events')
             .select(`
               *,
-              pev_profiles:created_by(first_name, last_name, email, avatar_url)
+              pev_profiles:created_by(first_name, last_name, email, avatar_url),
+              pev_event_categories:category_id(id, name, icon, color)
             `)
             .eq('id', contentId)
             .single()
@@ -580,6 +578,13 @@ export const moderationService = {
       
       if (!creator?.email) {
         console.warn('Email du créateur non trouvé pour la notification')
+        return
+      }
+
+      // Validation basique de l'email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(creator.email)) {
+        console.warn(`Email invalide pour la notification: ${creator.email}`)
         return
       }
 

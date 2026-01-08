@@ -123,12 +123,43 @@
                         :class="{ 'has-events': date.events.length > 0 }"
                       >
                         <div class="date-number">{{ date.day }}</div>
-                        <div v-for="event in date.events.slice(0, 2)" :key="event.id" class="calendar-event" :class="event.type">
+                        <div v-for="event in date.events.slice(0, 2)" :key="event.id" class="calendar-event" :class="event.type" @click="goToEvent(event.id)" style="cursor: pointer;">
                           {{ event.title }}
                         </div>
                         <div v-if="date.events.length > 2" class="more-events">
                           +{{ date.events.length - 2 }} autres
                         </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Légende des types -->
+                  <div class="mt-4 pa-3 bg-grey-lighten-4 rounded">
+                    <div class="text-subtitle-2 mb-2 font-weight-bold">Légende des types</div>
+                    <div class="d-flex flex-wrap ga-3">
+                      <div class="d-flex align-center">
+                        <div class="legend-dot" style="background: #7b1fa2;"></div>
+                        <span class="text-body-2">Conférence</span>
+                      </div>
+                      <div class="d-flex align-center">
+                        <div class="legend-dot" style="background: #1976d2;"></div>
+                        <span class="text-body-2">Formation</span>
+                      </div>
+                      <div class="d-flex align-center">
+                        <div class="legend-dot" style="background: #388e3c;"></div>
+                        <span class="text-body-2">Webinaire</span>
+                      </div>
+                      <div class="d-flex align-center">
+                        <div class="legend-dot" style="background: #f57c00;"></div>
+                        <span class="text-body-2">Atelier</span>
+                      </div>
+                      <div class="d-flex align-center">
+                        <div class="legend-dot" style="background: #d32f2f;"></div>
+                        <span class="text-body-2">Networking</span>
+                      </div>
+                      <div class="d-flex align-center">
+                        <div class="legend-dot" style="background: #00796b;"></div>
+                        <span class="text-body-2">Salon</span>
                       </div>
                     </div>
                   </div>
@@ -148,6 +179,8 @@
                     v-for="event in upcomingEvents"
                     :key="event.id"
                     class="event-item pa-4 border-b"
+                    @click="goToEvent(event.id)"
+                    style="cursor: pointer;"
                   >
                     <div class="d-flex align-start">
                       <v-avatar :color="getEventTypeColor(event.type)" size="40" class="mr-3">
@@ -212,58 +245,245 @@
       </v-window>
     </v-container>
 
-    <!-- Dialog Créer Événement -->
-    <v-dialog v-model="createEventDialog" max-width="600">
+    <!-- Dialog Créer Événement (Wizard) -->
+    <v-dialog v-model="createEventDialog" max-width="650" persistent>
       <v-card>
-        <v-card-title class="pa-4">
-          <v-icon class="mr-2">mdi-plus</v-icon>
-          Créer un nouvel événement
+        <v-card-title class="pa-4 bg-purple-darken-1 text-white">
+          <v-icon class="mr-2">mdi-calendar-plus</v-icon>
+          Créer un événement
+          <v-chip class="ml-2" size="small" color="white" variant="flat">
+            Étape {{ wizardStep }}/3
+          </v-chip>
         </v-card-title>
-        <v-card-text class="pa-4">
-          <v-text-field
-            v-model="newEvent.title"
-            label="Titre de l'événement *"
-            variant="outlined"
-            class="mb-4"
-          />
-          <v-select
-            v-model="newEvent.type"
-            :items="eventTypes.map(t => t.name)"
-            label="Type d'événement *"
-            variant="outlined"
-            class="mb-4"
-          />
-          <v-textarea
-            v-model="newEvent.description"
-            label="Description *"
-            variant="outlined"
-            rows="3"
-            class="mb-4"
-          />
-          <v-text-field
-            v-model="newEvent.date"
-            label="Date *"
-            type="datetime-local"
-            variant="outlined"
-            class="mb-4"
-          />
-          <v-text-field
-            v-model="newEvent.location"
-            label="Lieu *"
-            variant="outlined"
-          />
-        </v-card-text>
-        <v-card-actions class="pa-4">
-          <v-spacer />
-          <v-btn variant="text" @click="createEventDialog = false">
+
+        <!-- Stepper -->
+        <v-stepper v-model="wizardStep" flat alt-labels class="elevation-0">
+          <v-stepper-header>
+            <v-stepper-item :complete="wizardStep > 1" :value="1" title="Événement" />
+            <v-divider />
+            <v-stepper-item :complete="wizardStep > 2" :value="2" title="Organisateur" />
+            <v-divider />
+            <v-stepper-item :value="3" title="Tarification" />
+          </v-stepper-header>
+
+          <v-stepper-window>
+            <!-- Étape 1: Informations de base -->
+            <v-stepper-window-item :value="1">
+              <v-card-text class="pa-4">
+                <v-alert type="info" variant="tonal" class="mb-4">
+                  <strong>Informations de base</strong> - Tous les champs marqués * sont obligatoires
+                </v-alert>
+                <v-text-field
+                  v-model="newEvent.title"
+                  label="Titre de l'événement *"
+                  variant="outlined"
+                  class="mb-3"
+                  :rules="[v => !!v || 'Titre requis']"
+                />
+                <v-select
+                  v-model="newEvent.type"
+                  :items="eventTypesList"
+                  label="Type d'événement *"
+                  variant="outlined"
+                  class="mb-3"
+                  :rules="[v => !!v || 'Type requis']"
+                />
+                <v-select
+                  v-model="newEvent.category"
+                  :items="sectorsList"
+                  item-title="name"
+                  item-value="name"
+                  label="Catégorie (secteur) *"
+                  variant="outlined"
+                  class="mb-3"
+                  :rules="[v => !!v || 'Catégorie requise']"
+                />
+                <v-textarea
+                  v-model="newEvent.description"
+                  label="Description *"
+                  variant="outlined"
+                  rows="3"
+                  :rules="[v => !!v || 'Description requise']"
+                />
+              </v-card-text>
+            </v-stepper-window-item>
+
+            <!-- Étape 2: Date, Lieu et Organisateur -->
+            <v-stepper-window-item :value="2">
+              <v-card-text class="pa-4">
+                <v-alert type="info" variant="tonal" class="mb-4">
+                  <strong>Date, Lieu et Organisateur</strong> - Tous les champs marqués * sont obligatoires
+                </v-alert>
+                <v-row>
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="newEvent.date"
+                      label="Date et heure *"
+                      type="datetime-local"
+                      variant="outlined"
+                      :rules="[v => !!v || 'Date requise']"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="newEvent.location"
+                      label="Lieu *"
+                      variant="outlined"
+                      prepend-inner-icon="mdi-map-marker"
+                      :rules="[v => !!v || 'Lieu requis']"
+                    />
+                  </v-col>
+                </v-row>
+                <v-divider class="my-4" />
+                <v-text-field
+                  v-model="newEvent.organizer_name"
+                  label="Nom de l'organisateur *"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-account"
+                  class="mb-3"
+                  :rules="[v => !!v || 'Organisateur requis']"
+                />
+                <v-text-field
+                  v-model="newEvent.organizer_email"
+                  label="Email de contact *"
+                  variant="outlined"
+                  type="email"
+                  prepend-inner-icon="mdi-email"
+                  class="mb-3"
+                  :rules="[v => !!v || 'Email requis']"
+                />
+                <v-text-field
+                  v-model="newEvent.organizer_phone"
+                  label="Téléphone (optionnel)"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-phone"
+                  class="mb-3"
+                />
+                <v-file-input
+                  v-model="newEvent.image"
+                  label="Visuel (optionnel)"
+                  variant="outlined"
+                  accept="image/*"
+                  prepend-icon="mdi-image"
+                  show-size
+                  density="compact"
+                  class="mb-3"
+                />
+                <v-file-input
+                  v-model="newEvent.document"
+                  label="Document joint (optionnel)"
+                  variant="outlined"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx"
+                  prepend-icon="mdi-file-document"
+                  show-size
+                  density="compact"
+                />
+              </v-card-text>
+            </v-stepper-window-item>
+
+            <!-- Étape 3: Tarification -->
+            <v-stepper-window-item :value="3">
+              <v-card-text class="pa-4">
+                <v-alert type="info" variant="tonal" class="mb-4">
+                  <strong>Tarification de l'événement</strong><br>
+                  Définissez si l'événement est gratuit ou payant.
+                </v-alert>
+                
+                <v-radio-group v-model="newEvent.is_free" class="mb-4">
+                  <v-radio :value="true" color="green">
+                    <template v-slot:label>
+                      <div class="d-flex align-center">
+                        <v-icon class="mr-2" color="green">mdi-gift</v-icon>
+                        <span><strong>Gratuit</strong> - Inscription libre</span>
+                      </div>
+                    </template>
+                  </v-radio>
+                  <v-radio :value="false" color="orange">
+                    <template v-slot:label>
+                      <div class="d-flex align-center">
+                        <v-icon class="mr-2" color="orange">mdi-cash</v-icon>
+                        <span><strong>Payant</strong> - Frais d'inscription</span>
+                      </div>
+                    </template>
+                  </v-radio>
+                </v-radio-group>
+
+                <v-expand-transition>
+                  <div v-if="!newEvent.is_free">
+                    <v-row>
+                      <v-col cols="6">
+                        <v-text-field
+                          v-model.number="newEvent.price"
+                          label="Prix d'inscription *"
+                          variant="outlined"
+                          type="number"
+                          min="0"
+                          prepend-inner-icon="mdi-currency-usd"
+                          suffix="FCFA"
+                        />
+                      </v-col>
+                      <v-col cols="6">
+                        <v-text-field
+                          v-model.number="newEvent.max_participants"
+                          label="Places disponibles"
+                          variant="outlined"
+                          type="number"
+                          min="1"
+                          prepend-inner-icon="mdi-account-group"
+                        />
+                      </v-col>
+                    </v-row>
+                  </div>
+                </v-expand-transition>
+
+                <v-divider class="my-4" />
+                
+                <v-checkbox
+                  v-model="newEvent.require_approval"
+                  label="Approbation manuelle des inscriptions"
+                  color="purple"
+                  hide-details
+                />
+              </v-card-text>
+            </v-stepper-window-item>
+          </v-stepper-window>
+        </v-stepper>
+
+        <v-card-actions class="pa-4 bg-grey-lighten-4">
+          <v-btn variant="text" @click="createEventDialog = false; wizardStep = 1">
             Annuler
           </v-btn>
-          <v-btn color="purple-darken-1" variant="flat" @click="createEvent">
-            Créer
+          <v-spacer />
+          <v-btn v-if="wizardStep > 1" variant="outlined" @click="wizardStep--">
+            <v-icon left>mdi-arrow-left</v-icon> Précédent
+          </v-btn>
+          <v-btn 
+            v-if="wizardStep < 3" 
+            color="purple-darken-1" 
+            variant="flat" 
+            @click="wizardStep++"
+            :disabled="!canProceed"
+          >
+            Suivant <v-icon right>mdi-arrow-right</v-icon>
+          </v-btn>
+          <v-btn 
+            v-else 
+            color="green-darken-1" 
+            variant="flat" 
+            :loading="isSubmitting" 
+            @click="createEvent"
+            :disabled="!canSubmit"
+          >
+            <v-icon left>mdi-check</v-icon> Soumettre
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Snackbar notifications -->
+    <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="4000">
+      {{ snackbar.message }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -273,6 +493,8 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { supabase } from '@/lib/supabase'
 import { emailService } from '@/services/emailService'
+import { eventsService } from '@/services/eventsService'
+import dataService from '@/services/dataService'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -284,12 +506,59 @@ const currentDate = ref(new Date())
 const loading = ref(false)
 
 const newEvent = ref({
+  // Étape 1: Événement
   title: '',
   type: '',
+  category: '',
   description: '',
+  // Étape 2: Organisateur
   date: '',
-  location: ''
+  location: '',
+  organizer_name: '',
+  organizer_email: '',
+  organizer_phone: '',
+  image: null,
+  document: null,
+  // Étape 3: Tarification
+  is_free: true,
+  price: 0,
+  max_participants: null,
+  require_approval: false
 })
+
+const wizardStep = ref(1)
+const snackbar = ref({ show: false, message: '', color: 'success' })
+const isSubmitting = ref(false)
+
+// Validation wizard - chaque étape valide uniquement ses propres champs
+const canProceed = computed(() => {
+  if (wizardStep.value === 1) {
+    // Étape 1: Titre, Type, Catégorie, Description
+    return newEvent.value.title && newEvent.value.type && newEvent.value.category && newEvent.value.description
+  }
+  if (wizardStep.value === 2) {
+    // Étape 2: Date, Lieu, Organisateur
+    return newEvent.value.date && newEvent.value.location && newEvent.value.organizer_name && newEvent.value.organizer_email
+  }
+  return true
+})
+
+const canSubmit = computed(() => {
+  if (!newEvent.value.is_free && !newEvent.value.price) return false
+  return canProceed.value
+})
+
+// Types d'événements statiques
+const eventTypesList = [
+  'Conférence',
+  'Formation',
+  'Webinaire',
+  'Atelier',
+  'Networking',
+  'Salon/Exposition',
+  'Séminaire',
+  'Table ronde'
+]
 
 // Stats depuis Supabase
 const stats = ref({
@@ -302,8 +571,19 @@ const stats = ref({
 // Données depuis Supabase
 const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 const eventTypes = ref([])
+const sectorsList = ref([])
 const upcomingEvents = ref([])
 const allEvents = ref([])
+
+// Charger les secteurs (catégories thématiques)
+const loadSectors = async () => {
+  try {
+    const sectors = await dataService.getSectors()
+    sectorsList.value = sectors
+  } catch (error) {
+    console.log('Secteurs non disponibles')
+  }
+}
 
 // Charger les statistiques
 const loadStats = async () => {
@@ -456,8 +736,24 @@ const getEventsForDate = (date) => {
   }).map(event => ({
     id: event.id,
     title: event.title,
-    type: event.event_type
+    type: getTypeClass(event.event_type)
   }))
+}
+
+const getTypeClass = (type) => {
+  if (!type) return 'default'
+  const typeLower = type.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  
+  if (typeLower.includes('conference') || typeLower.includes('conf')) return 'conference'
+  if (typeLower.includes('formation')) return 'formation'
+  if (typeLower.includes('webinaire') || typeLower.includes('webinar')) return 'webinar'
+  if (typeLower.includes('atelier') || typeLower.includes('workshop')) return 'workshop'
+  if (typeLower.includes('networking') || typeLower.includes('reseau')) return 'networking'
+  if (typeLower.includes('salon') || typeLower.includes('exposition')) return 'salon'
+  if (typeLower.includes('seminaire') || typeLower.includes('seminar')) return 'seminar'
+  if (typeLower.includes('table') || typeLower.includes('ronde')) return 'roundtable'
+  
+  return 'default'
 }
 
 const getEventTypeColor = (type) => {
@@ -557,11 +853,64 @@ const filterByType = (type) => {
   // TODO: Implémenter le filtrage
 }
 
-const createEvent = () => {
-  if (newEvent.value.title && newEvent.value.type && newEvent.value.description) {
-    console.log('Créer événement:', newEvent.value)
-    createEventDialog.value = false
-    newEvent.value = { title: '', type: '', description: '', date: '', location: '' }
+const goToEvent = (eventId) => {
+  router.push(`/events/${eventId}`)
+}
+
+const createEvent = async () => {
+  if (!authStore.isAuthenticated) {
+    snackbar.value = { show: true, message: 'Vous devez être connecté', color: 'error' }
+    return
+  }
+
+  isSubmitting.value = true
+  try {
+    const payload = {
+      title: newEvent.value.title,
+      description: newEvent.value.description,
+      event_type: newEvent.value.type,
+      category: newEvent.value.category,
+      start_date: newEvent.value.date || new Date().toISOString(),
+      location: newEvent.value.location || 'Non spécifié',
+      location_type: 'physical',
+      created_by: authStore.user?.id,
+      // Organisateur
+      organizer_name: newEvent.value.organizer_name,
+      contact_email: newEvent.value.organizer_email,
+      contact_phone: newEvent.value.organizer_phone || null,
+      organizer_website: newEvent.value.organizer_website || null,
+      // Tarification
+      is_free: newEvent.value.is_free,
+      price: newEvent.value.is_free ? 0 : newEvent.value.price,
+      max_participants: newEvent.value.max_participants || null,
+      require_approval: newEvent.value.require_approval
+    }
+
+    // Récupérer les fichiers si présents
+    const imageFile = newEvent.value.image?.[0] || newEvent.value.image || null
+    const documentFile = newEvent.value.document?.[0] || newEvent.value.document || null
+
+    const result = await eventsService.createEvent(payload, imageFile, documentFile)
+
+    if (result.success) {
+      snackbar.value = { show: true, message: 'Événement soumis pour modération !', color: 'success' }
+      createEventDialog.value = false
+      wizardStep.value = 1
+      // Réinitialiser le formulaire
+      newEvent.value = {
+        title: '', type: '', category: '', description: '', date: '', location: '',
+        organizer_name: '', organizer_email: '', organizer_phone: '',
+        image: null, document: null,
+        is_free: true, price: 0, max_participants: null, require_approval: false
+      }
+    } else {
+      snackbar.value = { show: true, message: result.error || 'Erreur création', color: 'error' }
+    }
+  } catch (error) {
+    console.error('Erreur:', error)
+    snackbar.value = { show: true, message: error.message, color: 'error' }
+  } finally {
+    isSubmitting.value = false
   }
 }
 
@@ -571,6 +920,7 @@ onMounted(async () => {
   await Promise.all([
     loadStats(),
     loadCategories(),
+    loadSectors(),
     loadUpcomingEvents(),
     loadAllEvents()
   ])
@@ -633,32 +983,76 @@ onMounted(async () => {
   border-radius: 3px;
   background-color: #e3f2fd;
   color: #1976d2;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.calendar-event:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .calendar-event.conference {
-  background-color: #e3f2fd;
-  color: #1976d2;
+  background-color: #f3e5f5 !important;
+  color: #7b1fa2 !important;
 }
 
-.calendar-event.workshop {
-  background-color: #e8f5e8;
-  color: #388e3c;
+.calendar-event.workshop,
+.calendar-event.atelier {
+  background-color: #fff3e0 !important;
+  color: #f57c00 !important;
 }
 
 .calendar-event.networking {
-  background-color: #f3e5f5;
-  color: #7b1fa2;
+  background-color: #fce4ec !important;
+  color: #e91e63 !important;
 }
 
 .calendar-event.formation {
-  background-color: #fff3e0;
-  color: #f57c00;
+  background-color: #e8f5e9 !important;
+  color: #388e3c !important;
+}
+
+.calendar-event.webinar,
+.calendar-event.webinaire {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
+}
+
+.calendar-event.salon {
+  background-color: #e0f2f1 !important;
+  color: #00897b !important;
+}
+
+.calendar-event.seminar,
+.calendar-event.seminaire {
+  background-color: #ede7f6 !important;
+  color: #673ab7 !important;
+}
+
+.calendar-event.roundtable {
+  background-color: #efebe9 !important;
+  color: #6d4c41 !important;
+}
+
+.calendar-event.default {
+  background-color: #e0e0e0 !important;
+  color: #424242 !important;
 }
 
 .more-events {
   font-size: 10px;
   color: #666;
   font-style: italic;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
 }
 
 .event-item {

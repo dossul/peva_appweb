@@ -1,6 +1,12 @@
 <template>
   <div class="profile-view">
-    <!-- Bannière de profil -->
+    <!-- Loading -->
+    <div v-if="loading" class="d-flex justify-center align-center" style="min-height: 400px;">
+      <v-progress-circular indeterminate color="green" size="64" />
+    </div>
+
+    <!-- Contenu du profil -->
+    <template v-else>
     <div class="profile-banner bg-green-darken-2 text-white py-12">
       <v-container>
         <div class="d-flex align-center">
@@ -53,15 +59,15 @@
         <!-- Statistiques -->
         <v-row class="mt-6">
           <v-col cols="4" class="text-center">
-            <div class="text-h4 font-weight-bold">247</div>
+            <div class="text-h4 font-weight-bold">{{ stats.connections }}</div>
             <div class="text-body-2">Connexions</div>
           </v-col>
           <v-col cols="4" class="text-center">
-            <div class="text-h4 font-weight-bold">12</div>
+            <div class="text-h4 font-weight-bold">{{ stats.opportunities }}</div>
             <div class="text-body-2">Opportunités</div>
           </v-col>
           <v-col cols="4" class="text-center">
-            <div class="text-h4 font-weight-bold">1.2k</div>
+            <div class="text-h4 font-weight-bold">{{ stats.profileViews }}</div>
             <div class="text-body-2">Vues profil</div>
           </v-col>
         </v-row>
@@ -142,7 +148,7 @@
                 <v-icon class="mr-2">mdi-briefcase</v-icon>
                 Opportunités créées
               </div>
-              <v-btn variant="text" color="primary" size="small">
+              <v-btn variant="text" color="primary" size="small" @click="router.push('/my-opportunities')">
                 Voir toutes
               </v-btn>
             </v-card-title>
@@ -150,7 +156,9 @@
               <div
                 v-for="opportunity in createdOpportunities"
                 :key="opportunity.id"
-                class="d-flex align-center pa-3 mb-3 bg-grey-lighten-5 rounded"
+                class="d-flex align-center pa-3 mb-3 bg-grey-lighten-5 rounded cursor-pointer"
+                style="cursor: pointer;"
+                @click="router.push('/my-opportunities')"
               >
                 <v-avatar :color="opportunity.color" size="32" class="mr-3">
                   <v-icon color="white" size="16">{{ opportunity.icon }}</v-icon>
@@ -198,52 +206,55 @@
             </v-card-text>
           </v-card>
           
-          <!-- Connexions communes -->
+          <!-- Connexions -->
           <v-card class="mb-4" elevation="2">
-            <v-card-title class="pa-4">Connexions communes</v-card-title>
+            <v-card-title class="pa-4">Mes Connexions</v-card-title>
             <v-card-text class="pa-4">
-              <div class="d-flex align-center mb-3">
+              <div v-if="userConnections.length === 0" class="text-body-2 text-grey-darken-1">
+                Aucune connexion pour le moment
+              </div>
+              <div 
+                v-for="conn in userConnections" 
+                :key="conn.id" 
+                class="d-flex align-center mb-3 cursor-pointer"
+                style="cursor: pointer;"
+                @click="router.push(`/profile/${conn.id}`)"
+              >
                 <v-avatar size="32" class="mr-3">
-                  <v-img src="/api/placeholder/32/32" />
+                  <v-img v-if="conn.avatar_url" :src="conn.avatar_url" />
+                  <span v-else class="text-caption">{{ conn.name?.charAt(0) || '?' }}</span>
                 </v-avatar>
                 <div>
-                  <div class="text-body-2 font-weight-bold">Marie Diallo</div>
-                  <div class="text-caption text-grey-darken-1">Investisseuse</div>
+                  <div class="text-body-2 font-weight-bold">{{ conn.name || 'Utilisateur' }}</div>
+                  <div class="text-caption text-grey-darken-1">{{ conn.user_type || 'Membre' }}</div>
                 </div>
               </div>
-              <div class="d-flex align-center mb-3">
-                <v-avatar size="32" class="mr-3">
-                  <v-img src="/api/placeholder/32/32" />
-                </v-avatar>
-                <div>
-                  <div class="text-body-2 font-weight-bold">Ibrahim Sow</div>
-                  <div class="text-caption text-grey-darken-1">Entrepreneur</div>
-                </div>
-              </div>
-              <v-btn variant="text" size="small" color="primary">
+              <v-btn variant="text" size="small" color="primary" @click="router.push('/connections')">
                 Voir toutes les connexions
               </v-btn>
             </v-card-text>
           </v-card>
           
-          <!-- Recommandations -->
+          <!-- Informations supplémentaires -->
           <v-card elevation="2">
-            <v-card-title class="pa-4">Recommandations</v-card-title>
+            <v-card-title class="pa-4">Informations</v-card-title>
             <v-card-text class="pa-4">
-              <div class="mb-4">
-                <div class="d-flex align-center mb-2">
-                  <v-avatar size="24" class="mr-2">
-                    <v-img src="/api/placeholder/24/24" />
-                  </v-avatar>
-                  <span class="text-body-2 font-weight-bold">Fatou Ba</span>
-                </div>
-                <p class="text-body-2 text-grey-darken-1 mb-0">
-                  "Excellente collaboration sur le projet SolarTech. Très professionnelle et innovante."
-                </p>
+              <div class="mb-3" v-if="profileData.organization">
+                <div class="text-caption text-grey-darken-1">Organisation</div>
+                <div class="text-body-2 font-weight-bold">{{ profileData.organization }}</div>
               </div>
-              <v-btn variant="text" size="small" color="primary">
-                Voir toutes les recommandations
-              </v-btn>
+              <div class="mb-3" v-if="profileData.sector">
+                <div class="text-caption text-grey-darken-1">Secteur</div>
+                <div class="text-body-2 font-weight-bold">{{ profileData.sector }}</div>
+              </div>
+              <div class="mb-3" v-if="profileData.location">
+                <div class="text-caption text-grey-darken-1">Localisation</div>
+                <div class="text-body-2 font-weight-bold">{{ profileData.location }}</div>
+              </div>
+              <div v-if="profileData.phone">
+                <div class="text-caption text-grey-darken-1">Téléphone</div>
+                <div class="text-body-2 font-weight-bold">{{ profileData.phone }}</div>
+              </div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -263,6 +274,7 @@
         </v-btn>
       </template>
     </v-snackbar>
+    </template>
   </div>
 </template>
 
@@ -270,19 +282,28 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-// Reactive data
+// Reactive data - chargé depuis authStore
+const loading = ref(true)
 const profileData = ref({
-  first_name: 'Amina',
-  last_name: 'Koné',
-  user_type: 'Entrepreneur',
-  sector: 'Énergie Solaire',
-  location: 'Abidjan, Côte d\'Ivoire',
-  bio: 'Entrepreneuse spécialisée dans l\'énergie solaire en Afrique de l\'Ouest. Fondatrice de SolarTech Innovations, une startup qui développe des solutions d\'énergie solaire abordables pour les communautés rurales. Passionnée par l\'impact social et environnemental des technologies vertes.',
-  avatar_url: null
+  first_name: '',
+  last_name: '',
+  user_type: '',
+  sector: '',
+  location: '',
+  bio: '',
+  avatar_url: null,
+  email: ''
+})
+
+const stats = ref({
+  connections: 0,
+  opportunities: 0,
+  profileViews: 0
 })
 
 const snackbar = ref({
@@ -300,74 +321,12 @@ const initials = computed(() => {
   return `${profileData.value.first_name?.[0] || ''}${profileData.value.last_name?.[0] || ''}`
 })
 
-// Static data
-const expertiseSectors = ref([
-  { id: 1, name: 'Énergie Solaire', color: 'orange', icon: 'mdi-solar-power' },
-  { id: 2, name: 'Développement Durable', color: 'green', icon: 'mdi-leaf' },
-  { id: 3, name: 'Innovation Tech', color: 'blue', icon: 'mdi-lightbulb' }
-])
-
-const profileLinks = ref([
-  {
-    type: 'website',
-    label: 'solartech-innovations.com',
-    url: 'https://solartech-innovations.com',
-    icon: 'mdi-web',
-    color: 'blue'
-  },
-  {
-    type: 'linkedin',
-    label: 'linkedin.com/in/aminakone',
-    url: 'https://linkedin.com/in/aminakone',
-    icon: 'mdi-linkedin',
-    color: 'blue'
-  },
-  {
-    type: 'email',
-    label: 'amina.kone@example.com',
-    url: 'mailto:amina.kone@example.com',
-    icon: 'mdi-email',
-    color: 'red'
-  }
-])
-
-const recentActivities = ref([
-  {
-    id: 1,
-    title: 'Opportunité publiée: Financement Série A - SolarTech Innovations',
-    time: 'Il y a 2 jours',
-    icon: 'mdi-briefcase-plus',
-    color: 'blue'
-  },
-  {
-    id: 2,
-    title: 'Participation confirmée: Sommet de l\'Économie Verte Africaine 2025',
-    time: 'Il y a 1 semaine',
-    icon: 'mdi-calendar-check',
-    color: 'green'
-  },
-  {
-    id: 3,
-    title: 'Nouveau membre: Entrepreneurs Verts Afrique',
-    time: 'Il y a 2 semaines',
-    icon: 'mdi-account-group',
-    color: 'purple'
-  }
-])
-
-const createdOpportunities = ref([
-  {
-    id: 1,
-    title: 'Financement Série A - SolarTech Innovations',
-    description: 'Recherche d\'investisseurs pour lever 2M€ pour accélérer le déploiement...',
-    type: 'Financement',
-    typeColor: 'blue',
-    funding: '2M€',
-    applications: '7 candidatures',
-    icon: 'mdi-currency-eur',
-    color: 'blue'
-  }
-])
+// Données dynamiques depuis Supabase
+const expertiseSectors = ref([])
+const profileLinks = ref([])
+const recentActivities = ref([])
+const createdOpportunities = ref([])
+const userConnections = ref([])
 
 // Methods
 const uploadAvatar = () => {
@@ -392,8 +351,316 @@ const showMessage = (message, color = 'success') => {
 
 // Initialize
 onMounted(() => {
-  // TODO: Charger les données du profil depuis Supabase
+  loadProfile()
 })
+
+const loadProfile = async () => {
+  loading.value = true
+  try {
+    const user = authStore.user
+    const profile = user?.profile || {}
+    
+    profileData.value = {
+      first_name: profile.first_name || user?.user_metadata?.first_name || '',
+      last_name: profile.last_name || user?.user_metadata?.last_name || '',
+      user_type: profile.user_type || user?.user_metadata?.user_type || 'Utilisateur',
+      sector: profile.sector || profile.activity_sector || '',
+      location: profile.location || profile.city || '',
+      bio: profile.bio || profile.description || '',
+      avatar_url: profile.avatar_url || null,
+      email: profile.email || user?.email || '',
+      phone: profile.phone || '',
+      organization: profile.organization || '',
+      website: profile.website || '',
+      linkedin: profile.linkedin || ''
+    }
+    
+    // Charger les statistiques et données dynamiques
+    await Promise.all([
+      loadStats(),
+      loadOpportunities(),
+      loadActivities(),
+      loadConnections()
+    ])
+    
+    // Charger les liens du profil depuis les données
+    loadProfileLinks()
+  } catch (error) {
+    console.error('Erreur chargement profil:', error)
+    showMessage('Erreur lors du chargement du profil', 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+const loadOpportunities = async () => {
+  const userId = authStore.user?.id
+  if (!userId) return
+  
+  try {
+    const { data, error } = await supabase
+      .from('pev_opportunities')
+      .select('id, title, description, type, status, funding_amount, currency, created_at')
+      .eq('created_by', userId)
+      .order('created_at', { ascending: false })
+      .limit(5)
+    
+    if (!error && data) {
+      createdOpportunities.value = data.map(opp => ({
+        id: opp.id,
+        title: opp.title,
+        description: opp.description?.substring(0, 100) + '...' || '',
+        type: opp.type || 'Opportunité',
+        typeColor: getTypeColor(opp.type),
+        color: getTypeColor(opp.type),
+        icon: getTypeIcon(opp.type),
+        funding: opp.funding_amount ? `${opp.funding_amount} ${opp.currency || 'FCFA'}` : null,
+        status: opp.status
+      }))
+    }
+  } catch (e) { console.warn('Erreur chargement opportunités:', e.message) }
+}
+
+const loadActivities = async () => {
+  const userId = authStore.user?.id
+  if (!userId) return
+  
+  const activities = []
+  
+  try {
+    // Charger les dernières opportunités créées
+    const { data: opps } = await supabase
+      .from('pev_opportunities')
+      .select('id, title, created_at')
+      .eq('created_by', userId)
+      .order('created_at', { ascending: false })
+      .limit(3)
+    
+    if (opps) {
+      opps.forEach(opp => {
+        activities.push({
+          id: `opp-${opp.id}`,
+          title: `Opportunité publiée: ${opp.title}`,
+          time: formatRelativeTime(opp.created_at),
+          icon: 'mdi-briefcase-plus',
+          color: 'blue'
+        })
+      })
+    }
+  } catch (e) { /* ignore */ }
+  
+  try {
+    // Charger les événements - requête séparée sans jointure problématique
+    const { data: participations } = await supabase
+      .from('pev_event_participants')
+      .select('event_id, registration_date')
+      .eq('user_id', userId)
+      .order('registration_date', { ascending: false })
+      .limit(3)
+    
+    if (participations && participations.length > 0) {
+      // Récupérer les titres des événements
+      const eventIds = participations.map(p => p.event_id)
+      const { data: eventsData } = await supabase
+        .from('pev_events')
+        .select('id, title')
+        .in('id', eventIds)
+      
+      const eventsMap = {}
+      if (eventsData) {
+        eventsData.forEach(e => eventsMap[e.id] = e.title)
+      }
+      
+      participations.forEach(p => {
+        activities.push({
+          id: `evt-${p.event_id}`,
+          title: `Participation: ${eventsMap[p.event_id] || 'Événement'}`,
+          time: formatRelativeTime(p.registration_date),
+          icon: 'mdi-calendar-check',
+          color: 'green'
+        })
+      })
+    }
+  } catch (e) { /* ignore */ }
+  
+  // Trier par date et limiter
+  recentActivities.value = activities.slice(0, 5)
+}
+
+const loadConnections = async () => {
+  const userId = authStore.user?.id
+  if (!userId) return
+  
+  try {
+    // Connexions où l'utilisateur est requester
+    const { data: conn1 } = await supabase
+      .from('pev_connections')
+      .select('addressee_id, pev_profiles!pev_connections_addressee_id_fkey(first_name, last_name, avatar_url, user_type)')
+      .eq('requester_id', userId)
+      .eq('status', 'accepted')
+      .limit(5)
+    
+    // Connexions où l'utilisateur est addressee
+    const { data: conn2 } = await supabase
+      .from('pev_connections')
+      .select('requester_id, pev_profiles!pev_connections_requester_id_fkey(first_name, last_name, avatar_url, user_type)')
+      .eq('addressee_id', userId)
+      .eq('status', 'accepted')
+      .limit(5)
+    
+    const connections = []
+    
+    if (conn1) {
+      conn1.forEach(c => {
+        if (c.pev_profiles) {
+          connections.push({
+            id: c.addressee_id,
+            name: `${c.pev_profiles.first_name || ''} ${c.pev_profiles.last_name || ''}`.trim(),
+            avatar_url: c.pev_profiles.avatar_url,
+            user_type: c.pev_profiles.user_type || 'Utilisateur'
+          })
+        }
+      })
+    }
+    
+    if (conn2) {
+      conn2.forEach(c => {
+        if (c.pev_profiles) {
+          connections.push({
+            id: c.requester_id,
+            name: `${c.pev_profiles.first_name || ''} ${c.pev_profiles.last_name || ''}`.trim(),
+            avatar_url: c.pev_profiles.avatar_url,
+            user_type: c.pev_profiles.user_type || 'Utilisateur'
+          })
+        }
+      })
+    }
+    
+    userConnections.value = connections.slice(0, 6)
+  } catch (e) { console.warn('Erreur chargement connexions:', e.message) }
+}
+
+const loadProfileLinks = () => {
+  const links = []
+  
+  if (profileData.value.website) {
+    links.push({
+      type: 'website',
+      label: profileData.value.website.replace(/^https?:\/\//, ''),
+      url: profileData.value.website,
+      icon: 'mdi-web',
+      color: 'blue'
+    })
+  }
+  
+  if (profileData.value.linkedin) {
+    links.push({
+      type: 'linkedin',
+      label: profileData.value.linkedin.replace(/^https?:\/\//, ''),
+      url: profileData.value.linkedin,
+      icon: 'mdi-linkedin',
+      color: 'blue'
+    })
+  }
+  
+  if (profileData.value.email) {
+    links.push({
+      type: 'email',
+      label: profileData.value.email,
+      url: `mailto:${profileData.value.email}`,
+      icon: 'mdi-email',
+      color: 'red'
+    })
+  }
+  
+  profileLinks.value = links
+}
+
+const getTypeColor = (type) => {
+  const colors = {
+    'Financement': 'blue',
+    'Emploi': 'green',
+    'Partenariat': 'purple',
+    'Appel d\'offres': 'orange',
+    'job': 'green',
+    'funding': 'blue',
+    'partnership': 'purple',
+    'tender': 'orange'
+  }
+  return colors[type] || 'grey'
+}
+
+const getTypeIcon = (type) => {
+  const icons = {
+    'Financement': 'mdi-currency-eur',
+    'Emploi': 'mdi-briefcase-account',
+    'Partenariat': 'mdi-handshake',
+    'Appel d\'offres': 'mdi-file-document',
+    'job': 'mdi-briefcase-account',
+    'funding': 'mdi-currency-eur',
+    'partnership': 'mdi-handshake',
+    'tender': 'mdi-file-document'
+  }
+  return icons[type] || 'mdi-briefcase'
+}
+
+const formatRelativeTime = (dateStr) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diffMs = now - date
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) return "Aujourd'hui"
+  if (diffDays === 1) return 'Hier'
+  if (diffDays < 7) return `Il y a ${diffDays} jours`
+  if (diffDays < 30) return `Il y a ${Math.floor(diffDays / 7)} semaine(s)`
+  return `Il y a ${Math.floor(diffDays / 30)} mois`
+}
+
+const loadStats = async () => {
+  const userId = authStore.user?.id
+  if (!userId) return
+  
+  let oppCount = 0
+  let connCount = 0
+  
+  try {
+    // Compter les opportunités créées
+    const { count, error } = await supabase
+      .from('pev_opportunities')
+      .select('*', { count: 'exact', head: true })
+      .eq('created_by', userId)
+    if (!error) oppCount = count || 0
+  } catch (e) { /* table peut ne pas exister */ }
+  
+  try {
+    // Compter les connexions (requester)
+    const { count: c1 } = await supabase
+      .from('pev_connections')
+      .select('*', { count: 'exact', head: true })
+      .eq('requester_id', userId)
+      .eq('status', 'accepted')
+    
+    // Compter les connexions (addressee - pas receiver)
+    const { count: c2 } = await supabase
+      .from('pev_connections')
+      .select('*', { count: 'exact', head: true })
+      .eq('addressee_id', userId)
+      .eq('status', 'accepted')
+    
+    connCount = (c1 || 0) + (c2 || 0)
+  } catch (e) { /* table peut ne pas exister */ }
+  
+  // Vues profil depuis pev_profiles
+  const profile = authStore.user?.profile
+  
+  stats.value = {
+    connections: connCount,
+    opportunities: oppCount,
+    profileViews: profile?.views_count || 0
+  }
+}
 </script>
 
 <style scoped>

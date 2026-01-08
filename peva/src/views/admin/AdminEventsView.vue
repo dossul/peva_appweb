@@ -299,8 +299,11 @@
                 </template>
                 
                 <template v-slot:item.status="{ item }">
-                  <v-chip :color="item.status === 'registered' ? 'success' : 'grey'" size="small">
-                    {{ item.status === 'registered' ? 'Inscrit' : item.status }}
+                  <v-chip 
+                    :color="item.status === 'registered' ? 'success' : item.status === 'pending' ? 'warning' : item.status === 'rejected' ? 'error' : 'grey'" 
+                    size="small"
+                  >
+                    {{ item.status === 'registered' ? 'Inscrit' : item.status === 'pending' ? 'En attente' : item.status === 'rejected' ? 'Rejeté' : item.status }}
                   </v-chip>
                 </template>
                 
@@ -309,12 +312,27 @@
                 </template>
                 
                 <template v-slot:item.actions="{ item }">
-                  <v-btn icon size="small" color="success" @click="markAttendance(item, true)">
-                    <v-icon>mdi-check</v-icon>
-                  </v-btn>
-                  <v-btn icon size="small" color="error" @click="removeParticipant(item)">
-                    <v-icon>mdi-account-remove</v-icon>
-                  </v-btn>
+                  <template v-if="item.status === 'pending'">
+                    <v-btn icon size="small" color="success" @click="approveParticipant(item)" title="Approuver">
+                      <v-icon>mdi-check-circle</v-icon>
+                    </v-btn>
+                    <v-btn icon size="small" color="error" @click="rejectParticipant(item)" title="Rejeter">
+                      <v-icon>mdi-close-circle</v-icon>
+                    </v-btn>
+                  </template>
+                  <template v-else-if="item.status === 'registered'">
+                    <v-btn icon size="small" color="success" @click="markAttendance(item, true)" title="Marquer présent">
+                      <v-icon>mdi-account-check</v-icon>
+                    </v-btn>
+                    <v-btn icon size="small" color="error" @click="removeParticipant(item)" title="Retirer">
+                      <v-icon>mdi-account-remove</v-icon>
+                    </v-btn>
+                  </template>
+                  <template v-else>
+                    <v-btn icon size="small" disabled>
+                      <v-icon>mdi-minus</v-icon>
+                    </v-btn>
+                  </template>
                 </template>
               </v-data-table>
             </v-card-text>
@@ -743,6 +761,27 @@ const removeParticipant = async (participant) => {
   if (result.success) {
     showMessage('Participant retiré', 'success')
     loadParticipants()
+  }
+}
+
+const approveParticipant = async (participant) => {
+  const result = await eventsService.approveParticipant(participant.id, selectedEventForParticipants.value)
+  if (result.success) {
+    showMessage('Participant approuvé - Email envoyé', 'success')
+    loadParticipants()
+    loadStats()
+  } else {
+    showMessage(result.error || 'Erreur lors de l\'approbation', 'error')
+  }
+}
+
+const rejectParticipant = async (participant) => {
+  const result = await eventsService.rejectParticipant(participant.id, selectedEventForParticipants.value)
+  if (result.success) {
+    showMessage('Participant rejeté - Email envoyé', 'info')
+    loadParticipants()
+  } else {
+    showMessage(result.error || 'Erreur lors du rejet', 'error')
   }
 }
 

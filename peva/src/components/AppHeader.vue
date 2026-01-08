@@ -190,6 +190,13 @@
                 <v-list-item-title>Organiser un Événement</v-list-item-title>
                 <v-list-item-subtitle>Conférences, formations</v-list-item-subtitle>
               </v-list-item>
+              <v-list-item @click="navigateTo('/my-events')" :disabled="!authStore.isAuthenticated">
+                <template v-slot:prepend>
+                  <v-icon>mdi-calendar-edit</v-icon>
+                </template>
+                <v-list-item-title>Mes Événements</v-list-item-title>
+                <v-list-item-subtitle>Brouillons et événements publiés</v-list-item-subtitle>
+              </v-list-item>
               <v-list-item @click="navigateTo('/groups/create')" :disabled="!authStore.isAuthenticated">
                 <template v-slot:prepend>
                   <v-icon>mdi-account-group-outline</v-icon>

@@ -380,7 +380,7 @@ const getItemDescription = (item) => {
 }
 
 const getItemImage = (item) => {
-  return item.cover_image_url || item.logo_url || item.avatar_url || null
+  return item.image_url || item.cover_image_url || item.logo_url || item.avatar_url || null
 }
 
 const getItemLocation = (item) => {

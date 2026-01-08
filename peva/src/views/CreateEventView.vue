@@ -46,6 +46,28 @@
                       placeholder="Décrivez votre événement, son contenu et sa valeur ajoutée..."
                     />
                   </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-file-input
+                      v-model="eventData.image"
+                      label="Visuel de l'événement (optionnel)"
+                      variant="outlined"
+                      accept="image/*"
+                      prepend-icon="mdi-image"
+                      show-size
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-file-input
+                      v-model="eventData.document"
+                      label="Document joint (optionnel)"
+                      variant="outlined"
+                      accept=".pdf,.doc,.docx,.ppt,.pptx"
+                      prepend-icon="mdi-file-document"
+                      show-size
+                    />
+                  </v-col>
                   
                   <v-col cols="12" md="6">
                     <v-select
@@ -61,6 +83,8 @@
                     <v-select
                       v-model="eventData.category"
                       :items="categories"
+                      item-title="name"
+                      item-value="id"
                       label="Catégorie *"
                       variant="outlined"
                       :rules="[rules.required]"
@@ -183,7 +207,7 @@
                   <v-col cols="12" md="6" v-if="!eventData.is_free">
                     <v-text-field
                       v-model="eventData.price"
-                      label="Prix (€)"
+                      label="Prix (FCFA)"
                       type="number"
                       variant="outlined"
                       placeholder="0"
@@ -395,11 +419,11 @@
               <v-card-text class="pa-4">
                 <v-row>
                   <v-col cols="6" class="text-center">
-                    <div class="text-h4 font-weight-bold text-blue-darken-2">3</div>
+                    <div class="text-h4 font-weight-bold text-blue-darken-2">{{ userStats.eventsCount }}</div>
                     <div class="text-body-2">Événements créés</div>
                   </v-col>
                   <v-col cols="6" class="text-center">
-                    <div class="text-h4 font-weight-bold text-green-darken-2">127</div>
+                    <div class="text-h4 font-weight-bold text-green-darken-2">{{ userStats.participantsTotal }}</div>
                     <div class="text-body-2">Participants totaux</div>
                   </v-col>
                 </v-row>
@@ -430,7 +454,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { supabase } from '@/lib/supabase'
+import { eventsService } from '@/services/eventsService'
+import dataService from '@/services/dataService'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -460,7 +485,9 @@ const eventData = ref({
   contact_phone: '',
   require_approval: false,
   send_notifications: true,
-  auto_share_social: false
+  auto_share_social: false,
+  image: null,
+  document: null
 })
 
 const snackbar = ref({
@@ -469,7 +496,13 @@ const snackbar = ref({
   color: 'success'
 })
 
-// Static data
+// Stats utilisateur depuis BDD
+const userStats = ref({
+  eventsCount: 0,
+  participantsTotal: 0
+})
+
+// Data chargée depuis BDD
 const eventTypes = [
   'Conférence',
   'Formation',
@@ -481,16 +514,7 @@ const eventTypes = [
   'Table ronde'
 ]
 
-const categories = [
-  'Énergie Renouvelable',
-  'Agriculture Durable',
-  'Économie Circulaire',
-  'Innovation Technologique',
-  'Finance Verte',
-  'Entrepreneuriat',
-  'Développement Durable',
-  'Autre'
-]
+const categories = ref([])
 
 // Validation rules
 const rules = {
@@ -537,8 +561,38 @@ const getTypeColor = (type) => {
   return colors[type] || 'grey'
 }
 
-const saveDraft = () => {
-  showMessage('Événement sauvegardé en brouillon', 'info')
+const saveDraft = async () => {
+  isSubmitting.value = true
+  try {
+    const payload = {
+      title: eventData.value.title,
+      description: eventData.value.description,
+      event_type: eventData.value.type,
+      category_id: eventData.value.category,
+      start_date: eventData.value.start_date ? `${eventData.value.start_date}T${eventData.value.start_time || '00:00'}:00` : null,
+      end_date: eventData.value.end_date ? `${eventData.value.end_date}T${eventData.value.end_time || '23:59'}:00` : null,
+      location_type: eventData.value.location_type,
+      location: eventData.value.venue || eventData.value.address || (eventData.value.location_type === 'online' ? 'En ligne' : ''),
+      address: eventData.value.address,
+      online_link: eventData.value.online_link,
+      is_free: eventData.value.is_free,
+      price: eventData.value.is_free ? 0 : eventData.value.price,
+      max_participants: eventData.value.max_participants,
+      contact_email: eventData.value.contact_email,
+      contact_phone: eventData.value.contact_phone,
+      created_by: authStore.user?.id
+    }
+    const result = await eventsService.saveDraft(payload)
+    if (result.success) {
+      showMessage('Brouillon sauvegardé !', 'success')
+    } else {
+      showMessage(result.error || 'Erreur sauvegarde', 'error')
+    }
+  } catch (error) {
+    showMessage('Erreur: ' + error.message, 'error')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const publishEvent = async () => {
@@ -550,41 +604,38 @@ const publishEvent = async () => {
   isSubmitting.value = true
   
   try {
-    // Préparer les données de l'événement
-    const eventPayload = {
+    const payload = {
       title: eventData.value.title,
       description: eventData.value.description,
-      type: eventData.value.type,
-      category: eventData.value.category,
+      event_type: eventData.value.type,
+      category_id: eventData.value.category,
       start_date: eventData.value.start_date ? `${eventData.value.start_date}T${eventData.value.start_time || '00:00'}:00` : null,
       end_date: eventData.value.end_date ? `${eventData.value.end_date}T${eventData.value.end_time || '23:59'}:00` : null,
       location_type: eventData.value.location_type,
       location: eventData.value.venue || eventData.value.address || (eventData.value.location_type === 'online' ? 'En ligne' : ''),
+      address: eventData.value.address,
       online_link: eventData.value.online_link,
       is_free: eventData.value.is_free,
       price: eventData.value.is_free ? 0 : eventData.value.price,
       max_participants: eventData.value.max_participants,
       contact_email: eventData.value.contact_email,
       contact_phone: eventData.value.contact_phone,
-      // IMPORTANT: status='pending' pour modération avant publication
-      status: 'pending',
-      created_by: authStore.user?.id || null
+      created_by: authStore.user?.id
     }
     
-    const { data, error } = await supabase
-      .from('pev_events')
-      .insert([eventPayload])
-      .select()
+    // Récupérer les fichiers si présents
+    const imageFile = eventData.value.image?.[0] || eventData.value.image || null
+    const documentFile = eventData.value.document?.[0] || eventData.value.document || null
     
-    if (error) throw error
+    const result = await eventsService.createEvent(payload, imageFile, documentFile)
     
-    showMessage('Événement soumis avec succès ! Il sera visible après validation par un modérateur.', 'success')
-    setTimeout(() => {
-      router.push('/events')
-    }, 3000)
+    if (!result.success) throw new Error(result.error)
+    
+    showMessage('Événement soumis ! Il sera visible après validation.', 'success')
+    setTimeout(() => router.push('/events'), 3000)
   } catch (error) {
-    console.error('Erreur lors de la création de l\'événement:', error)
-    showMessage('Erreur lors de la soumission. Veuillez réessayer.', 'error')
+    console.error('Erreur création événement:', error)
+    showMessage('Erreur: ' + error.message, 'error')
   } finally {
     isSubmitting.value = false
   }
@@ -602,9 +653,30 @@ const showMessage = (message, color = 'success') => {
   }
 }
 
-// Initialize
+// Charger les secteurs (catégories thématiques) depuis pev_sectors
+const loadCategories = async () => {
+  try {
+    const sectors = await dataService.getSectors()
+    categories.value = sectors.map(s => ({ id: s.id, name: s.name }))
+  } catch (error) {
+    console.log('Secteurs non disponibles')
+  }
+}
+
+// Charger les stats utilisateur depuis BDD
+const loadUserStats = async () => {
+  if (!authStore.user?.id) return
+  
+  const result = await eventsService.getUserEvents(authStore.user.id)
+  if (result.success && result.data) {
+    userStats.value.eventsCount = result.data.length
+    userStats.value.participantsTotal = result.data.reduce((sum, e) => sum + (e.participants_count || 0), 0)
+  }
+}
+
 onMounted(() => {
-  // TODO: Charger les données utilisateur depuis Supabase
+  loadCategories()
+  loadUserStats()
   if (authStore.user?.email) {
     eventData.value.contact_email = authStore.user.email
   }

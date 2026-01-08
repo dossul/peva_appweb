@@ -163,9 +163,69 @@ CREATE TABLE nouvelle_table (
 
 ---
 
+## Règle #9 : Wizard - Valider Uniquement Champs Visibles (Ajoutée 2026-01-08)
+
+**Dans un formulaire multi-étapes, canProceed() ne doit valider QUE les champs affichés.**
+
+### ❌ INTERDIT :
+```javascript
+// Valide des champs non affichés dans l'étape 1
+if (step === 1) {
+  return title && type && description && date && location // date/location pas visibles!
+}
+```
+
+### ✅ CORRECT :
+```javascript
+// Valide uniquement les champs visibles dans l'étape
+if (step === 1) return title && type && description
+if (step === 2) return date && location && organizer_name
+```
+
+---
+
+## Règle #10 : Requêtes Supabase - Éviter Jointures Complexes (Ajoutée 2026-01-08)
+
+**Si une jointure cause erreur 400, séparer en requêtes distinctes.**
+
+### ❌ PEUT ÉCHOUER :
+```javascript
+.select('*, pev_events(title)')  // Jointure peut causer 400
+```
+
+### ✅ PLUS FIABLE :
+```javascript
+// Requête 1: données principales
+const { data: items } = await supabase.from('table').select('event_id')
+// Requête 2: données liées
+const { data: events } = await supabase.from('pev_events').select('id, title').in('id', ids)
+```
+
+---
+
+## Règle #11 : Noms de Colonnes - Vérifier le Codebase (Ajoutée 2026-01-08)
+
+**TOUJOURS vérifier les noms exacts des colonnes dans les services existants.**
+
+### Colonnes souvent confondues :
+| Table | ❌ Mauvais | ✅ Correct |
+|-------|-----------|-----------|
+| pev_connections | receiver_id | addressee_id |
+| pev_event_participants | registered_at | registration_date |
+
+### Commande de vérification :
+```bash
+grep_search "from('pev_table')" dans src/services/
+```
+
+---
+
 ## HISTORIQUE DES CORRECTIONS
 
 | Date | Problème | Solution | Fichier |
 |------|----------|----------|---------|
 | 2026-01-04 | Buckets Storage manquants | Création des 6 buckets + policies RLS | `docs/HISTORIQUE_CORRECTIONS_STORAGE.md` |
 | 2026-01-04 | Erreurs Admin Dashboard (6) | Tables, colonnes, FK, RLS corrigés | `docs/ANALYSE_ERREURS_ADMIN_DASHBOARD.md` |
+| 2026-01-08 | ProfileView données mockées | Remplacé par données Supabase dynamiques | `docs/CORRECTIONS_EVENTS_2026-01-08.md` |
+| 2026-01-08 | Wizard événement bloqué | Réorganisé étapes + canProceed corrigé | `docs/CORRECTIONS_EVENTS_2026-01-08.md` |
+| 2026-01-08 | Workflow approbation manquant | Ajouté approve/reject + emails | `docs/CORRECTIONS_EVENTS_2026-01-08.md` |

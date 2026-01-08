@@ -98,35 +98,84 @@
         </div>
 
         <div v-else-if="contentType === 'events'" class="mb-6">
+          <!-- Visuel de l'événement -->
+          <v-img 
+            v-if="content.image_url" 
+            :src="content.image_url" 
+            height="200" 
+            cover 
+            class="rounded mb-4"
+          />
+          
           <h3 class="text-h6 font-weight-bold mb-3">Détails de l'événement</h3>
           <v-row>
             <v-col cols="6">
               <div class="detail-item">
-                <strong>Type:</strong> {{ content.type }}
+                <strong>Type:</strong> {{ content.event_type || content.type || 'Non spécifié' }}
               </div>
               <div class="detail-item">
-                <strong>Date de début:</strong> {{ formatDate(content.start_at) }}
-              </div>
-              <div class="detail-item" v-if="content.end_at">
-                <strong>Date de fin:</strong> {{ formatDate(content.end_at) }}
+                <strong>Catégorie:</strong> {{ content.category || content.pev_event_categories?.name || 'Non spécifiée' }}
               </div>
               <div class="detail-item">
-                <strong>Format:</strong> {{ content.is_online ? 'En ligne' : 'Présentiel' }}
+                <strong>Date de début:</strong> {{ formatDate(content.start_date) }}
+              </div>
+              <div class="detail-item" v-if="content.end_date">
+                <strong>Date de fin:</strong> {{ formatDate(content.end_date) }}
+              </div>
+              <div class="detail-item">
+                <strong>Format:</strong> {{ getLocationTypeLabel(content.location_type) }}
               </div>
             </v-col>
             <v-col cols="6">
               <div class="detail-item" v-if="content.location">
                 <strong>Lieu:</strong> {{ content.location }}
               </div>
-              <div class="detail-item" v-if="content.capacity">
-                <strong>Capacité:</strong> {{ content.capacity }} participants
+              <div class="detail-item" v-if="content.city">
+                <strong>Ville:</strong> {{ content.city }}
               </div>
-              <div class="detail-item" v-if="content.registration_url">
-                <strong>Inscription:</strong> 
-                <a :href="content.registration_url" target="_blank">Lien d'inscription</a>
+              <div class="detail-item" v-if="content.max_participants">
+                <strong>Capacité:</strong> {{ content.max_participants }} participants
+              </div>
+              <div class="detail-item">
+                <strong>Prix:</strong> 
+                <v-chip :color="content.is_free ? 'success' : 'warning'" size="x-small">
+                  {{ content.is_free ? 'Gratuit' : `${content.price || 0} ${content.currency || 'FCFA'}` }}
+                </v-chip>
+              </div>
+              <div class="detail-item" v-if="content.require_approval">
+                <strong>Approbation:</strong> 
+                <v-chip color="info" size="x-small">Manuelle requise</v-chip>
               </div>
             </v-col>
           </v-row>
+          
+          <!-- Organisateur -->
+          <div v-if="content.organizer_name || content.contact_email" class="mt-4">
+            <h4 class="text-subtitle-1 font-weight-bold mb-2">Organisateur</h4>
+            <div class="detail-item" v-if="content.organizer_name">
+              <strong>Nom:</strong> {{ content.organizer_name }}
+            </div>
+            <div class="detail-item" v-if="content.contact_email">
+              <strong>Email:</strong> {{ content.contact_email }}
+            </div>
+            <div class="detail-item" v-if="content.contact_phone">
+              <strong>Téléphone:</strong> {{ content.contact_phone }}
+            </div>
+          </div>
+          
+          <!-- Document joint -->
+          <div v-if="content.document_url" class="mt-4">
+            <h4 class="text-subtitle-1 font-weight-bold mb-2">Document joint</h4>
+            <v-btn 
+              variant="tonal" 
+              color="primary" 
+              :href="content.document_url" 
+              target="_blank"
+              prepend-icon="mdi-file-document"
+            >
+              Télécharger le document
+            </v-btn>
+          </div>
         </div>
 
         <div v-else-if="contentType === 'companies'" class="mb-6">
@@ -373,7 +422,7 @@ const getContentDescription = () => {
 }
 
 const getContentImage = () => {
-  return props.content.cover_image_url || props.content.logo_url || props.content.avatar_url || null
+  return props.content.image_url || props.content.cover_image_url || props.content.logo_url || props.content.avatar_url || null
 }
 
 const getContentTypeLabel = () => {
@@ -494,6 +543,15 @@ const formatSalary = (min, max, currency = 'EUR') => {
     return `Jusqu'à ${max} ${currency}`
   }
   return 'Non spécifié'
+}
+
+const getLocationTypeLabel = (locationType) => {
+  const labels = {
+    physical: 'Présentiel',
+    online: 'En ligne',
+    hybrid: 'Hybride'
+  }
+  return labels[locationType] || locationType || 'Non spécifié'
 }
 
 const formatFileSize = (bytes) => {

@@ -50,6 +50,7 @@ const ConnectionsView = () => import('@/views/ConnectionsView.vue')
 const OpportunityApplicationsView = () => import('@/views/OpportunityApplicationsView.vue')
 const MyOpportunitiesView = () => import('@/views/MyOpportunitiesView.vue')
 const MyResourcesView = () => import('@/views/MyResourcesView.vue')
+const MyEventsView = () => import('@/views/MyEventsView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -195,6 +196,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/events/:id',
+      name: 'EventDetail',
+      component: () => import('@/views/EventDetailView.vue'),
+      meta: { 
+        title: 'Détail Événement - 2iE GreenHub'
+      }
+    },
+    {
       path: '/directory',
       name: 'Directory',
       component: DirectoryView,
@@ -333,6 +342,15 @@ const router = createRouter({
       meta: { 
         requiresAuth: true,
         title: 'Mes Ressources - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/my-events',
+      name: 'MyEvents',
+      component: MyEventsView,
+      meta: { 
+        requiresAuth: true,
+        title: 'Mes Événements - 2iE GreenHub'
       }
     },
     {
@@ -576,15 +594,18 @@ router.beforeEach(async (to, from, next) => {
 
   // Si l'utilisateur est connecté, effectuer des vérifications supplémentaires
   if (authStore.isAuthenticated) {
-    // Vérifier la vérification de l'email
-    if (to.meta.requiresEmailVerification && !authStore.isEmailVerified) {
+    // Les admins sont exemptés des contraintes d'email et d'onboarding
+    const isAdmin = authStore.isAdmin
+    
+    // Vérifier la vérification de l'email (sauf pour les admins)
+    if (to.meta.requiresEmailVerification && !authStore.isEmailVerified && !isAdmin) {
       // Rediriger vers une page de vérification d'email (à créer)
       console.warn('Email non vérifié')
       // Pour l'instant, on laisse passer mais on pourrait rediriger
     }
 
-    // Vérifier si l'onboarding est requis
-    if (to.meta.requiresOnboarding && !authStore.hasCompletedOnboarding) {
+    // Vérifier si l'onboarding est requis (sauf pour les admins)
+    if (to.meta.requiresOnboarding && !authStore.hasCompletedOnboarding && !isAdmin) {
       if (to.name !== 'Onboarding') {
         return next('/onboarding')
       }

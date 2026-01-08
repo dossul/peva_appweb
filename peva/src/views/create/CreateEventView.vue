@@ -454,7 +454,8 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import dataService from '@/services/dataService'
 
 export default {
   name: 'CreateEventView',
@@ -510,19 +511,21 @@ export default {
       { label: 'Salon/Expo', value: 'exhibition', icon: 'mdi-store' }
     ]
 
-    const categories = [
-      'Énergies Renouvelables',
-      'Agriculture Durable',
-      'Technologies Propres',
-      'Finance Verte',
-      'Transport Durable',
-      'Économie Circulaire',
-      'Biodiversité',
-      'Changement Climatique',
-      'Innovation',
-      'Entrepreneuriat',
-      'Formation'
-    ]
+    // Catégories = Secteurs (chargés depuis pev_sectors)
+    const categories = ref([])
+    
+    const loadSectors = async () => {
+      try {
+        const sectors = await dataService.getSectors()
+        categories.value = sectors.map(s => s.name)
+      } catch (error) {
+        console.log('Secteurs non disponibles')
+      }
+    }
+    
+    onMounted(() => {
+      loadSectors()
+    })
 
     const eventFormats = [
       { title: 'Présentiel', value: 'physical' },

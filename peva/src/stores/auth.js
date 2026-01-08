@@ -43,7 +43,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Écouter les changements d'authentification
       supabase.auth.onAuthStateChange(async (event, newSession) => {
-        console.log('Auth state changed:', event, newSession)
+        // console.log('Auth state changed:', event, newSession)
         
         session.value = newSession
         user.value = newSession?.user || null
@@ -83,6 +83,30 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = {
           ...user.value,
           profile
+        }
+      } else {
+        // Créer automatiquement le profil s'il n'existe pas
+        const newProfile = {
+          id: user.value.id,
+          email: user.value.email,
+          first_name: user.value.user_metadata?.first_name || user.value.user_metadata?.firstName || null,
+          last_name: user.value.user_metadata?.last_name || user.value.user_metadata?.lastName || null,
+          display_name: user.value.user_metadata?.display_name || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        
+        const { data: createdProfile, error: createError } = await supabase
+          .from('pev_profiles')
+          .insert(newProfile)
+          .select()
+          .single()
+        
+        if (createError) {
+          console.warn('Erreur création profil auto:', createError.message)
+        } else if (createdProfile) {
+          user.value = { ...user.value, profile: createdProfile }
+          console.log('✅ Profil créé automatiquement avec email:', createdProfile.email)
         }
       }
     } catch (error) {
