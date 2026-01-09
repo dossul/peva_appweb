@@ -94,6 +94,25 @@
                           prepend-inner-icon="mdi-map-marker"
                         />
                       </v-col>
+                      <v-col cols="12" md="6">
+                        <v-text-field
+                          v-model="companyProfile.city"
+                          label="Ville"
+                          placeholder="Ex: Ouagadougou, Dakar..."
+                          variant="outlined"
+                          prepend-inner-icon="mdi-city"
+                        />
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <v-select
+                          v-model="companyProfile.size"
+                          :items="companySizes"
+                          label="Taille de l'entreprise"
+                          variant="outlined"
+                          :rules="[rules.required]"
+                          prepend-inner-icon="mdi-account-group"
+                        />
+                      </v-col>
                       <v-col cols="12">
                         <v-textarea
                           v-model="companyProfile.description"
@@ -402,6 +421,8 @@ const companyProfile = ref({
   name: '',
   sector: 'Énergies renouvelables',
   country: 'Sénégal',
+  city: '',
+  size: 'pme',
   description: ''
 })
 
@@ -422,11 +443,21 @@ const snackbar = ref({
 const sectors = [
   'Énergies renouvelables',
   'Agriculture durable',
+  'Agroalimentaire',
   'Gestion des déchets',
   'Transport vert',
   'Construction écologique',
   'Eau et assainissement',
-  'Technologies propres'
+  'Technologies propres',
+  'Écotourisme',
+  'Artisanat vert'
+]
+
+const companySizes = [
+  { title: 'TPME (1-10 employés)', value: 'tpme' },
+  { title: 'PME (11-50 employés)', value: 'pme' },
+  { title: 'Moyenne (51-250 employés)', value: 'moyenne' },
+  { title: 'Grande (250+ employés)', value: 'grande' }
 ]
 
 const countries = [
@@ -469,6 +500,8 @@ const loadCompanyData = async () => {
         name: company.name || '',
         sector: company.industry || 'Énergies renouvelables',
         country: company.country || 'Sénégal',
+        city: company.city || '',
+        size: company.size || 'pme',
         description: company.description || ''
       }
 
@@ -512,6 +545,8 @@ const saveProfile = async () => {
       name: companyProfile.value.name,
       sector: companyProfile.value.sector,
       country: companyProfile.value.country,
+      city: companyProfile.value.city,
+      size: companyProfile.value.size,
       description: companyProfile.value.description
     })
     

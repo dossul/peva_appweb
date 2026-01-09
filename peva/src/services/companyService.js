@@ -64,6 +64,7 @@ export const companyService = {
       updateData.industry = updates.sector || updates.industry
     }
     if (updates.country) updateData.country = updates.country
+    if (updates.city) updateData.city = updates.city
     if (updates.website) updateData.website = updates.website
     if (updates.email) updateData.email = updates.email
     if (updates.headquarters) updateData.headquarters = updates.headquarters
