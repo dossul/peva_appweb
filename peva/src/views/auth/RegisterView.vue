@@ -382,20 +382,20 @@ const snackbar = reactive({
   color: 'error'
 })
 
-// Types de profil détaillés
+// Types de profil détaillés (mis à jour selon demande client)
 const profileTypes = [
   {
-    value: 'entrepreneur',
-    title: 'Entrepreneur',
-    description: 'Créateur d\'entreprise dans l\'économie verte',
-    icon: 'mdi-lightbulb-on',
+    value: 'learner',
+    title: 'Apprenant',
+    description: 'Étudiant ou professionnel en formation',
+    icon: 'mdi-school',
     color: 'orange'
   },
   {
     value: 'investor',
-    title: 'Investisseur',
+    title: 'Investisseur/banque',
     description: 'Financeur de projets verts et durables',
-    icon: 'mdi-trending-up',
+    icon: 'mdi-bank',
     color: 'green'
   },
   {
@@ -406,18 +406,25 @@ const profileTypes = [
     color: 'blue'
   },
   {
-    value: 'organization',
-    title: 'Organisation',
-    description: 'ONG, institution ou entreprise',
-    icon: 'mdi-domain',
+    value: 'ptf',
+    title: 'Partenaires techniques et financiers (PTF)',
+    description: 'ONG, bailleurs, institutions de développement',
+    icon: 'mdi-handshake',
     color: 'purple'
   },
   {
-    value: 'recruiter',
-    title: 'Recruteur',
-    description: 'Recherche de talents verts',
-    icon: 'mdi-account-search',
+    value: 'company',
+    title: 'Entreprises',
+    description: 'Entreprise du secteur vert',
+    icon: 'mdi-domain',
     color: 'teal'
+  },
+  {
+    value: 'research',
+    title: 'Institution de recherche/Université',
+    description: 'Centre de recherche ou établissement académique',
+    icon: 'mdi-flask',
+    color: 'indigo'
   }
 ]
 

@@ -413,26 +413,26 @@ const resourceTypes = [
   'Formation'
 ]
 
+// Secteurs harmonisés (identiques à DirectoryView, CompanyManagementView, etc.)
 const sectors = [
-  'Agriculture Durable',
   'Agroalimentaire',
+  'Agriculture durable',
   'Bilan carbone',
-  'Construction Écologique',
-  'Économie circulaire',
+  'Communication d\'impact',
+  'Construction écologique',
+  'Eau et assainissement',
   'Éco-matériaux',
   'Écotourisme',
-  'Énergies Renouvelables',
-  'Gestion des Déchets',
+  'Énergies renouvelables',
+  'Équipementiers',
+  'Gestion des déchets',
   'RSE/ESG',
-  'Transport Vert',
+  'Technologies propres',
+  'Transformation agroalimentaire',
+  'Transport vert',
   'Valorisation des déchets',
   'Autres'
-].sort((a, b) => {
-  // Garder "Autres" à la fin
-  if (a === 'Autres') return 1
-  if (b === 'Autres') return -1
-  return a.localeCompare(b, 'fr')
-})
+]
 
 const levels = [
   'Débutant',

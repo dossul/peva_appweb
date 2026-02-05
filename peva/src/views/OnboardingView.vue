@@ -440,14 +440,12 @@ const africanCountries = [
 ]
 
 const userTypes = [
-  { title: 'Entrepreneur', value: 'entrepreneur' },
-  { title: 'Investisseur', value: 'investor' },
-  { title: 'Chercheur/Académique', value: 'researcher' },
-  { title: 'ONG/Association', value: 'ngo' },
-  { title: 'Institution publique', value: 'public' },
-  { title: 'Consultant', value: 'consultant' },
-  { title: 'Étudiant', value: 'student' },
-  { title: 'Autre', value: 'other' }
+  { title: 'Apprenant', value: 'learner' },
+  { title: 'Investisseur/banque', value: 'investor' },
+  { title: 'Expert/Consultant', value: 'expert' },
+  { title: 'Partenaires techniques et financiers (PTF)', value: 'ptf' },
+  { title: 'Entreprises', value: 'company' },
+  { title: 'Institution de recherche/Université', value: 'research' }
 ]
 
 const greenSectors = [

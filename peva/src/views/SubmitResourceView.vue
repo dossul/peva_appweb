@@ -493,17 +493,25 @@ const resourceTypes = [
   { title: 'Autre', value: 'other' }
 ]
 
+// Secteurs harmonisés (identiques à DirectoryView, CompanyManagementView, etc.)
 const sectors = [
   'Agroalimentaire',
-  'Agriculture Durable',
-  'Économie Circulaire',
+  'Agriculture durable',
+  'Bilan carbone',
+  'Communication d\'impact',
+  'Construction écologique',
+  'Eau et assainissement',
+  'Éco-matériaux',
   'Écotourisme',
-  'Énergie Renouvelable',
-  'Entrepreneuriat',
-  'Finance Verte',
-  'Innovation Technologique',
-  'Développement Durable',
-  'Autre'
+  'Énergies renouvelables',
+  'Équipementiers',
+  'Gestion des déchets',
+  'RSE/ESG',
+  'Technologies propres',
+  'Transformation agroalimentaire',
+  'Transport vert',
+  'Valorisation des déchets',
+  'Autres'
 ]
 
 const difficultyLevels = [
