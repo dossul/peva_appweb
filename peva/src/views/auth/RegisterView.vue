@@ -552,6 +552,9 @@ const nextStep = async () => {
   } else if (currentStep.value === 2) {
     const { valid } = await step2Form.value.validate()
     isValid = valid && form.profileType !== ''
+  } else if (currentStep.value === 3) {
+    const { valid } = await step3Form.value.validate()
+    isValid = valid
   }
   
   if (isValid) {
