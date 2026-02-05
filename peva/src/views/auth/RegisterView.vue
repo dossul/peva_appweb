@@ -19,8 +19,8 @@
 
       <v-card class="mt-8 elevation-8 rounded-lg" style="border: none;">
         <v-card-text class="pa-8">
-          <!-- Connexion OAuth -->
-          <div class="d-flex flex-column ga-3 mb-6">
+          <!-- Connexion OAuth - masqué pendant le formulaire -->
+          <div v-if="currentStep === 1" class="d-flex flex-column ga-3 mb-6">
             <v-btn
               @click="signUpWithGoogle"
               :loading="loading.google"
@@ -46,7 +46,7 @@
             </v-btn>
           </div>
 
-          <v-divider class="my-6">
+          <v-divider v-if="currentStep === 1" class="my-6">
             <span class="text-body-2 text-grey-darken-1">Ou s'inscrire avec</span>
           </v-divider>
 
@@ -346,7 +346,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 

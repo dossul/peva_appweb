@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
+import { emailService } from '@/services/emailService'
 
 export const useAuthStore = defineStore('auth', () => {
   // État
@@ -117,26 +118,60 @@ export const useAuthStore = defineStore('auth', () => {
   const signUp = async (email, password, userData = {}) => {
     loading.value = true
     try {
+      // Inscription avec désactivation de l'email automatique Supabase
+      // On utilise notre propre service d'email
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             first_name: userData.firstName,
             last_name: userData.lastName,
-            user_type: userData.userType,
+            user_type: userData.profileType || userData.userType,
+            preferences: userData.preferences || [],
             ...userData
           }
         }
       })
 
-      if (error) throw error
+      // Gérer l'erreur SMTP de Supabase - envoyer via notre propre service
+      if (error) {
+        // Si c'est une erreur d'envoi d'email, on crée quand même l'utilisateur
+        if (error.message?.includes('sending confirmation email') || error.message?.includes('SMTP')) {
+          console.warn('Email Supabase échoué, utilisation du service email personnalisé')
+          
+          // Envoyer l'email via notre service personnalisé
+          const confirmationUrl = `${window.location.origin}/auth/verify?email=${encodeURIComponent(email)}`
+          await emailService.sendWelcomeEmail(
+            email,
+            userData.firstName || 'Utilisateur',
+            confirmationUrl
+          ).catch(err => console.warn('Email de bienvenue non envoyé:', err))
+          
+          return {
+            user: { email, ...userData },
+            needsConfirmation: true,
+            emailSentViaCustomService: true
+          }
+        }
+        throw error
+      }
 
-      // Si l'inscription réussit, créer le profil
-      if (data.user && !data.user.email_confirmed_at) {
-        return {
-          user: data.user,
-          needsConfirmation: true
+      // Si l'inscription réussit, envoyer email de bienvenue via notre service
+      if (data.user) {
+        const confirmationUrl = `${window.location.origin}/auth/verify?token=${data.user.confirmation_token || ''}&email=${encodeURIComponent(email)}`
+        emailService.sendWelcomeEmail(
+          email,
+          userData.firstName || 'Utilisateur',
+          confirmationUrl
+        ).catch(err => console.warn('Email de bienvenue non envoyé:', err))
+        
+        if (!data.user.email_confirmed_at) {
+          return {
+            user: data.user,
+            needsConfirmation: true
+          }
         }
       }
 

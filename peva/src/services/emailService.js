@@ -356,6 +356,75 @@ class EmailService {
   }
 
   /**
+   * Email de bienvenue après inscription
+   */
+  async sendWelcomeEmail(recipientEmail, recipientName, confirmationUrl) {
+    const subject = `🌱 Bienvenue sur 2iE GreenHub !`
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+          <tr>
+            <td style="background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%); padding: 30px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">
+                🌱 Bienvenue sur 2iE GreenHub
+              </h1>
+            </td>
+          </tr>
+          
+          <tr>
+            <td style="padding: 40px 30px;">
+              <p style="color: #333; font-size: 16px; margin-bottom: 20px;">
+                Bonjour <strong>${recipientName}</strong>,
+              </p>
+              
+              <p style="color: #333; font-size: 16px; margin-bottom: 20px;">
+                Merci de vous être inscrit(e) sur 2iE GreenHub, la plateforme de l'économie verte en Afrique !
+              </p>
+              
+              <p style="color: #333; font-size: 16px; margin-bottom: 20px;">
+                Pour finaliser votre inscription et accéder à toutes les fonctionnalités, veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous :
+              </p>
+              
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="text-align: center; padding: 30px 0;">
+                    <a href="${confirmationUrl}" 
+                       style="display: inline-block; background-color: #2e7d32; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+                      Confirmer mon email
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="color: #666; font-size: 14px; margin-top: 20px;">
+                Si vous n'avez pas créé de compte sur 2iE GreenHub, vous pouvez ignorer cet email.
+              </p>
+            </td>
+          </tr>
+          
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 20px 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+              <p style="color: #666; font-size: 12px; margin: 0;">
+                © 2024 2iE GreenHub - Plateforme de l'Économie Verte Africaine
+              </p>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `
+
+    return this.sendEmail(recipientEmail, subject, htmlContent)
+  }
+
+  /**
    * Enlever les balises HTML
    */
   stripHtml(html) {
