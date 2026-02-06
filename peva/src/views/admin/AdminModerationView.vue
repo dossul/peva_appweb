@@ -129,6 +129,13 @@
               {{ stats.forum.pending }}
             </v-chip>
           </v-tab>
+          <v-tab value="claims">
+            <v-icon class="mr-2">mdi-hand-pointing-right</v-icon>
+            Claims
+            <v-chip v-if="stats.claims?.pending" size="small" color="warning" class="ml-2">
+              {{ stats.claims.pending }}
+            </v-chip>
+          </v-tab>
         </v-tabs>
 
         <v-window v-model="activeTab">
@@ -190,6 +197,11 @@
               @view-details="viewDetails"
               @bulk-action="handleBulkAction"
             />
+          </v-window-item>
+
+          <!-- Onglet Claims (Réclamations d'entreprise) -->
+          <v-window-item value="claims">
+            <AdminClaimsTab />
           </v-window-item>
         </v-window>
       </v-card>
@@ -337,6 +349,7 @@ import { useAuthStore } from '@/stores/auth'
 import { moderationService } from '@/services/admin/moderationService'
 import ModerationTab from '@/components/admin/ModerationTab.vue'
 import ContentDetails from '@/components/admin/ContentDetails.vue'
+import AdminClaimsTab from '@/components/admin/AdminClaimsTab.vue'
 
 const authStore = useAuthStore()
 
