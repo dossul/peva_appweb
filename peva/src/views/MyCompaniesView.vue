@@ -392,14 +392,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { claimService } from '@/services/claimService'
 import companyService from '@/services/companyService'
 import { getSectorNames } from '@/services/sectorsService'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 // State
@@ -607,7 +608,28 @@ const formatDate = (date) => {
   })
 }
 
-onMounted(loadData)
+// Gérer le query param claim pour ouvrir le dialog avec l'entreprise pré-sélectionnée
+const handleClaimFromQuery = async () => {
+  const claimId = route.query.claim
+  if (claimId) {
+    try {
+      // Charger l'entreprise depuis l'ID
+      const company = await companyService.getCompanyById(parseInt(claimId))
+      if (company && !company.claimed_by) {
+        selectedCompanyToClaim.value = company
+        availableCompanies.value = [company]
+        showClaimDialog.value = true
+      }
+    } catch (error) {
+      console.error('Erreur chargement entreprise:', error)
+    }
+  }
+}
+
+onMounted(async () => {
+  await loadData()
+  await handleClaimFromQuery()
+})
 </script>
 
 <style scoped>

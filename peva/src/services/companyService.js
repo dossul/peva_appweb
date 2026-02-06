@@ -93,6 +93,28 @@ export const companyService = {
   },
 
   /**
+   * Rechercher des entreprises disponibles pour réclamation
+   */
+  async searchSimilarCompanies(searchTerm) {
+    try {
+      if (!searchTerm || searchTerm.length < 2) return []
+      
+      const { data, error } = await supabase
+        .from('pev_companies')
+        .select('id, name, slug, industry, country, city, logo_url, owner_id, claimed_by')
+        .ilike('name', `%${searchTerm}%`)
+        .is('claimed_by', null)
+        .limit(20)
+      
+      if (error) throw error
+      return data || []
+    } catch (error) {
+      console.error('Erreur recherche entreprises:', error)
+      return []
+    }
+  },
+
+  /**
    * Rechercher des entreprises similaires par nom (anti-duplication)
    */
   async findSimilarCompanies(name, threshold = 0.6) {

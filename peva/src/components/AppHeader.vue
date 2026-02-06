@@ -197,6 +197,13 @@
                 <v-list-item-title>Mes Événements</v-list-item-title>
                 <v-list-item-subtitle>Brouillons et événements publiés</v-list-item-subtitle>
               </v-list-item>
+              <v-list-item @click="navigateTo('/my-companies')" :disabled="!authStore.isAuthenticated">
+                <template v-slot:prepend>
+                  <v-icon>mdi-domain</v-icon>
+                </template>
+                <v-list-item-title>Mes Entreprises</v-list-item-title>
+                <v-list-item-subtitle>Gérer et réclamer des entreprises</v-list-item-subtitle>
+              </v-list-item>
               <v-divider />
               <v-list-item @click="navigateTo('/company/management')" :disabled="!authStore.isAuthenticated">
                 <template v-slot:prepend>
