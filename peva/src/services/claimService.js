@@ -197,21 +197,8 @@ export const claimService = {
         throw new Error('Ce claim a déjà été traité')
       }
 
-      // Mettre à jour le claim
-      const { error: updateClaimError } = await supabase
-        .from('pev_company_claims')
-        .update({
-          status: 'approved',
-          reviewed_by: adminId,
-          reviewed_at: new Date().toISOString(),
-          admin_notes: notes,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', claimId)
-
-      if (updateClaimError) throw updateClaimError
-
-      // Attribuer l'entreprise à l'utilisateur
+      // ÉTAPE 1: D'abord attribuer l'entreprise à l'utilisateur
+      // (Si ça échoue, le claim reste "pending" et on peut réessayer)
       const { data: updatedCompany, error: updateCompanyError } = await supabase
         .from('pev_companies')
         .update({
@@ -230,13 +217,31 @@ export const claimService = {
 
       // Vérifier que la mise à jour a bien été effectuée
       if (!updatedCompany || updatedCompany.claimed_by !== claim.user_id) {
-        throw new Error('La mise à jour de l\'entreprise a échoué. Vérifiez les permissions RLS.')
+        throw new Error('L\'attribution de l\'entreprise a échoué. Vérifiez les permissions.')
       }
 
       console.log('Entreprise attribuée avec succès:', updatedCompany)
 
-      // Envoyer l'email de confirmation
-      await this.sendClaimApprovedEmail(claim)
+      // ÉTAPE 2: Seulement maintenant, marquer le claim comme approved
+      // (L'entreprise est déjà attribuée, donc même si ça échoue, l'utilisateur a son entreprise)
+      const { error: updateClaimError } = await supabase
+        .from('pev_company_claims')
+        .update({
+          status: 'approved',
+          reviewed_by: adminId,
+          reviewed_at: new Date().toISOString(),
+          admin_notes: notes,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', claimId)
+
+      if (updateClaimError) {
+        console.error('Claim approuvé mais erreur update status:', updateClaimError)
+        // On ne throw pas car l'entreprise est déjà attribuée
+      }
+
+      // ÉTAPE 3: Envoyer l'email de confirmation (non-bloquant)
+      this.sendClaimApprovedEmail(claim).catch(console.error)
 
       return {
         success: true,
