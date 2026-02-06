@@ -5,7 +5,48 @@
       <v-progress-circular indeterminate color="teal" size="64" />
     </div>
 
-    <template v-else-if="company">
+    <template v-else>
+      <v-row no-gutters>
+        <!-- Sidebar: Liste des entreprises -->
+        <v-col cols="12" md="3" lg="2" class="sidebar-companies bg-grey-lighten-4" style="min-height: calc(100vh - 64px);">
+          <div class="pa-4">
+            <div class="d-flex align-center justify-space-between mb-4">
+              <h3 class="text-h6">Mes Entreprises</h3>
+              <v-btn icon="mdi-plus" size="small" color="teal" variant="text" @click="$router.push('/my-companies')" />
+            </div>
+            
+            <v-list density="compact" nav class="bg-transparent">
+              <v-list-item
+                v-for="c in userCompanies"
+                :key="c.id"
+                :active="company?.id === c.id"
+                active-color="teal"
+                rounded
+                @click="selectCompany(c.id)"
+              >
+                <template #prepend>
+                  <v-avatar size="36" :color="c.logo_url ? 'transparent' : 'teal-lighten-4'">
+                    <v-img v-if="c.logo_url" :src="c.logo_url" />
+                    <span v-else class="text-teal font-weight-bold">{{ c.name?.charAt(0) }}</span>
+                  </v-avatar>
+                </template>
+                <v-list-item-title class="text-body-2">{{ c.name }}</v-list-item-title>
+                <v-list-item-subtitle class="text-caption">{{ c.city }}, {{ c.country }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+
+            <v-divider class="my-4" />
+            
+            <v-btn block color="teal" variant="outlined" size="small" @click="$router.push('/my-companies')">
+              <v-icon start>mdi-arrow-left</v-icon>
+              Retour
+            </v-btn>
+          </div>
+        </v-col>
+
+        <!-- Main Content -->
+        <v-col cols="12" md="9" lg="10">
+          <template v-if="company">
       <!-- Hero Banner avec infos entreprise -->
       <div class="hero-banner text-white py-6" :style="{ background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)` }">
         <v-container>
@@ -577,18 +618,17 @@
           </v-window-item>
         </v-window>
       </v-container>
-    </template>
+          </template>
 
-    <!-- Company not found -->
-    <v-container v-else class="text-center py-12">
-      <v-icon size="80" color="grey-lighten-1" class="mb-4">mdi-domain-off</v-icon>
-      <h2 class="text-h5 text-grey-darken-1 mb-2">Entreprise non trouvée</h2>
-      <p class="text-body-1 text-grey mb-4">Cette entreprise n'existe pas ou vous n'avez pas les droits d'accès.</p>
-      <v-btn color="teal" @click="$router.push('/my-companies')">
-        <v-icon start>mdi-arrow-left</v-icon>
-        Retour à mes entreprises
-      </v-btn>
-    </v-container>
+          <!-- No company selected -->
+          <v-container v-else class="text-center py-12">
+            <v-icon size="80" color="grey-lighten-1" class="mb-4">mdi-domain</v-icon>
+            <h2 class="text-h5 text-grey-darken-1 mb-2">Sélectionnez une entreprise</h2>
+            <p class="text-body-1 text-grey mb-4">Choisissez une entreprise dans la liste à gauche pour voir ses détails.</p>
+          </v-container>
+        </v-col>
+      </v-row>
+    </template>
 
     <!-- Dialog: Nouvelle déclaration -->
     <v-dialog v-model="showNewDeclarationDialog" max-width="400">
@@ -637,6 +677,7 @@ const authStore = useAuthStore()
 // State
 const loading = ref(true)
 const company = ref(null)
+const userCompanies = ref([])
 const declarations = ref([])
 const activeTab = ref('profile')
 
@@ -690,9 +731,39 @@ const latestDeclaration = computed(() => {
 })
 
 // Methods
+const loadUserCompanies = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('pev_companies')
+      .select('id, name, logo_url, city, country, industry')
+      .or(`owner_id.eq.${authStore.user?.id},claimed_by.eq.${authStore.user?.id}`)
+      .order('name')
+    
+    if (error) throw error
+    userCompanies.value = data || []
+  } catch (error) {
+    console.error('Erreur chargement entreprises:', error)
+  }
+}
+
+const selectCompany = (companyId) => {
+  router.push({ name: 'CompanyAdmin', params: { id: companyId } })
+}
+
 const loadCompany = async () => {
   const companyId = route.params.id
-  if (!companyId) return
+  
+  // Charger la liste des entreprises de l'utilisateur
+  await loadUserCompanies()
+  
+  if (!companyId) {
+    // Si pas d'ID, sélectionner la première entreprise
+    if (userCompanies.value.length > 0) {
+      router.replace({ name: 'CompanyAdmin', params: { id: userCompanies.value[0].id } })
+    }
+    loading.value = false
+    return
+  }
 
   loading.value = true
   try {
@@ -997,5 +1068,24 @@ watch(() => route.params.id, loadCompany)
 .company-logo {
   border: 4px solid white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-companies {
+  border-right: 1px solid #e0e0e0;
+  position: sticky;
+  top: 64px;
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+}
+
+@media (max-width: 960px) {
+  .sidebar-companies {
+    position: relative;
+    top: 0;
+    max-height: none;
+    min-height: auto !important;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
 }
 </style>
