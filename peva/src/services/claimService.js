@@ -212,7 +212,7 @@ export const claimService = {
       if (updateClaimError) throw updateClaimError
 
       // Attribuer l'entreprise à l'utilisateur
-      const { error: updateCompanyError } = await supabase
+      const { data: updatedCompany, error: updateCompanyError } = await supabase
         .from('pev_companies')
         .update({
           claimed_by: claim.user_id,
@@ -220,8 +220,20 @@ export const claimService = {
           updated_at: new Date().toISOString()
         })
         .eq('id', claim.company_id)
+        .select('id, claimed_by')
+        .single()
 
-      if (updateCompanyError) throw updateCompanyError
+      if (updateCompanyError) {
+        console.error('Erreur update company:', updateCompanyError)
+        throw new Error('Erreur lors de l\'attribution de l\'entreprise: ' + updateCompanyError.message)
+      }
+
+      // Vérifier que la mise à jour a bien été effectuée
+      if (!updatedCompany || updatedCompany.claimed_by !== claim.user_id) {
+        throw new Error('La mise à jour de l\'entreprise a échoué. Vérifiez les permissions RLS.')
+      }
+
+      console.log('Entreprise attribuée avec succès:', updatedCompany)
 
       // Envoyer l'email de confirmation
       await this.sendClaimApprovedEmail(claim)
