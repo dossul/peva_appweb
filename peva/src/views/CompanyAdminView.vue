@@ -407,7 +407,7 @@
                         <v-tab value="waste">Déchets</v-tab>
                       </v-tabs>
 
-                      <v-window v-model="declaration.activeSubTab">
+                      <v-window v-model="declaration.activeSubTab" class="pt-4">
                         <!-- Données RH -->
                         <v-window-item value="hr">
                           <v-row>
