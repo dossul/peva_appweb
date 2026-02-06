@@ -221,8 +221,9 @@
                         :value="sdg.number"
                         filter
                         :color="sdg.color"
-                        variant="outlined"
+                        :variant="editForm.sdg_contributions?.includes(sdg.number) ? 'flat' : 'outlined'"
                         size="small"
+                        class="sdg-chip"
                       >
                         ODD {{ sdg.number }}
                       </v-chip>
@@ -693,14 +694,25 @@ const uploadingLogo = ref(false)
 const sectors = ref([])
 const countries = ref(['Burkina Faso', 'Côte d\'Ivoire', 'Mali', 'Niger', 'Sénégal', 'Bénin', 'Togo', 'Ghana'])
 
-// SDG List
+// SDG List - Couleurs officielles ONU
 const sdgList = ref([
-  { number: 1, color: '#E5243B' }, { number: 2, color: '#DDA63A' }, { number: 3, color: '#4C9F38' },
-  { number: 4, color: '#C5192D' }, { number: 5, color: '#FF3A21' }, { number: 6, color: '#26BDE2' },
-  { number: 7, color: '#FCC30B' }, { number: 8, color: '#A21942' }, { number: 9, color: '#FD6925' },
-  { number: 10, color: '#DD1367' }, { number: 11, color: '#FD9D24' }, { number: 12, color: '#BF8B2E' },
-  { number: 13, color: '#3F7E44' }, { number: 14, color: '#0A97D9' }, { number: 15, color: '#56C02B' },
-  { number: 16, color: '#00689D' }, { number: 17, color: '#19486A' }
+  { number: 1, color: '#E5243B' },  // No Poverty - Rouge
+  { number: 2, color: '#DDA63A' },  // Zero Hunger - Jaune moutarde
+  { number: 3, color: '#4C9F38' },  // Good Health - Vert
+  { number: 4, color: '#C5192D' },  // Quality Education - Rouge foncé
+  { number: 5, color: '#FF3A21' },  // Gender Equality - Orange rouge
+  { number: 6, color: '#26BDE2' },  // Clean Water - Bleu clair
+  { number: 7, color: '#FCC30B' },  // Affordable Energy - Jaune
+  { number: 8, color: '#A21942' },  // Decent Work - Bordeaux
+  { number: 9, color: '#FD6925' },  // Industry Innovation - Orange
+  { number: 10, color: '#DD1367' }, // Reduced Inequalities - Rose
+  { number: 11, color: '#FD9D24' }, // Sustainable Cities - Orange clair
+  { number: 12, color: '#BF8B2E' }, // Responsible Consumption - Brun doré
+  { number: 13, color: '#3F7E44' }, // Climate Action - Vert foncé
+  { number: 14, color: '#0A97D9' }, // Life Below Water - Bleu
+  { number: 15, color: '#56C02B' }, // Life on Land - Vert clair
+  { number: 16, color: '#00689D' }, // Peace Justice - Bleu foncé
+  { number: 17, color: '#19486A' }  // Partnerships - Bleu marine
 ])
 
 // Declaration dialog
@@ -1087,5 +1099,9 @@ watch(() => route.params.id, loadCompany)
     border-right: none;
     border-bottom: 1px solid #e0e0e0;
   }
+}
+
+.sdg-chip.v-chip--variant-flat {
+  color: white !important;
 }
 </style>
