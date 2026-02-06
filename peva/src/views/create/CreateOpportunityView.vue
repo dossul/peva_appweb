@@ -329,7 +329,8 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { getSectorNames } from '@/services/sectorsService'
 
 export default {
   name: 'CreateOpportunityView',
@@ -371,10 +372,14 @@ export default {
     })
 
     const opportunityTypes = [
-      { label: 'Financement', value: 'funding', icon: 'mdi-currency-usd' },
-      { label: 'Emploi', value: 'job', icon: 'mdi-briefcase' },
-      { label: 'Partenariat', value: 'partnership', icon: 'mdi-handshake' },
-      { label: 'Formation', value: 'training', icon: 'mdi-school' }
+      { label: 'Appels à projets', value: 'appels_projets', icon: 'mdi-bullhorn' },
+      { label: 'Stages', value: 'stages', icon: 'mdi-account-school' },
+      { label: 'Thèses', value: 'theses', icon: 'mdi-school' },
+      { label: 'Fundraising', value: 'fundraising', icon: 'mdi-currency-usd' },
+      { label: 'Emplois', value: 'emplois', icon: 'mdi-briefcase' },
+      { label: 'Vente/Achat équipements', value: 'vente_equipements', icon: 'mdi-package-variant' },
+      { label: 'Vente/Achat matières', value: 'vente_matieres', icon: 'mdi-leaf' },
+      { label: 'Idées business', value: 'idees_business', icon: 'mdi-lightbulb' }
     ]
 
     const categories = [
@@ -388,18 +393,12 @@ export default {
       'Changement Climatique'
     ]
 
-    const sectors = [
-      'Énergie',
-      'Agriculture',
-      'Technologie',
-      'Finance',
-      'Transport',
-      'Construction',
-      'Industrie',
-      'Services',
-      'Éducation',
-      'Santé'
-    ]
+    // Secteurs chargés depuis la BDD (source unique)
+    const sectors = ref([])
+    
+    onMounted(async () => {
+      sectors.value = await getSectorNames()
+    })
 
     const fundingTypes = [
       'Subvention',

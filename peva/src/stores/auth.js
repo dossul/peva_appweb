@@ -1,7 +1,33 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
-import { emailService } from '@/services/emailService'
+
+// Fonction UNIQUE pour créer l'utilisateur et envoyer l'email via API Admin
+const createUserViaAPI = async (email, password, userData = {}) => {
+  const baseUrl = 'https://apiemail2iegreenhub.vercel.app'
+  
+  const response = await fetch(`${baseUrl}/api/send-confirmation`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      redirectTo: `${window.location.origin}/auth/verify`,
+      password,
+      userData
+    })
+  })
+  
+  const data = await response.json()
+  
+  if (!response.ok || !data.success) {
+    throw new Error(data.error || 'Erreur lors de la création du compte')
+  }
+  
+  console.log('✅ Compte créé et email envoyé via API:', data)
+  return data
+}
 
 export const useAuthStore = defineStore('auth', () => {
   // État
@@ -87,12 +113,16 @@ export const useAuthStore = defineStore('auth', () => {
         }
       } else {
         // Créer automatiquement le profil s'il n'existe pas
+        const firstName = user.value.user_metadata?.first_name
+        const lastName = user.value.user_metadata?.last_name
         const newProfile = {
           id: user.value.id,
           email: user.value.email,
-          first_name: user.value.user_metadata?.first_name || user.value.user_metadata?.firstName || null,
-          last_name: user.value.user_metadata?.last_name || user.value.user_metadata?.lastName || null,
-          display_name: user.value.user_metadata?.display_name || null,
+          first_name: firstName,
+          last_name: lastName,
+          display_name: `${firstName || ''} ${lastName || ''}`.trim(),
+          role: 'user',
+          user_type: 'user',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }
@@ -118,64 +148,13 @@ export const useAuthStore = defineStore('auth', () => {
   const signUp = async (email, password, userData = {}) => {
     loading.value = true
     try {
-      // Inscription avec désactivation de l'email automatique Supabase
-      // On utilise notre propre service d'email
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            first_name: userData.firstName,
-            last_name: userData.lastName,
-            user_type: userData.profileType || userData.userType,
-            preferences: userData.preferences || [],
-            ...userData
-          }
-        }
-      })
-
-      // Gérer l'erreur SMTP de Supabase - envoyer via notre propre service
-      if (error) {
-        // Si c'est une erreur d'envoi d'email, on crée quand même l'utilisateur
-        if (error.message?.includes('sending confirmation email') || error.message?.includes('SMTP')) {
-          console.warn('Email Supabase échoué, utilisation du service email personnalisé')
-          
-          // Envoyer l'email via notre service personnalisé
-          const confirmationUrl = `${window.location.origin}/auth/verify?email=${encodeURIComponent(email)}`
-          await emailService.sendWelcomeEmail(
-            email,
-            userData.firstName || 'Utilisateur',
-            confirmationUrl
-          ).catch(err => console.warn('Email de bienvenue non envoyé:', err))
-          
-          return {
-            user: { email, ...userData },
-            needsConfirmation: true,
-            emailSentViaCustomService: true
-          }
-        }
-        throw error
+      // Créer l'utilisateur via API Admin (seule méthode fiable)
+      await createUserViaAPI(email, password, userData)
+      
+      return {
+        user: { email, ...userData },
+        needsConfirmation: true
       }
-
-      // Si l'inscription réussit, envoyer email de bienvenue via notre service
-      if (data.user) {
-        const confirmationUrl = `${window.location.origin}/auth/verify?token=${data.user.confirmation_token || ''}&email=${encodeURIComponent(email)}`
-        emailService.sendWelcomeEmail(
-          email,
-          userData.firstName || 'Utilisateur',
-          confirmationUrl
-        ).catch(err => console.warn('Email de bienvenue non envoyé:', err))
-        
-        if (!data.user.email_confirmed_at) {
-          return {
-            user: data.user,
-            needsConfirmation: true
-          }
-        }
-      }
-
-      return { user: data.user }
     } catch (error) {
       console.error('Erreur lors de l\'inscription:', error)
       throw error
@@ -308,14 +287,18 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       // Utiliser upsert pour créer ou mettre à jour le profil
+      // Récupérer first_name et last_name depuis user_metadata (stockés à l'inscription)
+      const firstName = user.value.user_metadata?.first_name
+      const lastName = user.value.user_metadata?.last_name
       const { data, error: profileError } = await supabase
         .from('pev_profiles')
         .upsert({
           id: user.value.id,
           email: user.value.email,
-          first_name: user.value.user_metadata?.first_name || user.value.user_metadata?.firstName || null,
-          last_name: user.value.user_metadata?.last_name || user.value.user_metadata?.lastName || null,
-          display_name: user.value.user_metadata?.display_name || `${user.value.user_metadata?.first_name || ''} ${user.value.user_metadata?.last_name || ''}`.trim() || null,
+          first_name: firstName,
+          last_name: lastName,
+          display_name: `${firstName || ''} ${lastName || ''}`.trim(),
+          role: 'user',
           ...profileData,
           updated_at: new Date().toISOString()
         }, {

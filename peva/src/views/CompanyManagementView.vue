@@ -640,6 +640,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { companyService } from '@/services/companyService'
+import { getSectorNames } from '@/services/sectorsService'
 import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
@@ -704,26 +705,8 @@ const memberRoles = [
   { title: 'Administrateur', value: 'admin' }
 ]
 
-// Static data - Secteurs harmonisés (ordre alphabétique, "Autres" à la fin)
-const sectors = [
-  'Agroalimentaire',
-  'Agriculture durable',
-  'Bilan carbone',
-  'Communication d\'impact',
-  'Construction écologique',
-  'Eau et assainissement',
-  'Éco-matériaux',
-  'Écotourisme',
-  'Énergies renouvelables',
-  'Équipementiers',
-  'Gestion des déchets',
-  'RSE/ESG',
-  'Technologies propres',
-  'Transformation agroalimentaire',
-  'Transport vert',
-  'Valorisation des déchets',
-  'Autres'
-]
+// Secteurs chargés depuis la BDD (source unique)
+const sectors = ref([])
 
 const companySizes = [
   { title: 'TPME (1-10 employés)', value: 'tpme' },
@@ -1068,6 +1051,7 @@ const removeMember = async (member) => {
 }
 
 onMounted(async () => {
+  sectors.value = await getSectorNames()
   await loadCompanyData()
   await loadCompanyMembers()
 })

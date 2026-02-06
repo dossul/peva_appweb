@@ -1,0 +1,1042 @@
+{
+  "generated_at": "2026-02-06T02:03:05.939854",
+  "version": "1.0",
+  "total_companies": 20,
+  "companies": [
+    {
+      "name": "Entreprise Vision d'Afrique (EVA)",
+      "slug": "entreprise-vision-d-afrique-eva",
+      "main_activities": "Spécialisée dans la transformation de produits agroalimentaires et de produits forestiers non ligneux (PFNL)",
+      "description": "Spécialisée dans la transformation de produits agroalimentaires et de produits forestiers non ligneux (PFNL)",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "agriculture",
+      "sdg_contributions": [
+        1,
+        2,
+        8,
+        9,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 14.0,
+        "temporary_ratio": "0.786",
+        "solid_waste": {
+          "value": 15.29,
+          "unit": "t/an",
+          "raw": "15,29t/an"
+        },
+        "liquid_waste": {
+          "value": 773.0,
+          "unit": "m3/an",
+          "raw": "773m3/an"
+        },
+        "composted_volume": null,
+        "valorization_initiatives": null
+      }
+    },
+    {
+      "name": "Rayon Bio",
+      "slug": "rayon-bio",
+      "main_activities": "Transformation agroalimentaire de mangues séchées",
+      "description": "Transformation agroalimentaire de mangues séchées",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "agriculture",
+      "sdg_contributions": [
+        1,
+        2,
+        8,
+        9,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 102.0,
+        "temporary_ratio": "Tous les employés sont saisonniers",
+        "solid_waste": {
+          "value": 14.43,
+          "unit": "t/an",
+          "raw": "14,43t/an"
+        },
+        "liquid_waste": {
+          "value": 96.0,
+          "unit": "m3/an",
+          "raw": "96m3/an"
+        },
+        "composted_volume": null,
+        "valorization_initiatives": null
+      }
+    },
+    {
+      "name": "Neebnooma",
+      "slug": "neebnooma",
+      "main_activities": "Transformation et commercialisation une gamme variée de produits à base des riz national sous la marque AMIR.",
+      "description": "Transformation et commercialisation une gamme variée de produits à base des riz national sous la marque AMIR.",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "agriculture",
+      "sdg_contributions": [
+        1,
+        2,
+        8,
+        9,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 33.0,
+        "temporary_ratio": "0.49",
+        "solid_waste": {
+          "value": 362.0,
+          "unit": "t/mois",
+          "raw": "362t/mois"
+        },
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": null
+      }
+    },
+    {
+      "name": "Burkina Green Energy-Electric SARL",
+      "slug": "burkina-green-energy-electric-sarl",
+      "main_activities": "Spécialisée dans les services électriques et énergétiques",
+      "description": "Spécialisée dans les services électriques et énergétiques",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "renewable_energy",
+      "sdg_contributions": [
+        1,
+        2,
+        7,
+        9,
+        8,
+        11,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 8.0,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 9.0,
+          "unit": "kg/mois",
+          "raw": "9kg/mois"
+        },
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": null
+      }
+    },
+    {
+      "name": "Réseau des producteurs de beurre de karité des hauts bassins et cascades (RPBHC)",
+      "slug": "r-seau-des-producteurs-de-beurre-de-karit-des-hauts-bassins-et-cascades-rpbhc",
+      "main_activities": "Collecte et transformation les noix de karité en du beurre biologique",
+      "description": "Collecte et transformation les noix de karité en du beurre biologique",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "agriculture",
+      "sdg_contributions": [
+        1,
+        5,
+        8,
+        12,
+        15
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 21.0,
+        "temporary_ratio": "61 temporaires",
+        "solid_waste": {
+          "value": 7.2,
+          "unit": "kg/semaine",
+          "raw": "7,2kg/semaine"
+        },
+        "liquid_waste": {
+          "value": 630.0,
+          "unit": "-1050m3/sem",
+          "raw": "630-1050m3/sem"
+        },
+        "composted_volume": null,
+        "valorization_initiatives": null
+      }
+    },
+    {
+      "name": "Agrisol-BF",
+      "slug": "agrisol-bf",
+      "main_activities": "Transformation des matières organiques telles que les fientes de volaille, la bouse et les copeaux de bois en intrants agricoles de qualité",
+      "description": "Transformation des matières organiques telles que les fientes de volaille, la bouse et les copeaux de bois en intrants agricoles de qualité",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "agriculture",
+      "sdg_contributions": [
+        1,
+        2,
+        12,
+        13,
+        15
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 20.0,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 37.6,
+          "unit": "t/an",
+          "raw": "37,6t/an"
+        },
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": "Valorisation des plastiques en briques,"
+      }
+    },
+    {
+      "name": "TECO2",
+      "slug": "teco2",
+      "main_activities": "Spécialisée en gestion durable des déchets, notamment les déchets plastiques",
+      "description": "Spécialisée en gestion durable des déchets, notamment les déchets plastiques",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "waste_management",
+      "sdg_contributions": [
+        1,
+        8,
+        9,
+        11,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 21.0,
+        "temporary_ratio": "76 temporaires",
+        "solid_waste": null,
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": "Entreprise de valorisation des déchets plastique,"
+      }
+    },
+    {
+      "name": "Africa Energy Solar (AES)",
+      "slug": "africa-energy-solar-aes",
+      "main_activities": "Active dans l’énergie solaire photovoltaïque pour l'électrification on grid et off grid, le pompage solaire pour l’eau potable et l’irrigation agricole, la cuisson par induction solaire et la mobilité électrique",
+      "description": "Active dans l’énergie solaire photovoltaïque pour l'électrification on grid et off grid, le pompage solaire pour l’eau potable et l’irrigation agricole, la cuisson par induction solaire et la mobilité électrique",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "renewable_energy",
+      "sdg_contributions": [
+        1,
+        2,
+        7,
+        9,
+        8,
+        11,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 30.0,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 1022.0,
+          "unit": "kg/an",
+          "raw": "1022kg/an"
+        },
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": null
+      }
+    },
+    {
+      "name": "Rose Eclat",
+      "slug": "rose-eclat",
+      "main_activities": "Transformation de fruits et légumes dont le cœur de métier est le séchage",
+      "description": "Transformation de fruits et légumes dont le cœur de métier est le séchage",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "agriculture",
+      "sdg_contributions": [
+        1,
+        2,
+        5,
+        8,
+        9,
+        12,
+        17
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 200.0,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 876.634,
+          "unit": "t/an",
+          "raw": "876,634t/an"
+        },
+        "liquid_waste": {
+          "value": 1200.0,
+          "unit": "m3/an",
+          "raw": "1200 m3/an"
+        },
+        "composted_volume": null,
+        "valorization_initiatives": "Méthanisation"
+      }
+    },
+    {
+      "name": "POCERAM Group",
+      "slug": "poceram-group",
+      "main_activities": "Production de foyers améliorés et des briques en terre cuite/céramique",
+      "description": "Production de foyers améliorés et des briques en terre cuite/céramique",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "construction",
+      "sdg_contributions": [
+        7,
+        8,
+        9,
+        11,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 22.0,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 6.0,
+          "unit": "T/an",
+          "raw": "6T/an"
+        },
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": "Valorisation en boucle des déchets d'argile"
+      }
+    },
+    {
+      "name": "ZIBDON",
+      "slug": "zibdon",
+      "main_activities": "Conception des toilettes écologiques à faible consommation d’eau ou sans vidange, grâce à des technologies comme BIOFIL (bio‑digesteur inodore, non vidangeable) et MICROFLASH",
+      "description": "Conception des toilettes écologiques à faible consommation d’eau ou sans vidange, grâce à des technologies comme BIOFIL (bio‑digesteur inodore, non vidangeable) et MICROFLASH",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "water",
+      "sdg_contributions": [
+        3,
+        6,
+        8,
+        9,
+        11,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 7.0,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 9.2,
+          "unit": "kg/semaine",
+          "raw": "9,2kg/semaine"
+        },
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": null
+      }
+    },
+    {
+      "name": "BEOGO Néré",
+      "slug": "beogo-n-r",
+      "main_activities": "Transformation et commercialisation du beurre de karité",
+      "description": "Transformation et commercialisation du beurre de karité",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "agriculture",
+      "sdg_contributions": [
+        1,
+        5,
+        8,
+        12,
+        15
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 25.0,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 10.0,
+          "unit": "t/5t de beurre de karité produit",
+          "raw": "10t/5t de beurre de karité produit"
+        },
+        "liquid_waste": {
+          "value": 96.0,
+          "unit": "m3 pour 5t de beurre de karité produit",
+          "raw": "96m3 pour 5t de beurre de karité produit"
+        },
+        "composted_volume": null,
+        "valorization_initiatives": "Contrat pour la vente  des eaux usées, tourteaux de karité utilisés comme combustibles dans le processus de torrefaction"
+      }
+    },
+    {
+      "name": "FARAFINA Engeneering",
+      "slug": "farafina-engeneering",
+      "main_activities": "Spécialisée dans les solutions d’accès à l’énergie solaire et à l’eau autonome, destinées aux ménages, producteurs et organisations",
+      "description": "Spécialisée dans les solutions d’accès à l’énergie solaire et à l’eau autonome, destinées aux ménages, producteurs et organisations",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "renewable_energy",
+      "sdg_contributions": [
+        1,
+        2,
+        7,
+        9,
+        8,
+        11,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": null,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 25.9,
+          "unit": "kg/mois",
+          "raw": "25,9 kg/mois"
+        },
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": "Contractualisation avec des structures spécialisées dans la collecte et valorisation des déchets plastiques et electroniques"
+      }
+    },
+    {
+      "name": "Faso Attiéké",
+      "slug": "faso-atti-k",
+      "main_activities": "Transformation et la commercialisation de produits traditionnels comme l’attiéké, en valorisant les ressources locales et les savoir-faire burkinabè",
+      "description": "Transformation et la commercialisation de produits traditionnels comme l’attiéké, en valorisant les ressources locales et les savoir-faire burkinabè",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "agriculture",
+      "sdg_contributions": [
+        1,
+        8,
+        9,
+        12,
+        13,
+        15,
+        17
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 73.0,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 121.216,
+          "unit": "t/an",
+          "raw": "121,216t/an"
+        },
+        "liquid_waste": {
+          "value": 8000.0,
+          "unit": "m3/an",
+          "raw": "8000m3/an"
+        },
+        "composted_volume": null,
+        "valorization_initiatives": "Méthanisation"
+      }
+    },
+    {
+      "name": "INNO FASO",
+      "slug": "inno-faso",
+      "main_activities": "Produit des aliments nutritionnels pour lutter contre la malnutrition infantile",
+      "description": "Produit des aliments nutritionnels pour lutter contre la malnutrition infantile",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "other",
+      "sdg_contributions": [
+        2,
+        3,
+        8,
+        9,
+        12,
+        17
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 112.0,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 57.6,
+          "unit": "t/an",
+          "raw": "57,6t/an"
+        },
+        "liquid_waste": {
+          "value": 1680.0,
+          "unit": "m3/an",
+          "raw": "1680m3/an"
+        },
+        "composted_volume": null,
+        "valorization_initiatives": "Transformation des déchets de production en nourriture pour bétail"
+      }
+    },
+    {
+      "name": "TELADO Building",
+      "slug": "telado-building",
+      "main_activities": "Intervient dans le domaine des énergies renouvelables plus précisément dans le secteur du Biodigesteur",
+      "description": "Intervient dans le domaine des énergies renouvelables plus précisément dans le secteur du Biodigesteur",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "renewable_energy",
+      "sdg_contributions": [
+        1,
+        2,
+        3,
+        7,
+        8,
+        9,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 8.0,
+        "temporary_ratio": null,
+        "solid_waste": null,
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": "Entreprise de méthanisation des déchets"
+      }
+    },
+    {
+      "name": "MOABLAOU",
+      "slug": "moablaou",
+      "main_activities": "Spécialisée dans l’élevage, l’abattage, la transformation et la commercialisation de volailles au Burkina Faso",
+      "description": "Spécialisée dans l’élevage, l’abattage, la transformation et la commercialisation de volailles au Burkina Faso",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "agriculture",
+      "sdg_contributions": [
+        1,
+        2,
+        3,
+        8,
+        9,
+        12
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 60.0,
+        "temporary_ratio": null,
+        "solid_waste": {
+          "value": 22.605,
+          "unit": "t/semaine",
+          "raw": "22,605t/semaine"
+        },
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": null
+      }
+    },
+    {
+      "name": "3T SERVICES",
+      "slug": "3t-services",
+      "main_activities": "Valorisation des déchets organiques issus d’abattoirs, notamment les contenus de panses animales, en vue de produire de la fumure organique et des engrais biologiques",
+      "description": "Valorisation des déchets organiques issus d’abattoirs, notamment les contenus de panses animales, en vue de produire de la fumure organique et des engrais biologiques",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "waste_management",
+      "sdg_contributions": [
+        1,
+        2,
+        12,
+        13,
+        15
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 19.0,
+        "temporary_ratio": "14 journaliers",
+        "solid_waste": {
+          "value": 25.77,
+          "unit": "t/an",
+          "raw": "25,77t/an"
+        },
+        "liquid_waste": {
+          "value": 62.05,
+          "unit": "m3/an",
+          "raw": "62,05m3/an"
+        },
+        "composted_volume": null,
+        "valorization_initiatives": null
+      }
+    },
+    {
+      "name": "Zi-Matériaux",
+      "slug": "zi-mat-riaux",
+      "main_activities": "production et la promotion de Matériaux de construction locaux, tels que les briques en terre comprimée (BTC), les pavés, les tuiles, ainsi que d’autres produits destinés à la construction",
+      "description": "production et la promotion de Matériaux de construction locaux, tels que les briques en terre comprimée (BTC), les pavés, les tuiles, ainsi que d’autres produits destinés à la construction",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "construction",
+      "sdg_contributions": [
+        1,
+        3,
+        8,
+        9,
+        11,
+        12,
+        13
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 84.0,
+        "temporary_ratio": "60 temporaires",
+        "solid_waste": null,
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": "Réutilisation des déchets dans le processus de production"
+      }
+    },
+    {
+      "name": "Cajudium",
+      "slug": "cajudium",
+      "main_activities": "Transformation de l’anacarde en une gamme variée de produits alimentaires innovants et savoureux : noix épicées, noix sucrées ou salées, jus naturels, cocktails, et autres",
+      "description": "Transformation de l’anacarde en une gamme variée de produits alimentaires innovants et savoureux : noix épicées, noix sucrées ou salées, jus naturels, cocktails, et autres",
+      "country": "Burkina Faso",
+      "region": null,
+      "city": null,
+      "address": null,
+      "latitude": null,
+      "longitude": null,
+      "sector": "agriculture",
+      "sdg_contributions": [
+        1,
+        2,
+        5,
+        8,
+        9,
+        12
+      ],
+      "status": "draft",
+      "is_verified": false,
+      "annual_data": {
+        "year": 2024,
+        "employee_count": 3.0,
+        "temporary_ratio": "70 temporaires",
+        "solid_waste": {
+          "value": null,
+          "unit": "de caractérisation",
+          "raw": "Pas de caractérisation"
+        },
+        "liquid_waste": null,
+        "composted_volume": null,
+        "valorization_initiatives": null
+      }
+    }
+  ],
+  "reference_data": {
+    "african_countries": [
+      "Afrique du Sud",
+      "Algérie",
+      "Angola",
+      "Botswana",
+      "Burkina Faso",
+      "Burundi",
+      "Bénin",
+      "Cameroun",
+      "Cap-Vert",
+      "Centrafrique",
+      "Comores",
+      "Congo",
+      "Côte d'Ivoire",
+      "Djibouti",
+      "Eswatini",
+      "Gabon",
+      "Gambie",
+      "Ghana",
+      "Guinée",
+      "Guinée équatoriale",
+      "Guinée-Bissau",
+      "Kenya",
+      "Lesotho",
+      "Liberia",
+      "Libye",
+      "Madagascar",
+      "Malawi",
+      "Mali",
+      "Maroc",
+      "Maurice",
+      "Mauritanie",
+      "Mozambique",
+      "Namibie",
+      "Niger",
+      "Nigeria",
+      "Ouganda",
+      "RD Congo",
+      "Rwanda",
+      "Sao Tomé-et-Principe",
+      "Seychelles",
+      "Sierra Leone",
+      "Somalie",
+      "Soudan",
+      "Soudan du Sud",
+      "Sénégal",
+      "Tanzanie",
+      "Tchad",
+      "Togo",
+      "Tunisie",
+      "Zambie",
+      "Zimbabwe",
+      "Égypte",
+      "Érythrée",
+      "Éthiopie"
+    ],
+    "sectors": [
+      {
+        "value": "renewable_energy",
+        "label": "Énergies renouvelables",
+        "icon": "mdi-solar-power"
+      },
+      {
+        "value": "agriculture",
+        "label": "Agriculture et agroalimentaire",
+        "icon": "mdi-sprout"
+      },
+      {
+        "value": "waste_management",
+        "label": "Gestion des déchets",
+        "icon": "mdi-recycle"
+      },
+      {
+        "value": "water",
+        "label": "Eau et assainissement",
+        "icon": "mdi-water"
+      },
+      {
+        "value": "construction",
+        "label": "Construction durable",
+        "icon": "mdi-home-city"
+      },
+      {
+        "value": "transport",
+        "label": "Transport et mobilité",
+        "icon": "mdi-truck"
+      },
+      {
+        "value": "industry",
+        "label": "Industrie verte",
+        "icon": "mdi-factory"
+      },
+      {
+        "value": "services",
+        "label": "Services environnementaux",
+        "icon": "mdi-leaf"
+      },
+      {
+        "value": "technology",
+        "label": "Technologies vertes",
+        "icon": "mdi-chip"
+      },
+      {
+        "value": "finance",
+        "label": "Finance verte",
+        "icon": "mdi-bank"
+      },
+      {
+        "value": "other",
+        "label": "Autre",
+        "icon": "mdi-dots-horizontal"
+      }
+    ],
+    "sdg_list": [
+      {
+        "value": 1,
+        "label": "Pas de pauvreté",
+        "color": "#E5243B"
+      },
+      {
+        "value": 2,
+        "label": "Faim zéro",
+        "color": "#DDA63A"
+      },
+      {
+        "value": 3,
+        "label": "Bonne santé et bien-être",
+        "color": "#4C9F38"
+      },
+      {
+        "value": 4,
+        "label": "Éducation de qualité",
+        "color": "#C5192D"
+      },
+      {
+        "value": 5,
+        "label": "Égalité entre les sexes",
+        "color": "#FF3A21"
+      },
+      {
+        "value": 6,
+        "label": "Eau propre et assainissement",
+        "color": "#26BDE2"
+      },
+      {
+        "value": 7,
+        "label": "Énergie propre et abordable",
+        "color": "#FCC30B"
+      },
+      {
+        "value": 8,
+        "label": "Travail décent et croissance",
+        "color": "#A21942"
+      },
+      {
+        "value": 9,
+        "label": "Industrie, innovation et infrastructure",
+        "color": "#FD6925"
+      },
+      {
+        "value": 10,
+        "label": "Inégalités réduites",
+        "color": "#DD1367"
+      },
+      {
+        "value": 11,
+        "label": "Villes et communautés durables",
+        "color": "#FD9D24"
+      },
+      {
+        "value": 12,
+        "label": "Consommation et production responsables",
+        "color": "#BF8B2E"
+      },
+      {
+        "value": 13,
+        "label": "Mesures relatives à la lutte contre les changements climatiques",
+        "color": "#3F7E44"
+      },
+      {
+        "value": 14,
+        "label": "Vie aquatique",
+        "color": "#0A97D9"
+      },
+      {
+        "value": 15,
+        "label": "Vie terrestre",
+        "color": "#56C02B"
+      },
+      {
+        "value": 16,
+        "label": "Paix, justice et institutions efficaces",
+        "color": "#00689D"
+      },
+      {
+        "value": 17,
+        "label": "Partenariats pour la réalisation des objectifs",
+        "color": "#19486A"
+      }
+    ]
+  },
+  "database_schema": {
+    "pev_companies": {
+      "id": "uuid PRIMARY KEY DEFAULT gen_random_uuid()",
+      "name": "varchar(255) NOT NULL UNIQUE",
+      "slug": "varchar(255) NOT NULL UNIQUE",
+      "description": "text",
+      "main_activities": "text",
+      "sector": "varchar(100)",
+      "logo_url": "text",
+      "cover_image_url": "text",
+      "website": "varchar(255)",
+      "email": "varchar(255)",
+      "phone": "varchar(50)",
+      "country": "varchar(100)",
+      "region": "varchar(100)",
+      "city": "varchar(100)",
+      "address": "text",
+      "latitude": "decimal(10,8)",
+      "longitude": "decimal(11,8)",
+      "status": "varchar(50) DEFAULT 'draft'",
+      "owner_id": "uuid REFERENCES pev_profiles(id)",
+      "created_by": "uuid REFERENCES pev_profiles(id)",
+      "claimed_by": "uuid REFERENCES pev_profiles(id)",
+      "claimed_at": "timestamptz",
+      "is_verified": "boolean DEFAULT false",
+      "sdg_contributions": "jsonb DEFAULT '[]'",
+      "created_at": "timestamptz DEFAULT now()",
+      "updated_at": "timestamptz DEFAULT now()"
+    },
+    "pev_company_annual_data": {
+      "id": "uuid PRIMARY KEY DEFAULT gen_random_uuid()",
+      "company_id": "uuid NOT NULL REFERENCES pev_companies(id) ON DELETE CASCADE",
+      "year": "integer NOT NULL",
+      "employee_count": "integer",
+      "temporary_employee_count": "integer",
+      "temporary_employee_ratio": "decimal(5,2)",
+      "contractor_count": "integer",
+      "existing_policies": "text",
+      "coi_percentage": "decimal(5,2)",
+      "cod_percentage": "decimal(5,2)",
+      "local_purchases": "text",
+      "local_purchases_amount": "decimal(15,2)",
+      "water_consumption_m3": "decimal(15,2)",
+      "fuel_consumption_liters": "decimal(15,2)",
+      "electricity_consumption_kwh": "decimal(15,2)",
+      "solar_percentage": "decimal(5,2)",
+      "total_emissions": "decimal(15,2)",
+      "scope1_emissions": "decimal(15,2)",
+      "scope2_emissions": "decimal(15,2)",
+      "scope3_emissions": "decimal(15,2)",
+      "total_waste_kg": "decimal(15,2)",
+      "valorized_waste_kg": "decimal(15,2)",
+      "unsold_volume_kg": "decimal(15,2)",
+      "waste_valorization_initiatives": "text",
+      "submitted_by": "uuid REFERENCES pev_profiles(id)",
+      "verified_by": "uuid REFERENCES pev_profiles(id)",
+      "verified_at": "timestamptz",
+      "created_at": "timestamptz DEFAULT now()",
+      "updated_at": "timestamptz DEFAULT now()",
+      "UNIQUE": "(company_id, year)"
+    },
+    "pev_company_claims": {
+      "id": "uuid PRIMARY KEY DEFAULT gen_random_uuid()",
+      "company_id": "uuid NOT NULL REFERENCES pev_companies(id)",
+      "user_id": "uuid NOT NULL REFERENCES pev_profiles(id)",
+      "status": "varchar(50) DEFAULT 'pending'",
+      "justification": "text NOT NULL",
+      "documents": "jsonb DEFAULT '[]'",
+      "admin_notes": "text",
+      "reviewed_by": "uuid REFERENCES pev_profiles(id)",
+      "reviewed_at": "timestamptz",
+      "created_at": "timestamptz DEFAULT now()",
+      "updated_at": "timestamptz DEFAULT now()"
+    },
+    "pev_company_history": {
+      "id": "uuid PRIMARY KEY DEFAULT gen_random_uuid()",
+      "company_id": "uuid NOT NULL REFERENCES pev_companies(id)",
+      "annual_data_id": "uuid REFERENCES pev_company_annual_data(id)",
+      "action": "varchar(50) NOT NULL",
+      "changed_by": "uuid NOT NULL REFERENCES pev_profiles(id)",
+      "changes": "jsonb NOT NULL",
+      "previous_values": "jsonb",
+      "created_at": "timestamptz DEFAULT now()"
+    }
+  }
+}

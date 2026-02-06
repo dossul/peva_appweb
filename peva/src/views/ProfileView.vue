@@ -586,28 +586,40 @@ const loadProfileLinks = () => {
 
 const getTypeColor = (type) => {
   const colors = {
-    'Financement': 'blue',
-    'Emploi': 'green',
-    'Partenariat': 'purple',
-    'Appel d\'offres': 'orange',
-    'job': 'green',
-    'funding': 'blue',
-    'partnership': 'purple',
-    'tender': 'orange'
+    'appels_projets': 'blue',
+    'stages': 'green',
+    'theses': 'purple',
+    'fundraising': 'orange',
+    'emplois': 'teal',
+    'vente_equipements': 'indigo',
+    'vente_matieres': 'pink',
+    'idees_business': 'amber',
+    // Labels pour affichage
+    'Appels à projets': 'blue',
+    'Stages': 'green',
+    'Thèses': 'purple',
+    'Fundraising': 'orange',
+    'Emplois': 'teal'
   }
   return colors[type] || 'grey'
 }
 
 const getTypeIcon = (type) => {
   const icons = {
-    'Financement': 'mdi-currency-eur',
-    'Emploi': 'mdi-briefcase-account',
-    'Partenariat': 'mdi-handshake',
-    'Appel d\'offres': 'mdi-file-document',
-    'job': 'mdi-briefcase-account',
-    'funding': 'mdi-currency-eur',
-    'partnership': 'mdi-handshake',
-    'tender': 'mdi-file-document'
+    'appels_projets': 'mdi-bullhorn',
+    'stages': 'mdi-account-school',
+    'theses': 'mdi-school',
+    'fundraising': 'mdi-currency-usd',
+    'emplois': 'mdi-briefcase',
+    'vente_equipements': 'mdi-package-variant',
+    'vente_matieres': 'mdi-leaf',
+    'idees_business': 'mdi-lightbulb',
+    // Labels pour affichage
+    'Appels à projets': 'mdi-bullhorn',
+    'Stages': 'mdi-account-school',
+    'Thèses': 'mdi-school',
+    'Fundraising': 'mdi-currency-usd',
+    'Emplois': 'mdi-briefcase'
   }
   return icons[type] || 'mdi-briefcase'
 }

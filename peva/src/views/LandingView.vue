@@ -196,6 +196,9 @@
         </v-container>
       </section>
 
+      <!-- Bande d'annonce Événements -->
+      <EventsBanner :limit="5" />
+
       <!-- Features Section -->
       <section ref="featuresSection" class="py-16 bg-white" data-testid="features-section">
         <v-container>
@@ -521,7 +524,7 @@
         
         <div class="text-center">
           <p class="text-body-2 text-grey-lighten-1 ma-0">
-            © 2024 2iE GreenHub - Entreprises de l'économie verte. Tous droits réservés.
+            © 2025 2iE GreenHub - Entreprises de l'économie verte. Tous droits réservés.
           </p>
         </div>
       </v-container>
@@ -535,6 +538,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import dataService from '@/services/dataService'
 import homeImage from '@/assets/images/illustrations/home_image.png'
+import EventsBanner from '@/components/EventsBanner.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

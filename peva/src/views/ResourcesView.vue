@@ -9,7 +9,7 @@
               <v-icon size="48" class="mr-4">mdi-library</v-icon>
               <div>
                 <h1 class="text-h3 font-weight-bold mb-2">Bibliothèque de Ressources</h1>
-                <p class="text-h6 font-weight-regular ma-0">Découvrez notre collection de guides, rapports, outils, tutoriels vidéo et formations pour l'économie verte</p>
+                <p class="text-h6 font-weight-regular ma-0">Découvrez notre collection de guides, rapports, outils, tutoriels vidéo<br>et formations pour l'économie verte</p>
               </div>
             </div>
           </div>
@@ -367,6 +367,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { viewsService } from '@/services/viewsService'
 import { resourcesService } from '@/services/resourcesService'
+import { getSectorNames } from '@/services/sectorsService'
 import ReportContentDialog from '@/components/ReportContentDialog.vue'
 
 const router = useRouter()
@@ -413,26 +414,8 @@ const resourceTypes = [
   'Formation'
 ]
 
-// Secteurs harmonisés (identiques à DirectoryView, CompanyManagementView, etc.)
-const sectors = [
-  'Agroalimentaire',
-  'Agriculture durable',
-  'Bilan carbone',
-  'Communication d\'impact',
-  'Construction écologique',
-  'Eau et assainissement',
-  'Éco-matériaux',
-  'Écotourisme',
-  'Énergies renouvelables',
-  'Équipementiers',
-  'Gestion des déchets',
-  'RSE/ESG',
-  'Technologies propres',
-  'Transformation agroalimentaire',
-  'Transport vert',
-  'Valorisation des déchets',
-  'Autres'
-]
+// Secteurs chargés depuis la BDD (source unique)
+const sectors = ref([])
 
 const levels = [
   'Débutant',
@@ -569,7 +552,8 @@ const loadResources = async () => {
 }
 
 // Initialize
-onMounted(() => {
+onMounted(async () => {
+  sectors.value = await getSectorNames()
   loadResources()
 })
 </script>

@@ -102,14 +102,18 @@
                   <v-icon start>mdi-account-star</v-icon>
                   Vous êtes l'organisateur de cet événement
                 </v-alert>
-                <v-btn v-if="!isRegistered && !isOwnEvent" color="purple-darken-1" variant="flat" size="large" block :loading="registering" :disabled="isEventFull" @click="handleRegister">
+                <v-btn v-if="!isRegistered && !isOwnEvent && !isEventPast" color="purple-darken-1" variant="flat" size="large" block :loading="registering" :disabled="isEventFull" @click="handleRegister">
                   <v-icon start>mdi-check</v-icon>S'inscrire
                 </v-btn>
-                <v-btn v-else-if="isRegistered && !isOwnEvent" color="red" variant="outlined" size="large" block :loading="registering" @click="handleCancelRegistration">
+                <v-btn v-else-if="isRegistered && !isOwnEvent && !isEventPast" color="red" variant="outlined" size="large" block :loading="registering" @click="handleCancelRegistration">
                   <v-icon start>mdi-close</v-icon>Annuler inscription
                 </v-btn>
-                <v-alert v-if="isEventFull && !isOwnEvent" type="warning" variant="tonal" class="mt-4" density="compact">Événement complet</v-alert>
-                <v-alert v-if="isRegistered && !isOwnEvent" type="success" variant="tonal" class="mt-4" density="compact">Vous êtes inscrit</v-alert>
+                <v-alert v-if="isEventPast && !isOwnEvent" type="info" variant="tonal" class="mt-4" density="compact">
+                  <v-icon start>mdi-calendar-check</v-icon>
+                  Cet événement est terminé
+                </v-alert>
+                <v-alert v-if="isEventFull && !isOwnEvent && !isEventPast" type="warning" variant="tonal" class="mt-4" density="compact">Événement complet</v-alert>
+                <v-alert v-if="isRegistered && !isOwnEvent && !isEventPast" type="success" variant="tonal" class="mt-4" density="compact">Vous êtes inscrit</v-alert>
               </v-card-text>
             </v-card>
 
@@ -178,6 +182,12 @@ const isEventFull = computed(() => {
 
 const isOwnEvent = computed(() => {
   return event.value?.created_by === authStore.user?.id
+})
+
+const isEventPast = computed(() => {
+  if (!event.value?.end_date && !event.value?.start_date) return false
+  const endDate = event.value.end_date || event.value.start_date
+  return new Date(endDate) < new Date()
 })
 
 const loadEvent = async () => {

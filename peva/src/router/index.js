@@ -7,6 +7,8 @@ const RegisterView = () => import('@/views/auth/RegisterView.vue')
 const ResetPasswordView = () => import('@/views/auth/ResetPasswordView.vue')
 const ResetPasswordConfirmView = () => import('@/views/auth/ResetPasswordConfirmView.vue')
 const EmailConfirmationView = () => import('@/views/auth/EmailConfirmationView.vue')
+const AuthCallbackView = () => import('@/views/auth/AuthCallbackView.vue')
+const VerifyEmailView = () => import('@/views/auth/VerifyEmailView.vue')
 
 // Vues principales
 const LandingView = () => import('@/views/LandingView.vue')
@@ -53,6 +55,8 @@ const OpportunityApplicationsView = () => import('@/views/OpportunityApplication
 const MyOpportunitiesView = () => import('@/views/MyOpportunitiesView.vue')
 const MyResourcesView = () => import('@/views/MyResourcesView.vue')
 const MyEventsView = () => import('@/views/MyEventsView.vue')
+const MyCompaniesView = () => import('@/views/MyCompaniesView.vue')
+const CompanyAdminView = () => import('@/views/CompanyAdminView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -108,6 +112,22 @@ const router = createRouter({
       component: EmailConfirmationView,
       meta: { 
         requiresGuest: true,
+        title: 'Confirmation email - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/auth/callback',
+      name: 'AuthCallback',
+      component: AuthCallbackView,
+      meta: { 
+        title: 'Vérification - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/auth/verify',
+      name: 'VerifyEmail',
+      component: VerifyEmailView,
+      meta: { 
         title: 'Confirmation email - 2iE GreenHub'
       }
     },
@@ -362,6 +382,24 @@ const router = createRouter({
       meta: { 
         requiresAuth: true,
         title: 'Mes Événements - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/my-companies',
+      name: 'MyCompanies',
+      component: MyCompaniesView,
+      meta: { 
+        requiresAuth: true,
+        title: 'Mes Entreprises - 2iE GreenHub'
+      }
+    },
+    {
+      path: '/company/:id/admin',
+      name: 'CompanyAdmin',
+      component: CompanyAdminView,
+      meta: { 
+        requiresAuth: true,
+        title: 'Gestion Entreprise - 2iE GreenHub'
       }
     },
     {

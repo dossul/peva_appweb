@@ -62,7 +62,7 @@
         @click.stop="rail = !rail"
       ></v-app-bar-nav-icon>
 
-      <v-app-bar-title>PEVA - Économie Verte</v-app-bar-title>
+      <v-app-bar-title>2iE GreenHub</v-app-bar-title>
 
       <v-spacer></v-spacer>
 
@@ -413,6 +413,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { connectionService } from '@/services/connectionService'
+import supabase from '@/lib/supabase'
 
 const authStore = useAuthStore()
 const router = useRouter()

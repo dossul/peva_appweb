@@ -410,6 +410,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { connectionService } from '@/services/connectionService'
 import { viewsService } from '@/services/viewsService'
+import { getSectors } from '@/services/sectorsService'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -501,16 +502,8 @@ const activeFiltersCount = computed(() => {
   return count
 })
 
-const sectorLegends = [
-  { name: 'Agriculture durable', color: '#10b981' },
-  { name: 'Agroalimentaire', color: '#f59e0b' },
-  { name: 'Construction écologique', color: '#ec4899' },
-  { name: 'Eau et assainissement', color: '#06b6d4' },
-  { name: 'Écotourisme', color: '#84cc16' },
-  { name: 'Énergie renouvelable', color: '#FFEB3B' },
-  { name: 'Gestion des déchets', color: '#8b5cf6' },
-  { name: 'Transport vert', color: '#3b82f6' }
-].sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+// Légende des secteurs chargée depuis la BDD (source unique)
+const sectorLegends = ref([])
 
 // Les données des entreprises viennent exclusivement de la BDD (companiesFromDB)
 // Plus de données mockées - production mode
@@ -723,6 +716,12 @@ const updateMarkers = () => {
               🤝 Se connecter
             </button>
           </div>
+          ${!company.claimed_by ? `
+          <button onclick="window.claimCompany(${company.id})" 
+                  style="background: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; width: 100%; margin-top: 6px; transition: all 0.2s ease;">
+            🏢 Réclamer cette entreprise
+          </button>
+          ` : ''}
         </div>
       </div>
     `
@@ -749,29 +748,11 @@ const updateMarkers = () => {
 }
 
 const getSectorColor = (sectorName) => {
-  const colors = {
-    // Secteurs standards - Énergie renouvelable en JAUNE
-    'Énergies renouvelables': '#FFEB3B',
-    'Énergies Renouvelables': '#FFEB3B',
-    'Énergie renouvelable': '#FFEB3B',
-    'Énergie Solaire': '#FFEB3B',
-    'Agriculture durable': '#10b981',
-    'Agriculture Durable': '#10b981',
-    'Agroalimentaire': '#f59e0b',
-    'Transport vert': '#3b82f6',
-    'Transport Écologique': '#3b82f6',
-    'Construction écologique': '#ec4899',
-    'Gestion des déchets': '#8b5cf6',
-    'Gestion des Déchets': '#8b5cf6',
-    'Eau et assainissement': '#06b6d4',
-    'Gestion de l\'Eau': '#06b6d4',
-    'Écotourisme': '#84cc16',
-    // Secteurs de votre BDD
-    'Élevage Durable': '#16a34a',
-    'Artisanat Vert': '#059669',
-    'Mines Responsables': '#7c3aed'
-  }
-  return colors[sectorName] || '#10b981' // Vert par défaut
+  // Chercher dans les secteurs chargés depuis la BDD
+  const sector = sectorLegends.value.find(s => 
+    s.name.toLowerCase() === sectorName?.toLowerCase()
+  )
+  return sector?.color || '#9ca3af' // Gris par défaut
 }
 
 const getMarkerSize = (size) => {
@@ -883,6 +864,21 @@ Cordialement`
   }
 }
 
+window.claimCompany = (companyId) => {
+  // Vérifier si l'utilisateur est authentifié
+  if (!authStore.isAuthenticated) {
+    snackbarMessage.value = "Vous devez être connecté pour réclamer une entreprise"
+    showSnackbar.value = true
+    return
+  }
+  
+  // Rediriger vers la page "Mes entreprises" avec l'entreprise pré-sélectionnée
+  router.push({ 
+    path: '/my-companies',
+    query: { claim: companyId }
+  })
+}
+
 // Méthodes pour le dialog de connexion
 const cancelConnection = () => {
   showConnectionDialog.value = false
@@ -938,6 +934,10 @@ const sendConnectionRequest = async () => {
 let updateMapLayerFn = null
 
 onMounted(async () => {
+  // Charger les secteurs depuis la BDD pour la légende
+  const sectorsData = await getSectors()
+  sectorLegends.value = sectorsData.map(s => ({ name: s.name, color: s.color }))
+  
   // Charger les entreprises depuis la BDD d'abord
   await loadCompanies()
   

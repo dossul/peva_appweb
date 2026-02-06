@@ -157,10 +157,65 @@ export const eventsService = {
 
       if (error) throw error
 
+      // Envoyer email de confirmation au créateur
+      if (eventData.contact_email) {
+        try {
+          await this.sendEventEmail({
+            to: eventData.contact_email,
+            subject: `Événement soumis - ${eventData.title}`,
+            type: 'event_submitted',
+            data: {
+              recipientName: eventData.organizer_name || 'Organisateur',
+              eventTitle: eventData.title,
+              eventDate: eventData.start_date ? new Date(eventData.start_date).toLocaleDateString('fr-FR') : 'À définir',
+              eventLocation: eventData.location || 'Non spécifié'
+            }
+          })
+        } catch (emailError) {
+          console.warn('Email de soumission non envoyé:', emailError.message)
+        }
+      }
+
+      // Notifier les admins (en arrière-plan)
+      this.notifyAdminsNewEvent(data).catch(() => {})
+
       return { success: true, data }
     } catch (error) {
       console.error('Erreur création événement:', error)
       return { success: false, error: error.message }
+    }
+  },
+
+  /**
+   * Notifier les admins d'un nouvel événement à modérer
+   */
+  async notifyAdminsNewEvent(event) {
+    try {
+      // Récupérer les admins
+      const { data: admins } = await supabase
+        .from('pev_profiles')
+        .select('email, first_name')
+        .in('role', ['admin', 'super_admin'])
+      
+      if (!admins || admins.length === 0) return
+
+      for (const admin of admins) {
+        if (admin.email) {
+          await this.sendEventEmail({
+            to: admin.email,
+            subject: `[Modération] Nouvel événement à valider`,
+            type: 'admin_event_review',
+            data: {
+              recipientName: admin.first_name || 'Admin',
+              eventTitle: event.title,
+              eventDate: event.start_date ? new Date(event.start_date).toLocaleDateString('fr-FR') : 'À définir',
+              moderationUrl: 'https://app.2iegreenhub.org/admin/moderation'
+            }
+          })
+        }
+      }
+    } catch (error) {
+      console.warn('Notification admins échouée:', error.message)
     }
   },
 
@@ -568,15 +623,80 @@ export const eventsService = {
   async sendEventEmail({ to, subject, type, data }) {
     const API_URL = 'https://apiemail2iegreenhub.vercel.app/api/send-email'
     
+    // Générer le contenu selon le type d'email
+    let messageContent = ''
+    const recipientName = data.recipientName || data.participantName || 'Utilisateur'
+    
+    switch (type) {
+      case 'event_submitted':
+        messageContent = `
+          <p>Votre événement <strong>"${data.eventTitle}"</strong> a été soumis avec succès.</p>
+          <p>📅 <strong>Date:</strong> ${data.eventDate}</p>
+          <p>📍 <strong>Lieu:</strong> ${data.eventLocation}</p>
+          <p style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+            ⏳ Votre événement est en cours de modération. Vous recevrez un email dès qu'il sera validé.
+          </p>
+        `
+        break
+      case 'admin_event_review':
+        messageContent = `
+          <p>Un nouvel événement nécessite votre validation:</p>
+          <p><strong>"${data.eventTitle}"</strong></p>
+          <p>📅 <strong>Date:</strong> ${data.eventDate}</p>
+          <p style="text-align: center; margin-top: 20px;">
+            <a href="${data.moderationUrl}" style="background: #7b1fa2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
+              Accéder à la modération
+            </a>
+          </p>
+        `
+        break
+      case 'registration_pending':
+        messageContent = `
+          <p>Votre demande d'inscription à l'événement <strong>"${data.eventTitle}"</strong> a été prise en compte.</p>
+          <p style="background: #fff3cd; padding: 15px; border-radius: 8px;">
+            ⏳ L'organisateur doit valider votre participation. Vous serez notifié par email.
+          </p>
+        `
+        break
+      case 'registration_confirmed':
+        messageContent = `
+          <p>Votre inscription à l'événement <strong>"${data.eventTitle}"</strong> est confirmée ! 🎉</p>
+          <p>📅 <strong>Date:</strong> ${data.eventDate || 'Voir les détails'}</p>
+          <p>📍 <strong>Lieu:</strong> ${data.eventLocation || 'Voir les détails'}</p>
+        `
+        break
+      case 'registration_approved':
+        messageContent = `
+          <p>Bonne nouvelle ! Votre participation à l'événement <strong>"${data.eventTitle}"</strong> a été approuvée. 🎉</p>
+          <p>Nous avons hâte de vous y voir !</p>
+        `
+        break
+      case 'registration_rejected':
+        messageContent = `
+          <p>Nous sommes désolés, votre demande de participation à <strong>"${data.eventTitle}"</strong> n'a pas été retenue.</p>
+          ${data.reason ? `<p><strong>Raison:</strong> ${data.reason}</p>` : ''}
+        `
+        break
+      case 'event_cancelled':
+        messageContent = `
+          <p>L'événement <strong>"${data.eventTitle}"</strong> a été annulé.</p>
+          ${data.reason ? `<p><strong>Raison:</strong> ${data.reason}</p>` : ''}
+          <p>Nous vous prions de nous excuser pour ce désagrément.</p>
+        `
+        break
+      default:
+        messageContent = `<p>${data.message || 'Notification concernant un événement.'}</p>`
+    }
+    
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%); padding: 20px; text-align: center;">
           <h1 style="color: white; margin: 0;">2iE GreenHub</h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Événements</p>
         </div>
         <div style="padding: 30px; background: #f9f9f9;">
-          <p>Bonjour <strong>${data.participantName}</strong>,</p>
-          <h2 style="color: #7b1fa2;">${data.eventTitle}</h2>
-          <p style="font-size: 16px; color: #333;">${data.message}</p>
+          <p>Bonjour <strong>${recipientName}</strong>,</p>
+          ${messageContent}
           <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
           <p style="color: #666; font-size: 14px;">Cordialement,<br>L'équipe 2iE GreenHub</p>
         </div>

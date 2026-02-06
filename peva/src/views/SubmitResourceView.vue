@@ -444,6 +444,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { resourcesService } from '@/services/resourcesService'
+import { getSectorNames } from '@/services/sectorsService'
 
 const router = useRouter()
 const route = useRoute()
@@ -493,26 +494,8 @@ const resourceTypes = [
   { title: 'Autre', value: 'other' }
 ]
 
-// Secteurs harmonisés (identiques à DirectoryView, CompanyManagementView, etc.)
-const sectors = [
-  'Agroalimentaire',
-  'Agriculture durable',
-  'Bilan carbone',
-  'Communication d\'impact',
-  'Construction écologique',
-  'Eau et assainissement',
-  'Éco-matériaux',
-  'Écotourisme',
-  'Énergies renouvelables',
-  'Équipementiers',
-  'Gestion des déchets',
-  'RSE/ESG',
-  'Technologies propres',
-  'Transformation agroalimentaire',
-  'Transport vert',
-  'Valorisation des déchets',
-  'Autres'
-]
+// Secteurs chargés depuis la BDD (source unique)
+const sectors = ref([])
 
 const difficultyLevels = [
   'Débutant',
@@ -720,6 +703,9 @@ const loadDraft = async (resourceId) => {
 
 // Initialize
 onMounted(async () => {
+  // Charger les secteurs depuis la BDD
+  sectors.value = await getSectorNames()
+  
   if (authStore.user?.profile) {
     resourceData.value.author = `${authStore.user.profile.first_name} ${authStore.user.profile.last_name}`
   }

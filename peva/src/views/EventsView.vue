@@ -1,14 +1,17 @@
 <template>
   <div class="events-view" data-testid="events-page">
-    <!-- Header avec bannière -->
-    <div class="hero-banner bg-purple-darken-1 text-white py-8">
+    <!-- Bande d'annonce avec carousel des événements à venir -->
+    <EventsBanner :limit="5" :featured="false" />
+    
+    <!-- Header avec titre et bouton création -->
+    <div class="hero-banner bg-purple-darken-1 text-white py-6">
       <v-container>
-        <div class="d-flex align-center justify-space-between">
+        <div class="d-flex align-center justify-space-between flex-wrap ga-4">
           <div class="d-flex align-center">
-            <v-icon size="48" class="mr-4">mdi-calendar-multiple</v-icon>
+            <v-icon size="40" class="mr-3">mdi-calendar-multiple</v-icon>
             <div>
-              <h1 class="text-h3 font-weight-bold mb-2">Événements 2iE GreenHub</h1>
-              <p class="text-h6 font-weight-regular ma-0">Découvrez les événements de l'économie verte : valorisation des déchets, bilan carbone, économie circulaire</p>
+              <h1 class="text-h4 font-weight-bold mb-1">Événements 2iE GreenHub</h1>
+              <p class="text-body-1 font-weight-regular ma-0 opacity-90">Valorisation des déchets, bilan carbone, économie circulaire</p>
             </div>
           </div>
           <v-btn
@@ -67,7 +70,11 @@
           </v-tab>
           <v-tab value="list">
             <v-icon class="mr-2">mdi-format-list-bulleted</v-icon>
-            Liste
+            À venir
+          </v-tab>
+          <v-tab value="history">
+            <v-icon class="mr-2">mdi-history</v-icon>
+            Historique
           </v-tab>
           <v-tab value="my-events" @click="goToMyEvents">
             <v-icon class="mr-2">mdi-bookmark</v-icon>
@@ -259,20 +266,21 @@
                   Filtres
                 </v-card-title>
                 <v-card-text>
-                  <!-- Filtre par catégorie -->
+                  <!-- Filtre par secteur d'activité -->
                   <v-select
-                    v-model="listFilters.category"
-                    :items="eventTypes"
+                    v-model="listFilters.sector"
+                    :items="sectorsList"
                     item-title="name"
                     item-value="name"
-                    label="Catégorie"
+                    label="Secteur d'activité"
                     variant="outlined"
                     density="compact"
                     clearable
                     class="mb-4"
+                    prepend-inner-icon="mdi-leaf"
                   />
                   
-                  <!-- Filtre par type -->
+                  <!-- Filtre par type d'événement -->
                   <v-select
                     v-model="listFilters.type"
                     :items="eventTypesList"
@@ -281,6 +289,7 @@
                     density="compact"
                     clearable
                     class="mb-4"
+                    prepend-inner-icon="mdi-tag"
                   />
                   
                   <!-- Filtre gratuit/payant -->
@@ -397,8 +406,148 @@
               <!-- État vide -->
               <v-card v-else class="pa-8 text-center">
                 <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-calendar-blank</v-icon>
-                <h3 class="text-h6 mb-2">Aucun événement trouvé</h3>
+                <h3 class="text-h6 mb-2">Aucun événement à venir</h3>
                 <p class="text-grey-darken-1">Modifiez vos filtres ou revenez plus tard.</p>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-window-item>
+
+        <!-- Vue Historique (Événements passés) -->
+        <v-window-item value="history">
+          <v-row>
+            <!-- Sidebar Filtres (même que liste) -->
+            <v-col cols="12" md="3">
+              <v-card elevation="2">
+                <v-card-title class="pa-4">
+                  <v-icon class="mr-2">mdi-filter</v-icon>
+                  Filtres
+                </v-card-title>
+                <v-card-text>
+                  <!-- Filtre par secteur d'activité -->
+                  <v-select
+                    v-model="listFilters.sector"
+                    :items="sectorsList"
+                    item-title="name"
+                    item-value="name"
+                    label="Secteur d'activité"
+                    variant="outlined"
+                    density="compact"
+                    clearable
+                    class="mb-4"
+                    prepend-inner-icon="mdi-leaf"
+                  />
+                  
+                  <!-- Filtre par type d'événement -->
+                  <v-select
+                    v-model="listFilters.type"
+                    :items="eventTypesList"
+                    label="Type d'événement"
+                    variant="outlined"
+                    density="compact"
+                    clearable
+                    class="mb-4"
+                    prepend-inner-icon="mdi-tag"
+                  />
+                  
+                  <!-- Recherche -->
+                  <v-text-field
+                    v-model="listFilters.search"
+                    label="Rechercher"
+                    variant="outlined"
+                    density="compact"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                  />
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <!-- Liste des événements passés -->
+            <v-col cols="12" md="9">
+              <!-- Compteur -->
+              <div class="d-flex justify-space-between align-center mb-4">
+                <div class="text-body-1">
+                  <strong>{{ filteredPastEvents.length }}</strong> événement(s) passé(s)
+                </div>
+                <v-chip color="grey" variant="tonal">
+                  <v-icon start size="small">mdi-history</v-icon>
+                  Archives
+                </v-chip>
+              </div>
+
+              <!-- Grille d'événements passés -->
+              <v-row v-if="filteredPastEvents.length > 0">
+                <v-col
+                  v-for="event in filteredPastEvents"
+                  :key="event.id"
+                  cols="12"
+                  md="6"
+                  lg="4"
+                >
+                  <v-card class="h-100 event-card past-event" elevation="2" @click="goToEvent(event.id)">
+                    <!-- Image avec overlay "Terminé" -->
+                    <div class="position-relative">
+                      <v-img
+                        v-if="event.image_url"
+                        :src="event.image_url"
+                        height="140"
+                        cover
+                        class="past-event-img"
+                      />
+                      <div v-else class="event-placeholder d-flex align-center justify-center" style="height: 140px; background: linear-gradient(135deg, #78909c 0%, #90a4ae 100%);">
+                        <v-icon color="white" size="48">mdi-calendar-check</v-icon>
+                      </div>
+                      <v-chip
+                        class="position-absolute"
+                        style="top: 8px; right: 8px;"
+                        color="grey-darken-1"
+                        size="small"
+                        label
+                      >
+                        <v-icon start size="small">mdi-check</v-icon>
+                        Terminé
+                      </v-chip>
+                    </div>
+
+                    <!-- Badges -->
+                    <div class="pa-3 pb-0 d-flex ga-2 flex-wrap">
+                      <v-chip size="small" color="grey" label>
+                        {{ event.event_type || 'Événement' }}
+                      </v-chip>
+                      <v-chip v-if="event.category" size="small" color="teal" variant="outlined" label>
+                        <v-icon start size="small">mdi-leaf</v-icon>
+                        {{ event.category }}
+                      </v-chip>
+                    </div>
+
+                    <!-- Contenu -->
+                    <v-card-title class="text-body-1 font-weight-bold pb-1">
+                      {{ event.title }}
+                    </v-card-title>
+                    <v-card-text class="pb-2">
+                      <div class="d-flex align-center mb-2 text-grey-darken-1">
+                        <v-icon size="16" class="mr-1">mdi-calendar</v-icon>
+                        <span class="text-body-2">{{ formatEventDate(event.start_date) }}</span>
+                      </div>
+                      <div class="d-flex align-center text-grey-darken-1">
+                        <v-icon size="16" class="mr-1">mdi-map-marker</v-icon>
+                        <span class="text-body-2">{{ event.location || event.city || 'Non spécifié' }}</span>
+                      </div>
+                      <div v-if="event.participants_count" class="d-flex align-center mt-2 text-grey-darken-1">
+                        <v-icon size="16" class="mr-1">mdi-account-group</v-icon>
+                        <span class="text-body-2">{{ event.participants_count }} participants</span>
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+              </v-row>
+
+              <!-- État vide -->
+              <v-card v-else class="pa-8 text-center">
+                <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-calendar-check</v-icon>
+                <h3 class="text-h6 mb-2">Aucun événement passé</h3>
+                <p class="text-grey-darken-1">L'historique des événements apparaîtra ici.</p>
               </v-card>
             </v-col>
           </v-row>
@@ -666,6 +815,7 @@ import { emailService } from '@/services/emailService'
 import { eventsService } from '@/services/eventsService'
 import dataService from '@/services/dataService'
 import ReportContentDialog from '@/components/ReportContentDialog.vue'
+import EventsBanner from '@/components/EventsBanner.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -752,26 +902,23 @@ const allEvents = ref([])
 
 // Filtres pour la vue Liste
 const listFilters = ref({
-  category: null,
+  sector: null,
   type: null,
   isFree: null,
   search: ''
 })
 const listSort = ref('date_asc')
 
-// Computed pour la liste filtrée
-const filteredListEvents = computed(() => {
-  let filtered = allEvents.value.filter(e => {
-    // Seulement événements à venir
-    return new Date(e.start_date) >= new Date()
-  })
+// Fonction de filtrage commune
+const applyFilters = (events) => {
+  let filtered = [...events]
 
-  // Filtre catégorie
-  if (listFilters.value.category) {
-    filtered = filtered.filter(e => e.category === listFilters.value.category)
+  // Filtre secteur d'activité
+  if (listFilters.value.sector) {
+    filtered = filtered.filter(e => e.category === listFilters.value.sector)
   }
 
-  // Filtre type
+  // Filtre type d'événement
   if (listFilters.value.type) {
     filtered = filtered.filter(e => e.event_type === listFilters.value.type)
   }
@@ -787,9 +934,18 @@ const filteredListEvents = computed(() => {
     filtered = filtered.filter(e => 
       e.title?.toLowerCase().includes(search) ||
       e.description?.toLowerCase().includes(search) ||
-      e.location?.toLowerCase().includes(search)
+      e.location?.toLowerCase().includes(search) ||
+      e.category?.toLowerCase().includes(search)
     )
   }
+
+  return filtered
+}
+
+// Computed pour les événements à venir (filtrés)
+const filteredListEvents = computed(() => {
+  const upcoming = allEvents.value.filter(e => new Date(e.start_date) >= new Date())
+  let filtered = applyFilters(upcoming)
 
   // Tri
   if (listSort.value === 'date_asc') {
@@ -797,6 +953,17 @@ const filteredListEvents = computed(() => {
   } else {
     filtered.sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
   }
+
+  return filtered
+})
+
+// Computed pour l'historique des événements passés (filtrés)
+const filteredPastEvents = computed(() => {
+  const past = allEvents.value.filter(e => new Date(e.start_date) < new Date())
+  let filtered = applyFilters(past)
+
+  // Tri par date décroissante (plus récent en premier)
+  filtered.sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
 
   return filtered
 })
@@ -1345,5 +1512,27 @@ onMounted(async () => {
 
 .v-btn {
   border-radius: 8px !important;
+}
+
+.event-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.past-event {
+  opacity: 0.85;
+}
+
+.past-event:hover {
+  opacity: 1;
+}
+
+.past-event-img {
+  filter: grayscale(30%);
 }
 </style>

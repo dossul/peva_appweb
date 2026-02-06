@@ -650,6 +650,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { opportunitiesService } from '@/services/opportunitiesService'
+import { getSectorNames } from '@/services/sectorsService'
 import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
@@ -730,34 +731,18 @@ const snackbar = ref({
 
 // Static data
 const opportunityTypes = [
-  { title: 'Emploi', value: 'job' },
-  { title: 'Stage', value: 'internship' },
-  { title: 'Mission/Contrat', value: 'contract' },
-  { title: 'Financement', value: 'funding' },
-  { title: 'Partenariat', value: 'partnership' },
-  { title: 'Appel d\'offres', value: 'tender' }
+  { title: 'Appels à projets', value: 'appels_projets' },
+  { title: 'Stages', value: 'stages' },
+  { title: 'Thèses', value: 'theses' },
+  { title: 'Fundraising', value: 'fundraising' },
+  { title: 'Emplois', value: 'emplois' },
+  { title: 'Vente/Achat équipements', value: 'vente_equipements' },
+  { title: 'Vente/Achat matières', value: 'vente_matieres' },
+  { title: 'Idées business', value: 'idees_business' }
 ]
 
-// Secteurs harmonisés (identiques à DirectoryView, CompanyManagementView, etc.)
-const sectors = [
-  'Agroalimentaire',
-  'Agriculture durable',
-  'Bilan carbone',
-  'Communication d\'impact',
-  'Construction écologique',
-  'Eau et assainissement',
-  'Éco-matériaux',
-  'Écotourisme',
-  'Énergies renouvelables',
-  'Équipementiers',
-  'Gestion des déchets',
-  'RSE/ESG',
-  'Technologies propres',
-  'Transformation agroalimentaire',
-  'Transport vert',
-  'Valorisation des déchets',
-  'Autres'
-]
+// Secteurs chargés depuis la BDD (source unique)
+const sectors = ref([])
 
 const locations = [
   // Liste officielle des 54 pays africains (ordre alphabétique)
@@ -1220,6 +1205,9 @@ const loadDraft = async (id) => {
 
 // Initialize
 onMounted(async () => {
+  // Charger les secteurs depuis la BDD
+  sectors.value = await getSectorNames()
+  
   // Initialiser avec les données utilisateur
   if (authStore.user?.email) {
     opportunityData.value.contact_email = authStore.user.email

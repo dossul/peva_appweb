@@ -1,0 +1,2022 @@
+{
+  "generated_at": "2026-02-06T02:00:43.061823",
+  "excel_analysis": {
+    "Fiche synthétique PME-PMI_Sonia.xlsx": {
+      "Feuil1": {
+        "row_count": 20,
+        "column_count": 21,
+        "columns": [
+          {
+            "name": "Unnamed: 0",
+            "type": "integer",
+            "non_null_count": 20,
+            "total_count": 20,
+            "fill_rate": "100.0%",
+            "examples": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "Noms des PME/PMI",
+            "type": "varchar",
+            "non_null_count": 20,
+            "total_count": 20,
+            "fill_rate": "100.0%",
+            "examples": [
+              "Entreprise Vision d'Afrique (EVA)",
+              "Rayon Bio",
+              "Neebnooma"
+            ]
+          },
+          {
+            "name": "Activités principales",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "ODD contribués",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "Politiques existentes",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "Nombre d'employés",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "%CDI",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "%CDD",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "Nombre de prestataires",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "Achats locaux",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "M3 d'eau consommée",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "L de carburant",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "% Du solaire",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "Emissions totales",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "Emissions scope 1",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "Emissions scope 2",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "Emissions scope 3",
+            "type": "empty",
+            "non_null_count": 0,
+            "total_count": 20,
+            "fill_rate": "0.0%",
+            "examples": []
+          },
+          {
+            "name": "Volume ou poids totale de déchets solides /an",
+            "type": "varchar",
+            "non_null_count": 20,
+            "total_count": 20,
+            "fill_rate": "100.0%",
+            "examples": [
+              "15,29t/an ",
+              "14,43t/an",
+              "362t/mois"
+            ]
+          },
+          {
+            "name": "Volume ou poids totale de déchets liquides/an",
+            "type": "varchar",
+            "non_null_count": 17,
+            "total_count": 20,
+            "fill_rate": "85.0%",
+            "examples": [
+              "773m3/an",
+              "96m3/an",
+              "-"
+            ]
+          },
+          {
+            "name": "Volumes compostés ou méthanisées/an",
+            "type": "varchar",
+            "non_null_count": 11,
+            "total_count": 20,
+            "fill_rate": "55.0%",
+            "examples": [
+              "-",
+              "-",
+              "-"
+            ]
+          },
+          {
+            "name": "Initiative de valorisation des déchets",
+            "type": "varchar",
+            "non_null_count": 15,
+            "total_count": 20,
+            "fill_rate": "75.0%",
+            "examples": [
+              "-",
+              "-",
+              "-"
+            ]
+          }
+        ],
+        "data_preview": [
+          {
+            "Unnamed: 0": 1,
+            "Noms des PME/PMI": "Entreprise Vision d'Afrique (EVA)",
+            "Activités principales": NaN,
+            "ODD contribués": NaN,
+            "Politiques existentes": NaN,
+            "Nombre d'employés": NaN,
+            "%CDI": NaN,
+            "%CDD": NaN,
+            "Nombre de prestataires": NaN,
+            "Achats locaux": NaN,
+            "M3 d'eau consommée": NaN,
+            "L de carburant": NaN,
+            "% Du solaire": NaN,
+            "Emissions totales": NaN,
+            "Emissions scope 1": NaN,
+            "Emissions scope 2": NaN,
+            "Emissions scope 3": NaN,
+            "Volume ou poids totale de déchets solides /an": "15,29t/an ",
+            "Volume ou poids totale de déchets liquides/an": "773m3/an",
+            "Volumes compostés ou méthanisées/an": "-",
+            "Initiative de valorisation des déchets": "-"
+          },
+          {
+            "Unnamed: 0": 2,
+            "Noms des PME/PMI": "Rayon Bio",
+            "Activités principales": NaN,
+            "ODD contribués": NaN,
+            "Politiques existentes": NaN,
+            "Nombre d'employés": NaN,
+            "%CDI": NaN,
+            "%CDD": NaN,
+            "Nombre de prestataires": NaN,
+            "Achats locaux": NaN,
+            "M3 d'eau consommée": NaN,
+            "L de carburant": NaN,
+            "% Du solaire": NaN,
+            "Emissions totales": NaN,
+            "Emissions scope 1": NaN,
+            "Emissions scope 2": NaN,
+            "Emissions scope 3": NaN,
+            "Volume ou poids totale de déchets solides /an": "14,43t/an",
+            "Volume ou poids totale de déchets liquides/an": "96m3/an",
+            "Volumes compostés ou méthanisées/an": "-",
+            "Initiative de valorisation des déchets": "-"
+          },
+          {
+            "Unnamed: 0": 3,
+            "Noms des PME/PMI": "Neebnooma",
+            "Activités principales": NaN,
+            "ODD contribués": NaN,
+            "Politiques existentes": NaN,
+            "Nombre d'employés": NaN,
+            "%CDI": NaN,
+            "%CDD": NaN,
+            "Nombre de prestataires": NaN,
+            "Achats locaux": NaN,
+            "M3 d'eau consommée": NaN,
+            "L de carburant": NaN,
+            "% Du solaire": NaN,
+            "Emissions totales": NaN,
+            "Emissions scope 1": NaN,
+            "Emissions scope 2": NaN,
+            "Emissions scope 3": NaN,
+            "Volume ou poids totale de déchets solides /an": "362t/mois",
+            "Volume ou poids totale de déchets liquides/an": "-",
+            "Volumes compostés ou méthanisées/an": "-",
+            "Initiative de valorisation des déchets": "-"
+          },
+          {
+            "Unnamed: 0": 4,
+            "Noms des PME/PMI": "Burkina Green Energy-Electric SARL",
+            "Activités principales": NaN,
+            "ODD contribués": NaN,
+            "Politiques existentes": NaN,
+            "Nombre d'employés": NaN,
+            "%CDI": NaN,
+            "%CDD": NaN,
+            "Nombre de prestataires": NaN,
+            "Achats locaux": NaN,
+            "M3 d'eau consommée": NaN,
+            "L de carburant": NaN,
+            "% Du solaire": NaN,
+            "Emissions totales": NaN,
+            "Emissions scope 1": NaN,
+            "Emissions scope 2": NaN,
+            "Emissions scope 3": NaN,
+            "Volume ou poids totale de déchets solides /an": "9kg/mois",
+            "Volume ou poids totale de déchets liquides/an": "-",
+            "Volumes compostés ou méthanisées/an": "-",
+            "Initiative de valorisation des déchets": "-"
+          },
+          {
+            "Unnamed: 0": 5,
+            "Noms des PME/PMI": "Réseau des producteurs de beurre de karité des hauts bassins et cascades (RPBHC)",
+            "Activités principales": NaN,
+            "ODD contribués": NaN,
+            "Politiques existentes": NaN,
+            "Nombre d'employés": NaN,
+            "%CDI": NaN,
+            "%CDD": NaN,
+            "Nombre de prestataires": NaN,
+            "Achats locaux": NaN,
+            "M3 d'eau consommée": NaN,
+            "L de carburant": NaN,
+            "% Du solaire": NaN,
+            "Emissions totales": NaN,
+            "Emissions scope 1": NaN,
+            "Emissions scope 2": NaN,
+            "Emissions scope 3": NaN,
+            "Volume ou poids totale de déchets solides /an": "7,2kg/semaine",
+            "Volume ou poids totale de déchets liquides/an": "630-1050m3/sem",
+            "Volumes compostés ou méthanisées/an": NaN,
+            "Initiative de valorisation des déchets": "-"
+          }
+        ]
+      }
+    },
+    "Fiche synthétique PME-PMIs.xlsx": {
+      "Feuil1": {
+        "row_count": 21,
+        "column_count": 21,
+        "columns": [
+          {
+            "name": "Unnamed: 0",
+            "type": "integer",
+            "non_null_count": 20,
+            "total_count": 21,
+            "fill_rate": "95.2%",
+            "examples": [
+              "1.0",
+              "2.0",
+              "3.0"
+            ]
+          },
+          {
+            "name": "Unnamed: 1",
+            "type": "varchar",
+            "non_null_count": 21,
+            "total_count": 21,
+            "fill_rate": "100.0%",
+            "examples": [
+              "Noms des PME/PMI",
+              "Entreprise Vision d'Afrique (EVA)",
+              "Rayon Bio"
+            ]
+          },
+          {
+            "name": "Généralité",
+            "type": "text",
+            "non_null_count": 20,
+            "total_count": 21,
+            "fill_rate": "95.2%",
+            "examples": [
+              "Activités principales",
+              "Créé en 2014, l'entreprise EVA est dans la production de jus de fruits en saveurs variés du terroir.",
+              "L'entreprise est dans le séchage et commercialisation de mangues.\nDans le cadre du Programme, elle a"
+            ]
+          },
+          {
+            "name": "Gouvernance",
+            "type": "varchar",
+            "non_null_count": 21,
+            "total_count": 21,
+            "fill_rate": "100.0%",
+            "examples": [
+              "ODD contribués",
+              "1, 2,8, 9, 12, 13",
+              "1, 2,8, 9, 12, 13"
+            ]
+          },
+          {
+            "name": "Unnamed: 4",
+            "type": "varchar",
+            "non_null_count": 21,
+            "total_count": 21,
+            "fill_rate": "100.0%",
+            "examples": [
+              "Politiques existentes",
+              "Politique RSE",
+              "Politique RSE"
+            ]
+          },
+          {
+            "name": "Social",
+            "type": "varchar",
+            "non_null_count": 20,
+            "total_count": 21,
+            "fill_rate": "95.2%",
+            "examples": [
+              "Nombre d'employés",
+              "14",
+              "102"
+            ]
+          },
+          {
+            "name": "Unnamed: 6",
+            "type": "varchar",
+            "non_null_count": 15,
+            "total_count": 21,
+            "fill_rate": "71.4%",
+            "examples": [
+              "%CDI",
+              "0.214",
+              "Néant"
+            ]
+          },
+          {
+            "name": "Unnamed: 7",
+            "type": "varchar",
+            "non_null_count": 13,
+            "total_count": 21,
+            "fill_rate": "61.9%",
+            "examples": [
+              "%CDD",
+              "Néant",
+              "_"
+            ]
+          },
+          {
+            "name": "Unnamed: 8",
+            "type": "varchar",
+            "non_null_count": 9,
+            "total_count": 21,
+            "fill_rate": "42.9%",
+            "examples": [
+              "% de temporaire/Nombre de temporaire ",
+              "0.786",
+              "Tous les employés sont saisonniers"
+            ]
+          },
+          {
+            "name": "Communautés",
+            "type": "varchar",
+            "non_null_count": 1,
+            "total_count": 21,
+            "fill_rate": "4.8%",
+            "examples": [
+              "Volume des prestations"
+            ]
+          },
+          {
+            "name": "Unnamed: 10",
+            "type": "varchar",
+            "non_null_count": 17,
+            "total_count": 21,
+            "fill_rate": "81.0%",
+            "examples": [
+              "Achats locaux ",
+              "0.9",
+              "1"
+            ]
+          },
+          {
+            "name": "Environnement",
+            "type": "varchar",
+            "non_null_count": 1,
+            "total_count": 21,
+            "fill_rate": "4.8%",
+            "examples": [
+              "M3 d'eau consommée "
+            ]
+          },
+          {
+            "name": "Unnamed: 12",
+            "type": "varchar",
+            "non_null_count": 1,
+            "total_count": 21,
+            "fill_rate": "4.8%",
+            "examples": [
+              "L de carburant "
+            ]
+          },
+          {
+            "name": "Unnamed: 13",
+            "type": "varchar",
+            "non_null_count": 4,
+            "total_count": 21,
+            "fill_rate": "19.0%",
+            "examples": [
+              "% Du solaire ",
+              "Plus de 85%",
+              "0.1"
+            ]
+          },
+          {
+            "name": "Unnamed: 14",
+            "type": "varchar",
+            "non_null_count": 21,
+            "total_count": 21,
+            "fill_rate": "100.0%",
+            "examples": [
+              "Emissions totales",
+              "1283",
+              "293.89"
+            ]
+          },
+          {
+            "name": "Unnamed: 15",
+            "type": "varchar",
+            "non_null_count": 21,
+            "total_count": 21,
+            "fill_rate": "100.0%",
+            "examples": [
+              "Emissions scope 1",
+              "12.78",
+              "2.27"
+            ]
+          },
+          {
+            "name": "Unnamed: 16",
+            "type": "varchar",
+            "non_null_count": 21,
+            "total_count": 21,
+            "fill_rate": "100.0%",
+            "examples": [
+              "Emissions scope 2",
+              "4.02",
+              "Néant "
+            ]
+          },
+          {
+            "name": "Unnamed: 17",
+            "type": "varchar",
+            "non_null_count": 21,
+            "total_count": 21,
+            "fill_rate": "100.0%",
+            "examples": [
+              "Emissions scope 3",
+              "1266.71",
+              "291.62"
+            ]
+          },
+          {
+            "name": "Unnamed: 18",
+            "type": "varchar",
+            "non_null_count": 1,
+            "total_count": 21,
+            "fill_rate": "4.8%",
+            "examples": [
+              "Volume ou poids totale de déchets "
+            ]
+          },
+          {
+            "name": "Unnamed: 19",
+            "type": "varchar",
+            "non_null_count": 1,
+            "total_count": 21,
+            "fill_rate": "4.8%",
+            "examples": [
+              "Volumes compostés ou méthanisées "
+            ]
+          },
+          {
+            "name": "Unnamed: 20",
+            "type": "varchar",
+            "non_null_count": 1,
+            "total_count": 21,
+            "fill_rate": "4.8%",
+            "examples": [
+              "Initiative de valorisation des déchets "
+            ]
+          }
+        ],
+        "data_preview": [
+          {
+            "Unnamed: 0": NaN,
+            "Unnamed: 1": "Noms des PME/PMI",
+            "Généralité": "Activités principales",
+            "Gouvernance": "ODD contribués",
+            "Unnamed: 4": "Politiques existentes",
+            "Social": "Nombre d'employés",
+            "Unnamed: 6": "%CDI",
+            "Unnamed: 7": "%CDD",
+            "Unnamed: 8": "% de temporaire/Nombre de temporaire ",
+            "Communautés": "Volume des prestations",
+            "Unnamed: 10": "Achats locaux ",
+            "Environnement": "M3 d'eau consommée ",
+            "Unnamed: 12": "L de carburant ",
+            "Unnamed: 13": "% Du solaire ",
+            "Unnamed: 14": "Emissions totales",
+            "Unnamed: 15": "Emissions scope 1",
+            "Unnamed: 16": "Emissions scope 2",
+            "Unnamed: 17": "Emissions scope 3",
+            "Unnamed: 18": "Volume ou poids totale de déchets ",
+            "Unnamed: 19": "Volumes compostés ou méthanisées ",
+            "Unnamed: 20": "Initiative de valorisation des déchets "
+          },
+          {
+            "Unnamed: 0": 1.0,
+            "Unnamed: 1": "Entreprise Vision d'Afrique (EVA)",
+            "Généralité": "Créé en 2014, l'entreprise EVA est dans la production de jus de fruits en saveurs variés du terroir.\n\nElle a été accompagnée à un meilleur positionnement marketing de sa marque et possède aujourd’hui une politique RSE.\n",
+            "Gouvernance": "1, 2,8, 9, 12, 13",
+            "Unnamed: 4": "Politique RSE",
+            "Social": 14,
+            "Unnamed: 6": 0.214,
+            "Unnamed: 7": NaN,
+            "Unnamed: 8": 0.786,
+            "Communautés": NaN,
+            "Unnamed: 10": 0.9,
+            "Environnement": NaN,
+            "Unnamed: 12": NaN,
+            "Unnamed: 13": NaN,
+            "Unnamed: 14": 1283,
+            "Unnamed: 15": 12.78,
+            "Unnamed: 16": 4.02,
+            "Unnamed: 17": 1266.71,
+            "Unnamed: 18": NaN,
+            "Unnamed: 19": NaN,
+            "Unnamed: 20": NaN
+          },
+          {
+            "Unnamed: 0": 2.0,
+            "Unnamed: 1": "Rayon Bio",
+            "Généralité": "L'entreprise est dans le séchage et commercialisation de mangues.\nDans le cadre du Programme, elle a été accompagnée au verdissement des séchoirs d’une unité de séchage de mangues alimenté par un groupe électrogène diesel à travers l’installation d’un système solaire photovoltaïque \n\n",
+            "Gouvernance": "1, 2,8, 9, 12, 13",
+            "Unnamed: 4": "Politique RSE",
+            "Social": 102,
+            "Unnamed: 6": "Néant",
+            "Unnamed: 7": "Néant",
+            "Unnamed: 8": "Tous les employés sont saisonniers",
+            "Communautés": NaN,
+            "Unnamed: 10": 1,
+            "Environnement": NaN,
+            "Unnamed: 12": NaN,
+            "Unnamed: 13": NaN,
+            "Unnamed: 14": 293.89,
+            "Unnamed: 15": 2.27,
+            "Unnamed: 16": "Néant ",
+            "Unnamed: 17": 291.62,
+            "Unnamed: 18": NaN,
+            "Unnamed: 19": NaN,
+            "Unnamed: 20": NaN
+          },
+          {
+            "Unnamed: 0": 3.0,
+            "Unnamed: 1": "Neebnooma",
+            "Généralité": "L'entreprise produit et transforme du riz local. Elle totalise 8 ans d’expérience dans ce domaine.\nDans le cadre du Programme, la Rizerie Nebnooma Sarl a été accompagnée à la formulation de nouveaux riz prêts à la cuisson. Il y a notamment du riz précuit au soumbala, à l’anis vert et au clou de girofle\n",
+            "Gouvernance": "1,2,8,9,12,13",
+            "Unnamed: 4": "Politique RH\nPolitique RSE",
+            "Social": 33,
+            "Unnamed: 6": 0.51,
+            "Unnamed: 7": "_",
+            "Unnamed: 8": 0.49,
+            "Communautés": NaN,
+            "Unnamed: 10": 1,
+            "Environnement": NaN,
+            "Unnamed: 12": NaN,
+            "Unnamed: 13": NaN,
+            "Unnamed: 14": 1280.94,
+            "Unnamed: 15": 8.92,
+            "Unnamed: 16": 82.75,
+            "Unnamed: 17": 1189.27,
+            "Unnamed: 18": NaN,
+            "Unnamed: 19": NaN,
+            "Unnamed: 20": NaN
+          },
+          {
+            "Unnamed: 0": 4.0,
+            "Unnamed: 1": "Burkina Green Energy-Electric SARL",
+            "Généralité": "Situé à Bobo-Dioulaso, Burkina Green Energy Electric est spécialisé dans le secteur de l’énergie solaire et couvre tout le territoire burkinabè. Parmi ses services, la PME propose :\n- le dimensionnement et l’installation de systèmes solaires ;\n- la production d'énergie électrique à partir du solaire PV et des groupes électrogènes ;\n- le transport et la distribution d'énergie électrique (SONABEL)\n- la vente et l’installation de matériels électrique et électronique.\n\nBGE a été accompagnée à l’élaboration d’une stratégie marketing, sa mise en conformité environnementale et sociale et l’évaluation de son empreinte carbone.\n",
+            "Gouvernance": "1,2,7,9,8,11,12,13",
+            "Unnamed: 4": "Politique RH\nPolitique RSE",
+            "Social": 8,
+            "Unnamed: 6": 0.5,
+            "Unnamed: 7": 0.5,
+            "Unnamed: 8": NaN,
+            "Communautés": NaN,
+            "Unnamed: 10": "_",
+            "Environnement": NaN,
+            "Unnamed: 12": NaN,
+            "Unnamed: 13": NaN,
+            "Unnamed: 14": 90.8,
+            "Unnamed: 15": 10.11,
+            "Unnamed: 16": 2.97,
+            "Unnamed: 17": 77.71,
+            "Unnamed: 18": NaN,
+            "Unnamed: 19": NaN,
+            "Unnamed: 20": NaN
+          }
+        ]
+      },
+      "Feuil2": {
+        "row_count": 20,
+        "column_count": 6,
+        "columns": [
+          {
+            "name": "Unnamed: 0",
+            "type": "integer",
+            "non_null_count": 20,
+            "total_count": 20,
+            "fill_rate": "100.0%",
+            "examples": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "Noms des PME/PMI",
+            "type": "varchar",
+            "non_null_count": 20,
+            "total_count": 20,
+            "fill_rate": "100.0%",
+            "examples": [
+              "Entreprise Vision d'Afrique (EVA)",
+              "Rayon Bio",
+              "Neebnooma"
+            ]
+          },
+          {
+            "name": "Activités principales",
+            "type": "varchar",
+            "non_null_count": 20,
+            "total_count": 20,
+            "fill_rate": "100.0%",
+            "examples": [
+              "Spécialisée dans la transformation de produits agroalimentaires et de produits forestiers non ligneu",
+              "Transformation agroalimentaire de mangues séchées",
+              "Transformation et commercialisation une gamme variée de produits à base des riz national sous la mar"
+            ]
+          },
+          {
+            "name": "ODD contribués",
+            "type": "varchar",
+            "non_null_count": 20,
+            "total_count": 20,
+            "fill_rate": "100.0%",
+            "examples": [
+              "1, 2,8, 9, 12, 13",
+              "1, 2,8, 9, 12, 13",
+              "1,2,8,9,12,13"
+            ]
+          },
+          {
+            "name": "Nombre d'employés",
+            "type": "integer",
+            "non_null_count": 19,
+            "total_count": 20,
+            "fill_rate": "95.0%",
+            "examples": [
+              "14.0",
+              "102.0",
+              "33.0"
+            ]
+          },
+          {
+            "name": "% de temporaire/Nombre de temporaire",
+            "type": "varchar",
+            "non_null_count": 8,
+            "total_count": 20,
+            "fill_rate": "40.0%",
+            "examples": [
+              "0.786",
+              "Tous les employés sont saisonniers",
+              "0.49"
+            ]
+          }
+        ],
+        "data_preview": [
+          {
+            "Unnamed: 0": 1,
+            "Noms des PME/PMI": "Entreprise Vision d'Afrique (EVA)",
+            "Activités principales": "Spécialisée dans la transformation de produits agroalimentaires et de produits forestiers non ligneux (PFNL)",
+            "ODD contribués": "1, 2,8, 9, 12, 13",
+            "Nombre d'employés": 14.0,
+            "% de temporaire/Nombre de temporaire": 0.786
+          },
+          {
+            "Unnamed: 0": 2,
+            "Noms des PME/PMI": "Rayon Bio",
+            "Activités principales": "Transformation agroalimentaire de mangues séchées",
+            "ODD contribués": "1, 2,8, 9, 12, 13",
+            "Nombre d'employés": 102.0,
+            "% de temporaire/Nombre de temporaire": "Tous les employés sont saisonniers"
+          },
+          {
+            "Unnamed: 0": 3,
+            "Noms des PME/PMI": "Neebnooma",
+            "Activités principales": "Transformation et commercialisation une gamme variée de produits à base des riz national sous la marque AMIR.",
+            "ODD contribués": "1,2,8,9,12,13",
+            "Nombre d'employés": 33.0,
+            "% de temporaire/Nombre de temporaire": 0.49
+          },
+          {
+            "Unnamed: 0": 4,
+            "Noms des PME/PMI": "Burkina Green Energy-Electric SARL",
+            "Activités principales": "Spécialisée dans les services électriques et énergétiques",
+            "ODD contribués": "1,2,7,9,8,11,12,13",
+            "Nombre d'employés": 8.0,
+            "% de temporaire/Nombre de temporaire": NaN
+          },
+          {
+            "Unnamed: 0": 5,
+            "Noms des PME/PMI": "Réseau des producteurs de beurre de karité des hauts bassins et cascades (RPBHC)",
+            "Activités principales": "Collecte et transformation les noix de karité en du beurre biologique",
+            "ODD contribués": "1,5,8,12,15",
+            "Nombre d'employés": 21.0,
+            "% de temporaire/Nombre de temporaire": "61 temporaires"
+          }
+        ]
+      }
+    }
+  },
+  "unique_columns": [
+    "% Du solaire",
+    "%CDD",
+    "%CDI",
+    "Achats locaux",
+    "Activités principales",
+    "Communautés",
+    "Emissions scope 1",
+    "Emissions scope 2",
+    "Emissions scope 3",
+    "Emissions totales",
+    "Environnement",
+    "Gouvernance",
+    "Généralité",
+    "Initiative de valorisation des déchets",
+    "L de carburant",
+    "M3 d'eau consommée",
+    "Nombre d'employés",
+    "Nombre de prestataires",
+    "Noms des PME/PMI",
+    "ODD contribués",
+    "Politiques existentes",
+    "Social",
+    "Unnamed: 0",
+    "Unnamed: 1",
+    "Unnamed: 10",
+    "Unnamed: 12",
+    "Unnamed: 13",
+    "Unnamed: 14",
+    "Unnamed: 15",
+    "Unnamed: 16",
+    "Unnamed: 17",
+    "Unnamed: 18",
+    "Unnamed: 19",
+    "Unnamed: 20",
+    "Unnamed: 4",
+    "Unnamed: 6",
+    "Unnamed: 7",
+    "Unnamed: 8",
+    "Volume ou poids totale de déchets liquides/an",
+    "Volume ou poids totale de déchets solides /an",
+    "Volumes compostés ou méthanisées/an"
+  ],
+  "companies_count": 41,
+  "database_schema": {
+    "tables": {
+      "pev_companies": {
+        "description": "Informations de base des entreprises PME/PMI",
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "primary": true,
+            "default": "gen_random_uuid()"
+          },
+          "name": {
+            "type": "varchar(255)",
+            "required": true,
+            "unique": true
+          },
+          "slug": {
+            "type": "varchar(255)",
+            "required": true,
+            "unique": true
+          },
+          "description": {
+            "type": "text",
+            "required": false
+          },
+          "main_activities": {
+            "type": "text",
+            "required": false
+          },
+          "sector": {
+            "type": "varchar(100)",
+            "required": false
+          },
+          "sub_sector": {
+            "type": "varchar(100)",
+            "required": false
+          },
+          "logo_url": {
+            "type": "text",
+            "required": false
+          },
+          "cover_image_url": {
+            "type": "text",
+            "required": false
+          },
+          "website": {
+            "type": "varchar(255)",
+            "required": false
+          },
+          "email": {
+            "type": "varchar(255)",
+            "required": false
+          },
+          "phone": {
+            "type": "varchar(50)",
+            "required": false
+          },
+          "country": {
+            "type": "varchar(100)",
+            "required": false
+          },
+          "region": {
+            "type": "varchar(100)",
+            "required": false
+          },
+          "city": {
+            "type": "varchar(100)",
+            "required": false
+          },
+          "address": {
+            "type": "text",
+            "required": false
+          },
+          "latitude": {
+            "type": "decimal(10,8)",
+            "required": false
+          },
+          "longitude": {
+            "type": "decimal(11,8)",
+            "required": false
+          },
+          "status": {
+            "type": "varchar(50)",
+            "default": "'draft'",
+            "enum": [
+              "draft",
+              "in_review",
+              "published",
+              "rejected"
+            ]
+          },
+          "owner_id": {
+            "type": "uuid",
+            "references": "pev_profiles(id)",
+            "required": false
+          },
+          "created_by": {
+            "type": "uuid",
+            "references": "pev_profiles(id)",
+            "required": true
+          },
+          "claimed_by": {
+            "type": "uuid",
+            "references": "pev_profiles(id)",
+            "required": false
+          },
+          "claimed_at": {
+            "type": "timestamptz",
+            "required": false
+          },
+          "is_verified": {
+            "type": "boolean",
+            "default": "false"
+          },
+          "sdg_contributions": {
+            "type": "jsonb",
+            "default": "'[]'"
+          },
+          "created_at": {
+            "type": "timestamptz",
+            "default": "now()"
+          },
+          "updated_at": {
+            "type": "timestamptz",
+            "default": "now()"
+          }
+        }
+      },
+      "pev_company_annual_data": {
+        "description": "Données annuelles des entreprises (historisation par année)",
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "primary": true,
+            "default": "gen_random_uuid()"
+          },
+          "company_id": {
+            "type": "uuid",
+            "references": "pev_companies(id)",
+            "required": true
+          },
+          "year": {
+            "type": "integer",
+            "required": true
+          },
+          "employee_count": {
+            "type": "integer",
+            "required": false
+          },
+          "temporary_employee_count": {
+            "type": "integer",
+            "required": false
+          },
+          "temporary_employee_ratio": {
+            "type": "decimal(5,2)",
+            "required": false
+          },
+          "contractor_count": {
+            "type": "integer",
+            "required": false
+          },
+          "existing_policies": {
+            "type": "text",
+            "required": false
+          },
+          "coi_percentage": {
+            "type": "decimal(5,2)",
+            "required": false
+          },
+          "cod_percentage": {
+            "type": "decimal(5,2)",
+            "required": false
+          },
+          "local_purchases": {
+            "type": "text",
+            "required": false
+          },
+          "local_purchases_amount": {
+            "type": "decimal(15,2)",
+            "required": false
+          },
+          "water_consumption_m3": {
+            "type": "decimal(15,2)",
+            "required": false
+          },
+          "fuel_consumption_liters": {
+            "type": "decimal(15,2)",
+            "required": false
+          },
+          "electricity_consumption_kwh": {
+            "type": "decimal(15,2)",
+            "required": false
+          },
+          "solar_percentage": {
+            "type": "decimal(5,2)",
+            "required": false
+          },
+          "total_emissions": {
+            "type": "decimal(15,2)",
+            "required": false,
+            "unit": "tCO2e"
+          },
+          "scope1_emissions": {
+            "type": "decimal(15,2)",
+            "required": false,
+            "unit": "tCO2e"
+          },
+          "scope2_emissions": {
+            "type": "decimal(15,2)",
+            "required": false,
+            "unit": "tCO2e"
+          },
+          "scope3_emissions": {
+            "type": "decimal(15,2)",
+            "required": false,
+            "unit": "tCO2e"
+          },
+          "total_waste_kg": {
+            "type": "decimal(15,2)",
+            "required": false
+          },
+          "valorized_waste_kg": {
+            "type": "decimal(15,2)",
+            "required": false
+          },
+          "unsold_volume_kg": {
+            "type": "decimal(15,2)",
+            "required": false
+          },
+          "waste_valorization_initiatives": {
+            "type": "text",
+            "required": false
+          },
+          "revenue": {
+            "type": "decimal(15,2)",
+            "required": false
+          },
+          "revenue_currency": {
+            "type": "varchar(3)",
+            "default": "'XOF'"
+          },
+          "notes": {
+            "type": "text",
+            "required": false
+          },
+          "data_source": {
+            "type": "varchar(100)",
+            "required": false
+          },
+          "submitted_by": {
+            "type": "uuid",
+            "references": "pev_profiles(id)"
+          },
+          "verified_by": {
+            "type": "uuid",
+            "references": "pev_profiles(id)"
+          },
+          "verified_at": {
+            "type": "timestamptz"
+          },
+          "created_at": {
+            "type": "timestamptz",
+            "default": "now()"
+          },
+          "updated_at": {
+            "type": "timestamptz",
+            "default": "now()"
+          }
+        },
+        "unique_constraint": [
+          "company_id",
+          "year"
+        ]
+      },
+      "pev_company_claims": {
+        "description": "Demandes de réclamation de propriété d'une entreprise",
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "primary": true,
+            "default": "gen_random_uuid()"
+          },
+          "company_id": {
+            "type": "uuid",
+            "references": "pev_companies(id)",
+            "required": true
+          },
+          "user_id": {
+            "type": "uuid",
+            "references": "pev_profiles(id)",
+            "required": true
+          },
+          "status": {
+            "type": "varchar(50)",
+            "default": "'pending'",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ]
+          },
+          "justification": {
+            "type": "text",
+            "required": true
+          },
+          "documents": {
+            "type": "jsonb",
+            "default": "'[]'"
+          },
+          "admin_notes": {
+            "type": "text"
+          },
+          "reviewed_by": {
+            "type": "uuid",
+            "references": "pev_profiles(id)"
+          },
+          "reviewed_at": {
+            "type": "timestamptz"
+          },
+          "created_at": {
+            "type": "timestamptz",
+            "default": "now()"
+          },
+          "updated_at": {
+            "type": "timestamptz",
+            "default": "now()"
+          }
+        },
+        "unique_constraint": [
+          "company_id",
+          "user_id",
+          "status"
+        ]
+      },
+      "pev_company_history": {
+        "description": "Historique des modifications des données entreprises",
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "primary": true,
+            "default": "gen_random_uuid()"
+          },
+          "company_id": {
+            "type": "uuid",
+            "references": "pev_companies(id)",
+            "required": true
+          },
+          "annual_data_id": {
+            "type": "uuid",
+            "references": "pev_company_annual_data(id)"
+          },
+          "action": {
+            "type": "varchar(50)",
+            "required": true,
+            "enum": [
+              "create",
+              "update",
+              "delete",
+              "claim",
+              "transfer"
+            ]
+          },
+          "changed_by": {
+            "type": "uuid",
+            "references": "pev_profiles(id)",
+            "required": true
+          },
+          "changes": {
+            "type": "jsonb",
+            "required": true
+          },
+          "previous_values": {
+            "type": "jsonb"
+          },
+          "ip_address": {
+            "type": "inet"
+          },
+          "user_agent": {
+            "type": "text"
+          },
+          "created_at": {
+            "type": "timestamptz",
+            "default": "now()"
+          }
+        }
+      }
+    },
+    "relationships": [
+      {
+        "from": "pev_company_annual_data",
+        "to": "pev_companies",
+        "type": "many-to-one",
+        "field": "company_id"
+      },
+      {
+        "from": "pev_company_claims",
+        "to": "pev_companies",
+        "type": "many-to-one",
+        "field": "company_id"
+      },
+      {
+        "from": "pev_company_claims",
+        "to": "pev_profiles",
+        "type": "many-to-one",
+        "field": "user_id"
+      },
+      {
+        "from": "pev_company_history",
+        "to": "pev_companies",
+        "type": "many-to-one",
+        "field": "company_id"
+      },
+      {
+        "from": "pev_companies",
+        "to": "pev_profiles",
+        "type": "many-to-one",
+        "field": "owner_id"
+      }
+    ],
+    "indexes": [
+      {
+        "table": "pev_companies",
+        "columns": [
+          "status"
+        ],
+        "name": "idx_companies_status"
+      },
+      {
+        "table": "pev_companies",
+        "columns": [
+          "country"
+        ],
+        "name": "idx_companies_country"
+      },
+      {
+        "table": "pev_companies",
+        "columns": [
+          "sector"
+        ],
+        "name": "idx_companies_sector"
+      },
+      {
+        "table": "pev_companies",
+        "columns": [
+          "latitude",
+          "longitude"
+        ],
+        "name": "idx_companies_location"
+      },
+      {
+        "table": "pev_company_annual_data",
+        "columns": [
+          "company_id",
+          "year"
+        ],
+        "name": "idx_annual_data_company_year"
+      },
+      {
+        "table": "pev_company_claims",
+        "columns": [
+          "status"
+        ],
+        "name": "idx_claims_status"
+      },
+      {
+        "table": "pev_company_history",
+        "columns": [
+          "company_id",
+          "created_at"
+        ],
+        "name": "idx_history_company_date"
+      }
+    ]
+  },
+  "forms_structure": {
+    "company_basic_info": {
+      "title": "Informations de base",
+      "description": "Identité et coordonnées de l'entreprise",
+      "sections": [
+        {
+          "title": "Identité",
+          "fields": [
+            {
+              "name": "name",
+              "label": "Nom de l'entreprise",
+              "type": "text",
+              "required": true,
+              "placeholder": "Ex: FARAFINA Engineering"
+            },
+            {
+              "name": "main_activities",
+              "label": "Activités principales",
+              "type": "textarea",
+              "required": true,
+              "rows": 3
+            },
+            {
+              "name": "sector",
+              "label": "Secteur d'activité",
+              "type": "select",
+              "options": "sectors"
+            },
+            {
+              "name": "description",
+              "label": "Description",
+              "type": "textarea",
+              "rows": 5
+            }
+          ]
+        },
+        {
+          "title": "Localisation",
+          "fields": [
+            {
+              "name": "country",
+              "label": "Pays",
+              "type": "select",
+              "options": "african_countries",
+              "required": true
+            },
+            {
+              "name": "region",
+              "label": "Région",
+              "type": "text"
+            },
+            {
+              "name": "city",
+              "label": "Ville",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "address",
+              "label": "Adresse complète",
+              "type": "textarea",
+              "rows": 2
+            },
+            {
+              "name": "latitude",
+              "label": "Latitude",
+              "type": "number",
+              "step": "0.000001"
+            },
+            {
+              "name": "longitude",
+              "label": "Longitude",
+              "type": "number",
+              "step": "0.000001"
+            }
+          ]
+        },
+        {
+          "title": "Contact",
+          "fields": [
+            {
+              "name": "email",
+              "label": "Email",
+              "type": "email"
+            },
+            {
+              "name": "phone",
+              "label": "Téléphone",
+              "type": "tel"
+            },
+            {
+              "name": "website",
+              "label": "Site web",
+              "type": "url"
+            }
+          ]
+        },
+        {
+          "title": "Impact ODD",
+          "fields": [
+            {
+              "name": "sdg_contributions",
+              "label": "ODD contribués",
+              "type": "multi-select",
+              "options": "sdg_list"
+            }
+          ]
+        }
+      ]
+    },
+    "company_annual_data": {
+      "title": "Données annuelles",
+      "description": "Données environnementales et sociales par année",
+      "sections": [
+        {
+          "title": "Période",
+          "fields": [
+            {
+              "name": "year",
+              "label": "Année",
+              "type": "select",
+              "options": "years",
+              "required": true
+            }
+          ]
+        },
+        {
+          "title": "Ressources humaines",
+          "fields": [
+            {
+              "name": "employee_count",
+              "label": "Nombre d'employés permanents",
+              "type": "number",
+              "min": 0
+            },
+            {
+              "name": "temporary_employee_count",
+              "label": "Nombre d'employés temporaires",
+              "type": "number",
+              "min": 0
+            },
+            {
+              "name": "temporary_employee_ratio",
+              "label": "% de temporaires",
+              "type": "number",
+              "min": 0,
+              "max": 100,
+              "suffix": "%"
+            },
+            {
+              "name": "contractor_count",
+              "label": "Nombre de prestataires",
+              "type": "number",
+              "min": 0
+            }
+          ]
+        },
+        {
+          "title": "Politiques et certifications",
+          "fields": [
+            {
+              "name": "existing_policies",
+              "label": "Politiques existantes",
+              "type": "textarea",
+              "rows": 3,
+              "placeholder": "Ex: Politique environnementale, RSE..."
+            },
+            {
+              "name": "coi_percentage",
+              "label": "% COI (Coefficient d'Intégration)",
+              "type": "number",
+              "min": 0,
+              "max": 100,
+              "suffix": "%"
+            },
+            {
+              "name": "cod_percentage",
+              "label": "% COD",
+              "type": "number",
+              "min": 0,
+              "max": 100,
+              "suffix": "%"
+            }
+          ]
+        },
+        {
+          "title": "Consommation",
+          "fields": [
+            {
+              "name": "local_purchases",
+              "label": "Description achats locaux",
+              "type": "textarea",
+              "rows": 2
+            },
+            {
+              "name": "local_purchases_amount",
+              "label": "Montant achats locaux (FCFA)",
+              "type": "number",
+              "min": 0
+            },
+            {
+              "name": "water_consumption_m3",
+              "label": "Consommation d'eau (m³)",
+              "type": "number",
+              "min": 0,
+              "step": "0.01"
+            },
+            {
+              "name": "fuel_consumption_liters",
+              "label": "Consommation carburant (L)",
+              "type": "number",
+              "min": 0,
+              "step": "0.01"
+            },
+            {
+              "name": "electricity_consumption_kwh",
+              "label": "Consommation électrique (kWh)",
+              "type": "number",
+              "min": 0,
+              "step": "0.01"
+            },
+            {
+              "name": "solar_percentage",
+              "label": "% énergie solaire",
+              "type": "number",
+              "min": 0,
+              "max": 100,
+              "suffix": "%"
+            }
+          ]
+        },
+        {
+          "title": "Émissions carbone",
+          "fields": [
+            {
+              "name": "total_emissions",
+              "label": "Émissions totales (tCO2e)",
+              "type": "number",
+              "min": 0,
+              "step": "0.01"
+            },
+            {
+              "name": "scope1_emissions",
+              "label": "Scope 1 - Émissions directes (tCO2e)",
+              "type": "number",
+              "min": 0,
+              "step": "0.01"
+            },
+            {
+              "name": "scope2_emissions",
+              "label": "Scope 2 - Électricité (tCO2e)",
+              "type": "number",
+              "min": 0,
+              "step": "0.01"
+            },
+            {
+              "name": "scope3_emissions",
+              "label": "Scope 3 - Indirectes (tCO2e)",
+              "type": "number",
+              "min": 0,
+              "step": "0.01"
+            }
+          ]
+        },
+        {
+          "title": "Gestion des déchets",
+          "fields": [
+            {
+              "name": "total_waste_kg",
+              "label": "Volume total déchets (kg)",
+              "type": "number",
+              "min": 0,
+              "step": "0.01"
+            },
+            {
+              "name": "valorized_waste_kg",
+              "label": "Déchets valorisés (kg)",
+              "type": "number",
+              "min": 0,
+              "step": "0.01"
+            },
+            {
+              "name": "unsold_volume_kg",
+              "label": "Invendus (kg)",
+              "type": "number",
+              "min": 0,
+              "step": "0.01"
+            },
+            {
+              "name": "waste_valorization_initiatives",
+              "label": "Initiatives de valorisation",
+              "type": "textarea",
+              "rows": 3
+            }
+          ]
+        }
+      ]
+    },
+    "company_claim": {
+      "title": "Réclamer une entreprise",
+      "description": "Demande de propriété d'une fiche entreprise",
+      "sections": [
+        {
+          "title": "Justification",
+          "fields": [
+            {
+              "name": "justification",
+              "label": "Justification de la demande",
+              "type": "textarea",
+              "required": true,
+              "rows": 5,
+              "placeholder": "Expliquez pourquoi vous êtes le représentant légitime de cette entreprise..."
+            },
+            {
+              "name": "documents",
+              "label": "Documents justificatifs",
+              "type": "file-upload",
+              "accept": ".pdf,.jpg,.png",
+              "multiple": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "reference_data": {
+    "african_countries": [
+      "Afrique du Sud",
+      "Algérie",
+      "Angola",
+      "Botswana",
+      "Burkina Faso",
+      "Burundi",
+      "Bénin",
+      "Cameroun",
+      "Cap-Vert",
+      "Centrafrique",
+      "Comores",
+      "Congo",
+      "Côte d'Ivoire",
+      "Djibouti",
+      "Eswatini",
+      "Gabon",
+      "Gambie",
+      "Ghana",
+      "Guinée",
+      "Guinée équatoriale",
+      "Guinée-Bissau",
+      "Kenya",
+      "Lesotho",
+      "Liberia",
+      "Libye",
+      "Madagascar",
+      "Malawi",
+      "Mali",
+      "Maroc",
+      "Maurice",
+      "Mauritanie",
+      "Mozambique",
+      "Namibie",
+      "Niger",
+      "Nigeria",
+      "Ouganda",
+      "RD Congo",
+      "Rwanda",
+      "Sao Tomé-et-Principe",
+      "Seychelles",
+      "Sierra Leone",
+      "Somalie",
+      "Soudan",
+      "Soudan du Sud",
+      "Sénégal",
+      "Tanzanie",
+      "Tchad",
+      "Togo",
+      "Tunisie",
+      "Zambie",
+      "Zimbabwe",
+      "Égypte",
+      "Érythrée",
+      "Éthiopie"
+    ],
+    "sectors": [
+      {
+        "value": "renewable_energy",
+        "label": "Énergies renouvelables"
+      },
+      {
+        "value": "agriculture",
+        "label": "Agriculture et agroalimentaire"
+      },
+      {
+        "value": "waste_management",
+        "label": "Gestion des déchets"
+      },
+      {
+        "value": "water",
+        "label": "Eau et assainissement"
+      },
+      {
+        "value": "construction",
+        "label": "Construction durable"
+      },
+      {
+        "value": "transport",
+        "label": "Transport et mobilité"
+      },
+      {
+        "value": "industry",
+        "label": "Industrie verte"
+      },
+      {
+        "value": "services",
+        "label": "Services environnementaux"
+      },
+      {
+        "value": "technology",
+        "label": "Technologies vertes"
+      },
+      {
+        "value": "finance",
+        "label": "Finance verte"
+      },
+      {
+        "value": "other",
+        "label": "Autre"
+      }
+    ],
+    "sdg_list": [
+      {
+        "value": 1,
+        "label": "ODD 1 - Pas de pauvreté",
+        "icon": "🎯"
+      },
+      {
+        "value": 2,
+        "label": "ODD 2 - Faim zéro",
+        "icon": "🌾"
+      },
+      {
+        "value": 3,
+        "label": "ODD 3 - Bonne santé",
+        "icon": "❤️"
+      },
+      {
+        "value": 4,
+        "label": "ODD 4 - Éducation de qualité",
+        "icon": "📚"
+      },
+      {
+        "value": 5,
+        "label": "ODD 5 - Égalité des sexes",
+        "icon": "⚖️"
+      },
+      {
+        "value": 6,
+        "label": "ODD 6 - Eau propre",
+        "icon": "💧"
+      },
+      {
+        "value": 7,
+        "label": "ODD 7 - Énergie propre",
+        "icon": "⚡"
+      },
+      {
+        "value": 8,
+        "label": "ODD 8 - Travail décent",
+        "icon": "💼"
+      },
+      {
+        "value": 9,
+        "label": "ODD 9 - Industrie et innovation",
+        "icon": "🏭"
+      },
+      {
+        "value": 10,
+        "label": "ODD 10 - Inégalités réduites",
+        "icon": "🤝"
+      },
+      {
+        "value": 11,
+        "label": "ODD 11 - Villes durables",
+        "icon": "🏙️"
+      },
+      {
+        "value": 12,
+        "label": "ODD 12 - Consommation responsable",
+        "icon": "♻️"
+      },
+      {
+        "value": 13,
+        "label": "ODD 13 - Action climatique",
+        "icon": "🌍"
+      },
+      {
+        "value": 14,
+        "label": "ODD 14 - Vie aquatique",
+        "icon": "🐟"
+      },
+      {
+        "value": 15,
+        "label": "ODD 15 - Vie terrestre",
+        "icon": "🌳"
+      },
+      {
+        "value": 16,
+        "label": "ODD 16 - Paix et justice",
+        "icon": "🕊️"
+      },
+      {
+        "value": 17,
+        "label": "ODD 17 - Partenariats",
+        "icon": "🤲"
+      }
+    ],
+    "years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025,
+      2026,
+      2027,
+      2028,
+      2029,
+      2030
+    ]
+  },
+  "column_mapping": {
+    "Noms des PME/PMI": {
+      "db_field": "name",
+      "type": "varchar(255)",
+      "required": true,
+      "category": "identity"
+    },
+    "Activités principales": {
+      "db_field": "main_activities",
+      "type": "text",
+      "required": true,
+      "category": "identity"
+    },
+    "ODD contribués": {
+      "db_field": "sdg_contributions",
+      "type": "jsonb",
+      "required": false,
+      "category": "impact"
+    },
+    "Politiques existantes": {
+      "db_field": "existing_policies",
+      "type": "text",
+      "required": false,
+      "category": "policies"
+    },
+    "%COI": {
+      "db_field": "coi_percentage",
+      "type": "decimal",
+      "required": false,
+      "category": "metrics"
+    },
+    "%COD": {
+      "db_field": "cod_percentage",
+      "type": "decimal",
+      "required": false,
+      "category": "metrics"
+    },
+    "Nombre d'employés": {
+      "db_field": "employee_count",
+      "type": "integer",
+      "required": false,
+      "category": "hr"
+    },
+    "% de temporaire/Nombre de temporaire": {
+      "db_field": "temporary_employee_ratio",
+      "type": "varchar(100)",
+      "required": false,
+      "category": "hr"
+    },
+    "Nombre de prestataires": {
+      "db_field": "contractor_count",
+      "type": "integer",
+      "required": false,
+      "category": "hr"
+    },
+    "Achats locaux": {
+      "db_field": "local_purchases",
+      "type": "text",
+      "required": false,
+      "category": "consumption"
+    },
+    "M3 d'eau consommé": {
+      "db_field": "water_consumption_m3",
+      "type": "decimal",
+      "required": false,
+      "category": "consumption"
+    },
+    "L de carburant": {
+      "db_field": "fuel_consumption_liters",
+      "type": "decimal",
+      "required": false,
+      "category": "consumption"
+    },
+    "% Du solaire": {
+      "db_field": "solar_percentage",
+      "type": "decimal",
+      "required": false,
+      "category": "energy"
+    },
+    "Émissions totales": {
+      "db_field": "total_emissions",
+      "type": "decimal",
+      "required": false,
+      "category": "emissions"
+    },
+    "Émissions scope 1": {
+      "db_field": "scope1_emissions",
+      "type": "decimal",
+      "required": false,
+      "category": "emissions"
+    },
+    "Émissions scope 2": {
+      "db_field": "scope2_emissions",
+      "type": "decimal",
+      "required": false,
+      "category": "emissions"
+    },
+    "Émissions scope 3": {
+      "db_field": "scope3_emissions",
+      "type": "decimal",
+      "required": false,
+      "category": "emissions"
+    },
+    "Volume ou poids totale de déchets": {
+      "db_field": "total_waste_volume",
+      "type": "varchar(100)",
+      "required": false,
+      "category": "waste"
+    },
+    "Volume ou poids totale de déchets valorisés": {
+      "db_field": "valorized_waste_volume",
+      "type": "varchar(100)",
+      "required": false,
+      "category": "waste"
+    },
+    "Volumes invendues/an": {
+      "db_field": "unsold_volume_yearly",
+      "type": "varchar(100)",
+      "required": false,
+      "category": "waste"
+    },
+    "Initiative de valorisation des déchets": {
+      "db_field": "waste_valorization_initiatives",
+      "type": "text",
+      "required": false,
+      "category": "waste"
+    }
+  },
+  "sample_companies": [
+    {
+      "Unnamed: 0": 1,
+      "Noms des PME/PMI": "Entreprise Vision d'Afrique (EVA)",
+      "Volume ou poids totale de déchets solides /an": "15,29t/an ",
+      "Volume ou poids totale de déchets liquides/an": "773m3/an",
+      "Volumes compostés ou méthanisées/an": "-",
+      "Initiative de valorisation des déchets": "-"
+    },
+    {
+      "Unnamed: 0": 2,
+      "Noms des PME/PMI": "Rayon Bio",
+      "Volume ou poids totale de déchets solides /an": "14,43t/an",
+      "Volume ou poids totale de déchets liquides/an": "96m3/an",
+      "Volumes compostés ou méthanisées/an": "-",
+      "Initiative de valorisation des déchets": "-"
+    },
+    {
+      "Unnamed: 0": 3,
+      "Noms des PME/PMI": "Neebnooma",
+      "Volume ou poids totale de déchets solides /an": "362t/mois",
+      "Volume ou poids totale de déchets liquides/an": "-",
+      "Volumes compostés ou méthanisées/an": "-",
+      "Initiative de valorisation des déchets": "-"
+    },
+    {
+      "Unnamed: 0": 4,
+      "Noms des PME/PMI": "Burkina Green Energy-Electric SARL",
+      "Volume ou poids totale de déchets solides /an": "9kg/mois",
+      "Volume ou poids totale de déchets liquides/an": "-",
+      "Volumes compostés ou méthanisées/an": "-",
+      "Initiative de valorisation des déchets": "-"
+    },
+    {
+      "Unnamed: 0": 5,
+      "Noms des PME/PMI": "Réseau des producteurs de beurre de karité des hauts bassins et cascades (RPBHC)",
+      "Volume ou poids totale de déchets solides /an": "7,2kg/semaine",
+      "Volume ou poids totale de déchets liquides/an": "630-1050m3/sem",
+      "Initiative de valorisation des déchets": "-"
+    }
+  ]
+}

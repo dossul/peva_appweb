@@ -437,11 +437,14 @@ const opportunityFormData = ref({
 // Options pour les filtres
 const typeOptions = [
   { title: 'Tous les types', value: 'all' },
-  { title: 'Financement', value: 'funding' },
-  { title: 'Emploi', value: 'job' },
-  { title: 'Partenariat', value: 'partnership' },
-  { title: 'Mission', value: 'mission' },
-  { title: 'Formation', value: 'training' }
+  { title: 'Appels à projets', value: 'appels_projets' },
+  { title: 'Stages', value: 'stages' },
+  { title: 'Thèses', value: 'theses' },
+  { title: 'Fundraising', value: 'fundraising' },
+  { title: 'Emplois', value: 'emplois' },
+  { title: 'Vente/Achat équipements', value: 'vente_equipements' },
+  { title: 'Vente/Achat matières', value: 'vente_matieres' },
+  { title: 'Idées business', value: 'idees_business' }
 ]
 
 const typeList = computed(() => 

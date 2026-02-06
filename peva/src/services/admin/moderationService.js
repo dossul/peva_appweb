@@ -41,6 +41,8 @@ export const moderationService = {
           break
 
         case 'events':
+          // Debug: log la requête
+          console.log('📅 Chargement événements en modération...')
           query = supabase
             .from('pev_events')
             .select(`
@@ -94,6 +96,9 @@ export const moderationService = {
       query = query.range(from, to)
 
       const { data, error, count } = await query
+
+      // Debug: afficher le résultat
+      console.log(`📊 Modération ${contentType}:`, { data, error, count })
 
       if (error) throw error
 
@@ -466,7 +471,11 @@ export const moderationService = {
         // Événements
         supabase
           .from('pev_events')
-          .select('status', { count: 'exact' }),
+          .select('status', { count: 'exact' })
+          .then(result => {
+            console.log('📅 Stats événements brut:', result)
+            return result
+          }),
         
         // Entreprises
         supabase

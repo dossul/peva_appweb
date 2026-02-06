@@ -385,6 +385,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { viewsService } from '@/services/viewsService'
+import { getSectorNames } from '@/services/sectorsService'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -449,27 +450,16 @@ const countries = computed(() => {
   return ['Tous les pays', ...uniqueCountries.sort()]
 })
 
+// Secteurs chargés depuis la BDD (source unique)
+const sectorsFromDB = ref([])
+
 const sectors = computed(() => {
-  // Secteurs d'expertise ciblés
-  const targetedSectors = [
-    'Agroalimentaire',
-    'Bilan carbone',
-    'Communication d\'impact',
-    'Éco-matériaux',
-    'Écotourisme',
-    'Équipementiers',
-    'Gestion des déchets',
-    'RSE/ESG',
-    'Transformation agroalimentaire',
-    'Autres'
-  ]
-  
-  // Ajouter les secteurs existants des profils
-  const allSectors = allProfiles.value
+  // Combiner les secteurs de la BDD avec ceux des profils
+  const profileSectors = allProfiles.value
     .flatMap(p => Array.isArray(p.sectors) ? p.sectors : [])
     .filter(sector => sector && sector.trim() !== '')
   
-  const uniqueSectors = [...new Set([...targetedSectors, ...allSectors])]
+  const uniqueSectors = [...new Set([...sectorsFromDB.value, ...profileSectors])]
   
   // Trier par ordre alphabétique, mais garder "Autres" à la fin
   return uniqueSectors.sort((a, b) => {
@@ -688,7 +678,8 @@ const handleMessage = (profile) => {
 }
 
 // Initialize
-onMounted(() => {
+onMounted(async () => {
+  sectorsFromDB.value = await getSectorNames()
   loadProfiles()
 })
 </script>

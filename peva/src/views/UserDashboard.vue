@@ -62,7 +62,7 @@
         @click.stop="rail = !rail"
       ></v-app-bar-nav-icon>
 
-      <v-app-bar-title>PEVA - Économie Verte</v-app-bar-title>
+      <v-app-bar-title>2iE GreenHub</v-app-bar-title>
 
       <v-spacer></v-spacer>
 
@@ -413,6 +413,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { connectionService } from '@/services/connectionService'
+import supabase from '@/lib/supabase'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -469,33 +470,33 @@ const menuItems = ref([
   }
 ])
 
-// Quick stats
+// Quick stats - chargées depuis la BDD
 const quickStats = ref([
   {
     id: 1,
     label: 'Opportunités Vues',
-    value: '24',
+    value: '0',
     icon: 'mdi-eye',
     color: 'blue'
   },
   {
     id: 2,
     label: 'Candidatures',
-    value: '8',
+    value: '0',
     icon: 'mdi-send',
     color: 'green'
   },
   {
     id: 3,
     label: 'Connexions',
-    value: '156',
+    value: '0',
     icon: 'mdi-account-group',
     color: 'purple'
   },
   {
     id: 4,
     label: 'Formations',
-    value: '3',
+    value: '0',
     icon: 'mdi-school',
     color: 'orange'
   }
@@ -611,40 +612,65 @@ const quickAcceptConnection = async (request) => {
   }
 }
 
-const loadConnectionData = async () => {
+// Charger les statistiques depuis Supabase
+const loadDashboardStats = async () => {
   try {
-    // TODO: Charger les vraies données depuis l'API
-    // const userId = authStore.user?.id
-    // if (userId) {
-    //   const connections = await connectionService.getConnections(userId)
-    //   const received = await connectionService.getReceivedRequests(userId)
-    //   const sent = await connectionService.getSentRequests(userId)
-    //   
-    //   connectionStats.value = {
-    //     active: connections.length,
-    //     pending: sent.filter(r => r.status === 'pending').length,
-    //     received: received.filter(r => r.status === 'pending').length
-    //   }
-    //   
-    //   // Combiner et trier les demandes récentes
-    //   const allRequests = [
-    //     ...received.map(r => ({ ...r, type: 'received' })),
-    //     ...sent.map(r => ({ ...r, type: 'sent' }))
-    //   ]
-    //   recentConnectionRequests.value = allRequests
-    //     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    //     .slice(0, 4)
-    // }
-    
-    console.log('Données de connexion chargées (mock)')
+    const userId = authStore.user?.id
+    if (!userId) return
+
+    // Charger les stats en parallèle
+    const [
+      { count: opportunitiesViewed },
+      { count: applicationsCount },
+      { count: connectionsCount },
+      { count: trainingsCount }
+    ] = await Promise.all([
+      supabase.from('pev_opportunity_views').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabase.from('pev_opportunity_applications').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabase.from('pev_connections').select('*', { count: 'exact', head: true })
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
+        .eq('status', 'accepted'),
+      supabase.from('pev_event_participants').select('*', { count: 'exact', head: true }).eq('user_id', userId)
+    ])
+
+    // Mettre à jour les stats
+    quickStats.value[0].value = String(opportunitiesViewed || 0)
+    quickStats.value[1].value = String(applicationsCount || 0)
+    quickStats.value[2].value = String(connectionsCount || 0)
+    quickStats.value[3].value = String(trainingsCount || 0)
+
+    // Charger les stats de connexion
+    const [
+      { count: activeConnections },
+      { count: pendingSent },
+      { count: pendingReceived }
+    ] = await Promise.all([
+      supabase.from('pev_connections').select('*', { count: 'exact', head: true })
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
+        .eq('status', 'accepted'),
+      supabase.from('pev_connections').select('*', { count: 'exact', head: true })
+        .eq('requester_id', userId)
+        .eq('status', 'pending'),
+      supabase.from('pev_connections').select('*', { count: 'exact', head: true })
+        .eq('addressee_id', userId)
+        .eq('status', 'pending')
+    ])
+
+    connectionStats.value = {
+      active: activeConnections || 0,
+      pending: pendingSent || 0,
+      received: pendingReceived || 0
+    }
+
+    console.log('Stats chargées depuis Supabase')
   } catch (error) {
-    console.error('Erreur lors du chargement des connexions:', error)
+    console.error('Erreur lors du chargement des stats:', error)
   }
 }
 
 onMounted(async () => {
   console.log('Dashboard utilisateur chargé')
-  await loadConnectionData()
+  await loadDashboardStats()
 })
 </script>
 

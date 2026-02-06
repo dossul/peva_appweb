@@ -4,11 +4,9 @@
       <!-- Header -->
       <div class="text-center mb-8">
         <div class="d-flex align-center justify-center mb-4">
-          <div class="mx-auto d-flex align-center justify-center rounded-circle elevation-4" style="height: 64px; width: 64px; background: linear-gradient(135deg, #4ade80 0%, #10b981 100%);">
-            <v-icon size="32" color="white">mdi-leaf</v-icon>
-          </div>
+          <img src="https://app.2iegreenhub.org/assets/logo_2ie_greenhub-D0lisDSr.png" alt="2iE GreenHub" style="height: 80px; width: auto;" />
         </div>
-        <h1 class="text-h3 font-weight-black text-grey-darken-4 mb-2">Bienvenue sur PEVA</h1>
+        <h1 class="text-h3 font-weight-black text-grey-darken-4 mb-2">Bienvenue sur 2iE GreenHub</h1>
         <p class="text-body-1 text-grey-darken-2">Plateforme de l'Économie Verte en Afrique</p>
         <p class="text-body-2 text-grey-darken-1 mt-2">Configurons votre profil en quelques étapes simples</p>
       </div>
@@ -161,12 +159,12 @@
                 <div class="text-center mb-6">
                   <v-icon size="48" color="warning" class="mb-3">mdi-target</v-icon>
                   <h2 class="text-h5 font-weight-bold text-grey-darken-3 mb-2">Vos objectifs</h2>
-                  <p class="text-body-1 text-grey-darken-2">Comment PEVA peut vous aider</p>
+                  <p class="text-body-1 text-grey-darken-2">Comment 2iE GreenHub peut vous aider</p>
                 </div>
                 
                 <v-form ref="objectivesForm" v-model="objectivesValid">
                   <div class="mb-6 px-4">
-                    <h3 class="text-h6 font-weight-medium text-grey-darken-3 mb-4">Que souhaitez-vous accomplir sur PEVA ?</h3>
+                    <h3 class="text-h6 font-weight-medium text-grey-darken-3 mb-4">Que souhaitez-vous accomplir sur 2iE GreenHub ?</h3>
                     <v-checkbox
                       v-for="goal in platformGoals"
                       :key="goal.value"
@@ -349,6 +347,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { getSectorNames } from '@/services/sectorsService'
 import AppCard from '@/components/ui/AppCard.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 
@@ -378,7 +377,7 @@ const onboardingData = ref({
   phone: '',
   country: '',
   location: '',
-            city: '',
+  city: '',
   userType: '',
   organization: '',
   position: '',
@@ -448,13 +447,8 @@ const userTypes = [
   { title: 'Institution de recherche/Université', value: 'research' }
 ]
 
-const greenSectors = [
-  'Agroalimentaire', 'Agriculture durable', 'Énergies renouvelables', 
-  'Gestion des déchets', 'Eau et assainissement', 'Transport durable', 
-  'Construction verte', 'Économie circulaire', 'Biodiversité et conservation', 
-  'Financement vert', 'Technologies propres', 'Éducation environnementale', 
-  'Écotourisme'
-]
+// Secteurs chargés depuis la BDD (source unique)
+const greenSectors = ref([])
 
 const platformGoals = [
   { text: 'Trouver des partenaires pour mes projets', value: 'find_partners' },
@@ -617,6 +611,9 @@ const completeOnboarding = async () => {
 
 // Initialisation
 onMounted(async () => {
+  // Charger les secteurs depuis la BDD
+  greenSectors.value = await getSectorNames()
+  
   // Attendre que l'auth store soit initialisé
   if (!authStore.initialized) {
     await authStore.initialize()

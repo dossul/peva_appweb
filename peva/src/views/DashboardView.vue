@@ -321,8 +321,8 @@
                     <v-list-item-title class="text-subtitle-2">{{ opportunity.title }}</v-list-item-title>
                     <v-list-item-subtitle>{{ opportunity.company }} - {{ opportunity.location }}</v-list-item-subtitle>
                     <template v-slot:append>
-                      <v-chip size="x-small" :color="opportunity.type === 'job' ? 'success' : 'info'">
-                        {{ opportunity.type === 'job' ? 'Emploi' : 'Stage' }}
+                      <v-chip size="x-small" :color="getOpportunityTypeColor(opportunity.type)">
+                        {{ getOpportunityTypeLabel(opportunity.type) }}
                       </v-chip>
                     </template>
                   </v-list-item>
@@ -497,7 +497,35 @@ const opportunities = ref([])
 // Données des objectifs ODD - chargées depuis la BDD
 const sdgGoals = ref([])
 
-// Fonctions utilitaires
+// Fonctions utilitaires pour les types d'opportunités
+const getOpportunityTypeColor = (type) => {
+  const colors = {
+    'appels_projets': 'blue',
+    'stages': 'green',
+    'theses': 'purple',
+    'fundraising': 'orange',
+    'emplois': 'teal',
+    'vente_equipements': 'indigo',
+    'vente_matieres': 'pink',
+    'idees_business': 'amber'
+  }
+  return colors[type] || 'grey'
+}
+
+const getOpportunityTypeLabel = (type) => {
+  const labels = {
+    'appels_projets': 'Appels à projets',
+    'stages': 'Stages',
+    'theses': 'Thèses',
+    'fundraising': 'Fundraising',
+    'emplois': 'Emplois',
+    'vente_equipements': 'Vente équipements',
+    'vente_matieres': 'Vente matières',
+    'idees_business': 'Idées business'
+  }
+  return labels[type] || type
+}
+
 const navigateTo = (route) => {
   // Navigation vers les différentes sections
   console.log('Navigation vers:', route)
